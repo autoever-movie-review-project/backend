@@ -1,0 +1,93 @@
+management:
+  health:
+    diskspace:
+      enabled: true
+    default:
+      enabled: true
+    db:
+      enabled: true
+  servlet:
+    context-path: /manage
+spa:
+  default-file: /dist/index.html5
+spring:
+  web:
+    resources:
+      static-locations: classpath:/dist/
+      add-mappings: false
+  jpa:
+    properties:
+      hibernate:
+        format_sql: true
+        show_sql: true
+    hibernate:
+      ddl-auto: none
+    defer-datasource-initialization: true
+  sql:
+    init:
+      mode: never
+  datasource:
+    url: jdbc:mariadb://mariadb:3306/project
+    username: root
+    password: richminime
+    driver-class-name: org.mariadb.jdbc.Driver
+  data:
+    web:
+      pageable:
+        one-indexed-parameters: true
+  mvc:
+    throw-exception-if-no-handler-found: true
+  devtools:
+    livereload:
+      enabled: "true"
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: 2222@gmail.com
+    password: '11111'
+    properties:
+      mail.smtp.auth: true
+      mail.smtp.starttls.enable: true
+  redis:
+    host: redis
+    port: 6379
+logging:
+  level:
+    org:
+      hibernate.SQL: DEBUG
+      hibernate.type.descriptor.sql.BasicBinder: TRACE
+      spring.boot: DEBUG
+      spring.security: DEBUG
+      spring.web: DEBUG
+      apache.tiles: INFO
+    root: INFO
+    com.samsung.security: DEBUG
+server:
+  error:
+    include-stacktrace: never
+  servlet:
+    encoding:
+      enabled: true
+      force: true
+      charset: UTF-8
+    contextPath: /api
+  address: 0.0.0.0
+  port: 8083
+  compression:
+    enabled: true
+    mime-types: application/json,application/xml,text/html,text/xml,text/plain,application/javascript,text/css
+build:
+  date: "@build.date@"
+jwt:
+  refresh-expired-in: '1296000000'  # Refresh Token 만료 시간 (15일)
+  access-expired-in: '3600000' # Access Token 만료 시간 (1시간)
+  cookieName: refresh-token
+  secret:
+springfox:
+  documentation:
+    swagger:
+      use-model-v3: false
+rsa:
+  private-key:
+  public-key:
+
