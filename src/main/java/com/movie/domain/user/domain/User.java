@@ -6,11 +6,8 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.ColumnDefault;
-import org.hibernate.annotations.Entity;
 
 import javax.persistence.*;
-
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -31,8 +28,7 @@ public class User {
     @Column(length = 20, nullable = false)
     private String nickname;
 
-    @Column(nullable = false, columnDefinition = "varchar(50)")
-    @ColumnDefault("ROLE_USER")
+    @Column(nullable = false, columnDefinition = "varchar(50) default 'ROLE_USER'")
     @Enumerated(EnumType.STRING)
     private UserType userType;
 
@@ -41,7 +37,7 @@ public class User {
         this.email = email;
         this.password = password;
         this.nickname = nickname;
-        this.userType = userType;
+        this.userType = userType != null ? userType : UserType.ROLE_USER;
     }
 
     //회원 정보 업데이트

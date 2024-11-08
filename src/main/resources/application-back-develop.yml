@@ -8,8 +8,10 @@ management:
       enabled: true
   servlet:
     context-path: /manage
+
 spa:
   default-file: /dist/index.html5
+
 spring:
   web:
     resources:
@@ -58,6 +60,9 @@ spring:
     host: localhost
     port: 6379
     password:
+    ttls:
+      user-info: 60000  # 추가된 항목: UserInfo TTL 설정 (예: 60초)
+
 logging:
   level:
     org:
@@ -69,6 +74,7 @@ logging:
       apache.tiles: INFO
     root: INFO
     com.samsung.security: DEBUG
+
 server:
   error:
     include-stacktrace: never
@@ -83,18 +89,21 @@ server:
   compression:
     enabled: true
     mime-types: application/json,application/xml,text/html,text/xml,text/plain,application/javascript,text/css
+
 build:
   date: "@build.date@"
+
 jwt:
   refresh-expired-in: '1296000000'  # Refresh Token 만료 시간 (15일)
-  access-expired-in: '3600000' # Access Token 만료 시간 (1시간)
+  access-expired-in: '3600000'       # Access Token 만료 시간 (1시간)
   cookieName: refresh-token
-  secret:
+  secret: oheunsoloheunsoloheunsoloheunsoloheunsoloheunsoloheunsoloheunsoloheunsoloheunsoloheunsol
+
 springfox:
   documentation:
     swagger:
       use-model-v3: false
+
 rsa:
   private-key:
   public-key:
-
