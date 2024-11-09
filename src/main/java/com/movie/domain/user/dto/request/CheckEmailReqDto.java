@@ -5,7 +5,6 @@ import lombok.Data;
 
 @Data
 @Builder
-public class UpdateUserReqDto {
-    private String nickname;
-    private String profile;
+public class CheckEmailReqDto {
+    private String email;
 }
