@@ -7,10 +7,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.ColumnDefault;
-import org.hibernate.annotations.Entity;
 
 import javax.persistence.*;
-
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -31,25 +29,32 @@ public class User {
     @Column(length = 20, nullable = false)
     private String nickname;
 
-    @Column(nullable = false, columnDefinition = "varchar(50)")
-    @ColumnDefault("ROLE_USER")
+    @Column(nullable = false, columnDefinition = "varchar(50) default 'ROLE_USER'")
     @Enumerated(EnumType.STRING)
     private UserType userType;
 
+    @Column
+    private String profile;
+
+    @Column(nullable = false)
+    @ColumnDefault("0")
+    private Integer points = 0;
+
     @Builder
-    public User(String email, String password, String nickname, UserType userType) {
+    public User(String email, String password, String nickname, UserType userType, String profile, Integer points) {
         this.email = email;
         this.password = password;
         this.nickname = nickname;
-        this.userType = userType;
+        this.userType = (userType != null) ? userType : UserType.ROLE_USER;
+        this.profile = profile;
+        this.points = (points != null) ? points : 0;
     }
 
-    //회원 정보 업데이트
     public void updateUser(UpdateUserReqDto updateUserReqDto) {
         this.nickname = updateUserReqDto.getNickname();
+        this.profile = updateUserReqDto.getProfile();
     }
 
-    //비밀번호 변경
     public void updatePassword(String encryptedPassword) {
         this.password = encryptedPassword;
     }

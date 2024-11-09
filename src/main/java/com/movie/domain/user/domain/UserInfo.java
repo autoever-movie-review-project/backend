@@ -5,7 +5,7 @@ import lombok.*;
 import org.springframework.data.redis.core.RedisHash;
 import org.springframework.data.redis.core.TimeToLive;
 
-import javax.persistence.Id;
+import org.springframework.data.annotation.Id;
 import java.util.concurrent.TimeUnit;
 
 @Getter
