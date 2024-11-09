@@ -49,24 +49,24 @@ public class CustomAuthenticationFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
-        try {
-            Token token = resolveAccessToken(request);
-
-            // Access Token이 유효한 경우 SecurityContext에 인증 정보를 설정합니다.
-            if (token != null && jwtTokenProvider.validateToken(token.getToken())) {
-                Authentication authentication = jwtTokenProvider.getAuthentication(token.getToken());
-                SecurityContextHolder.getContext().setAuthentication(authentication);
-
-                // Access Token이 만료된 경우 Refresh Token을 사용해 Access Token을 재발급합니다.
-            } else if (token != null && !jwtTokenProvider.validateToken(token.getToken())) {
-                handleExpiredAccessToken(request, response);
-                return;
-            }
-
-            filterChain.doFilter(request, response);
-        } catch (TokenException e) {
-            makeTokenExceptionResponse(response, e);
-        }
+//        try {
+//            Token token = resolveAccessToken(request);
+//
+//            // Access Token이 유효한 경우 SecurityContext에 인증 정보를 설정합니다.
+//            if (token != null && jwtTokenProvider.validateToken(token.getToken())) {
+//                Authentication authentication = jwtTokenProvider.getAuthentication(token.getToken());
+//                SecurityContextHolder.getContext().setAuthentication(authentication);
+//
+//                // Access Token이 만료된 경우 Refresh Token을 사용해 Access Token을 재발급합니다.
+//            } else if (token != null && !jwtTokenProvider.validateToken(token.getToken())) {
+//                handleExpiredAccessToken(request, response);
+//                return;
+//            }
+//
+//            filterChain.doFilter(request, response);
+//        } catch (TokenException e) {
+//            makeTokenExceptionResponse(response, e);
+//        }
     }
 
     /**
