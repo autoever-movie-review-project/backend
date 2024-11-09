@@ -2,12 +2,14 @@ plugins {
     id 'java'
     id 'org.springframework.boot' version '2.7.15'
     id 'io.spring.dependency-management' version '1.0.15.RELEASE'
-    id "com.ewerk.gradle.plugins.querydsl" version "1.0.10"
 }
 
 group = 'com.movie'
 version = '1.0-SNAPSHOT'
 
+repositories {
+    mavenCentral()
+}
 
 configurations {
     compileOnly {
@@ -15,11 +17,8 @@ configurations {
     }
 }
 
-repositories {
-    mavenCentral()
-}
-
 dependencies {
+    // Spring Boot Starters
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
     implementation 'org.springframework.boot:spring-boot-starter-validation'
@@ -27,59 +26,45 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-mail'
     implementation 'org.springframework.boot:spring-boot-starter-webflux'
-    implementation group: 'org.glassfish', name: 'javax.json', version: '1.0.4'
 
+    implementation 'org.glassfish:javax.json:1.0.4'
 
-    compileOnly 'org.projectlombok:lombok'
-    developmentOnly 'org.springframework.boot:spring-boot-devtools'
-    runtimeOnly 'com.h2database:h2:1.4.200'
-    runtimeOnly 'com.h2database:h2'
-    annotationProcessor 'org.projectlombok:lombok'
-    testImplementation 'org.springframework.boot:spring-boot-starter-test'
-    testImplementation 'org.springframework.security:spring-security-test'
-    //jwt
-    runtimeOnly group: 'io.jsonwebtoken', name: 'jjwt-impl', version: '0.11.2'
-    implementation group: 'io.jsonwebtoken', name: 'jjwt-api', version: '0.11.2'
-    runtimeOnly group: 'io.jsonwebtoken', name: 'jjwt-jackson', version: '0.11.2'
     //Swagger
-//	implementation 'org.springframework.boot:spring-boot-starter-web' 이거 지우고 아래로 변경
     implementation 'org.springdoc:springdoc-openapi-ui:1.6.9'
 
+    // Lombok
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
-    //querydsl
+
+    // H2 Database
+    runtimeOnly 'com.h2database:h2:1.4.200'
+
+    // JWT
+    runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.2'
+    implementation 'io.jsonwebtoken:jjwt-api:0.11.2'
+    runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.2'
+
+    // QueryDSL
     implementation "com.querydsl:querydsl-jpa:5.0.0"
     implementation "com.querydsl:querydsl-apt:5.0.0"
-    // webflux
-    implementation 'org.springframework.boot:spring-boot-starter-webflux'
 
-    //mariadb
+    // MariaDB
     implementation 'org.mariadb.jdbc:mariadb-java-client:3.2.0'
+
+    // Testing
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.springframework.security:spring-security-test'
 }
 
-def querydslDir = "$buildDir/generated/querydsl"
-
-querydsl {
-    jpa = true
-    querydslSourcesDir = querydslDir
-}
+def querydslDir = file("$buildDir/generated/querydsl")
 
 sourceSets {
     main.java.srcDir querydslDir
-    test.java.srcDir querydslDir
 }
 
-compileQuerydsl {
-    options.annotationProcessorPath = configurations.querydsl
+tasks.withType(JavaCompile) {
+    options.annotationProcessorGeneratedSourcesDirectory = querydslDir
 }
-
-configurations {
-    compileOnly {
-        extendsFrom annotationProcessor
-    }
-    querydsl.extendsFrom compileClasspath
-}
-
 
 tasks.named('test') {
     useJUnitPlatform()
