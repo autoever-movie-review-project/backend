@@ -1,5 +1,6 @@
 package com.movie.domain.user.domain;
 
+import com.movie.domain.rank.domain.Rank;
 import com.movie.domain.user.constant.UserType;
 import com.movie.domain.user.dto.request.UpdateUserReqDto;
 import lombok.AccessLevel;
@@ -40,14 +41,19 @@ public class User {
     @ColumnDefault("0")
     private Integer points = 0;
 
+    @ManyToOne
+    @JoinColumn(name = "rank_id")
+    private Rank rank;
+
     @Builder
-    public User(String email, String password, String nickname, UserType userType, String profile, Integer points) {
+    public User(String email, String password, String nickname, UserType userType, String profile, Integer points, Rank rank) {
         this.email = email;
         this.password = password;
         this.nickname = nickname;
         this.userType = (userType != null) ? userType : UserType.ROLE_USER;
         this.profile = profile;
         this.points = (points != null) ? points : 0;
+        this.rank = rank;
     }
 
     public void updateUser(UpdateUserReqDto updateUserReqDto) {
