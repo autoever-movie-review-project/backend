@@ -27,10 +27,9 @@ spring:
     init:
       mode: never
   datasource:
-    url: jdbc:mariadb://mariadb:3306/project
-    username: root
-    password: richminime
-    driver-class-name: org.mariadb.jdbc.Driver
+    url: ${spring.datasource.url}
+    username: ${spring.datasource.username}
+    password: ${spring.datasource.password}
   data:
     web:
       pageable:
@@ -43,14 +42,14 @@ spring:
   mail:
     host: smtp.gmail.com
     port: 587
-    username: 2222@gmail.com
-    password: '11111'
+    username: ${spring.mail.username}
+    password: ${spring.mail.password}
     properties:
       mail.smtp.auth: true
       mail.smtp.starttls.enable: true
   redis:
-    host: redis
-    port: 6379
+    host: ${spring.redis.host}
+    port: ${spring.redis.port}
 logging:
   level:
     org:
@@ -82,12 +81,9 @@ jwt:
   refresh-expired-in: '1296000000'  # Refresh Token 만료 시간 (15일)
   access-expired-in: '3600000' # Access Token 만료 시간 (1시간)
   cookieName: refresh-token
-  secret:
+  secret: ${jwt.secret}
 springfox:
   documentation:
     swagger:
       use-model-v3: false
-rsa:
-  private-key:
-  public-key:
 
