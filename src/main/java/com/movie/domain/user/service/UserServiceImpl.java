@@ -12,7 +12,7 @@ import com.movie.domain.user.domain.LogoutAccessToken;
 import com.movie.domain.user.domain.User;
 import com.movie.domain.user.dto.request.LoginReqDto;
 import com.movie.domain.user.dto.request.UpdatePasswordReqDto;
-import com.movie.domain.user.dto.request.UserInfoReqDto;
+import com.movie.domain.user.dto.request.SignUpReqDto;
 import com.movie.domain.user.dto.response.LoginResDto;
 import com.movie.domain.user.dto.response.TokenInfo;
 import com.movie.domain.user.dto.response.UserInfoResDto;
@@ -48,7 +48,7 @@ public class UserServiceImpl implements UserService {
 
 
     @Override
-    public void signUp(UserInfoReqDto userInfoReqDto) {
+    public void signUp(SignUpReqDto userInfoReqDto) {
         //이메일 중복 검사
         String email = userInfoReqDto.getEmail();
         log.info("[회원가입] 회원가입 요청. email : {}", email);
@@ -143,7 +143,7 @@ public class UserServiceImpl implements UserService {
         return true;
     }
 
-    private Boolean checkSignupInfo(UserInfoReqDto userInfoReqDto) {
+    private Boolean checkSignupInfo(SignUpReqDto userInfoReqDto) {
         if (userInfoReqDto.getEmail() == null || userInfoReqDto.getEmail().equals("") ||
                 userInfoReqDto.getPassword() == null || userInfoReqDto.getPassword().equals("") ||
                 userInfoReqDto.getNickname() == null || userInfoReqDto.getNickname().equals("")) {
