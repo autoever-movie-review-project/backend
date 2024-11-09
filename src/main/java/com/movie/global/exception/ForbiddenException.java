@@ -1,6 +1,6 @@
 package com.movie.global.exception;
 
-public class ForbiddenException extends RuntimeException {
+public class ForbiddenException extends SecurityException {
     public ForbiddenException(String message) {
         super(message);
     }
