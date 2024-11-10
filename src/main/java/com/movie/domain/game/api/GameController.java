@@ -15,6 +15,7 @@ public class GameController {
     private final GameService gameService;
     private final PlayerService playerService;
 
+    // 게임 방 생성
     @PostMapping("/game")
     public ResponseEntity<?> createGame(
             @RequestBody CreateGameReqDto reqDto
@@ -23,6 +24,7 @@ public class GameController {
         return ResponseEntity.ok(savedGame);
     }
 
+    // 게임 방 참여
     @PostMapping("/game/{gameId}/join")
     public ResponseEntity<?> joinGame(
             @PathVariable Long gameId
@@ -33,6 +35,7 @@ public class GameController {
         return ResponseEntity.ok(player);
     }
 
+    // 게임 방 나가기
     @DeleteMapping("/game/{gameId}/exit")
     public ResponseEntity<?> exitGame(
             @PathVariable Long gameId

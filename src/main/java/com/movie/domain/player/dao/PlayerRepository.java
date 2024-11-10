@@ -5,4 +5,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface PlayerRepository extends JpaRepository<Player, Long> {
     Player findByUserId(Long userId);
+
+    boolean existByGameId(Long gameId);
 }
