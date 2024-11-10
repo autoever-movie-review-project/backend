@@ -1,8 +1,13 @@
 package com.movie.domain.player.service;
 
 import com.movie.domain.game.dao.GameRepository;
+import com.movie.domain.game.domain.Game;
+import com.movie.domain.game.domain.GameStatus;
+import com.movie.domain.game.exception.GameIdNotFoundException;
 import com.movie.domain.player.dao.PlayerRepository;
 import com.movie.domain.player.domain.Player;
+import com.movie.domain.player.exception.GameAlreadyStartedException;
+import com.movie.domain.player.exception.GameRoomFullException;
 import com.movie.domain.user.domain.User;
 import com.movie.global.security.util.SecurityUtils;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +26,21 @@ public class PlayerService {
         // 로그인 된 유저 불러오기
         User loggedInUser = securityUtils.getLoginUser();
 
+        // 게임 방의 인원이 다 찼는지에 대한 검증
+        // 게임이 시작 상태인지에 대한 검증
+        Game game = gameRepository.findById(gameId)
+                .orElseThrow(GameIdNotFoundException::new);
+
+        // 게임 상태 검증: 게임이 이미 시작된 경우 예외 발생
+        if (game.getStatus().equals(GameStatus.STARTED)) {
+            throw new GameAlreadyStartedException("게임이 이미 시작되었습니다. 입장할 수 없습니다.");
+        }
+
+        // 인원 검증: 최대 인원에 도달한 경우 예외 발생
+        if (game.getPlayerCount() >= game.getMaxPlayer()) {
+            throw new GameRoomFullException("게임 방의 인원이 다 찼습니다. 입장할 수 없습니다.");
+        }
+
         // 유저의 Id를 불러온 뒤 Player entity 생성
         Player player = Player.builder()
                 .gameId(gameId)
@@ -28,6 +48,10 @@ public class PlayerService {
                 .build();
 
         playerRepository.save(player);
+
+        game.setPlayerCount();
+
+        gameRepository.save(game);
 
         return player;
     }

@@ -45,4 +45,14 @@ public class GameController {
         return ResponseEntity.ok("게임 나가기 완료");
     }
 
+    //게임 시작
+    @PostMapping("/game/{gameId}/start")
+    public ResponseEntity<?> startGame(
+            @PathVariable Long gameId
+    ) {
+        gameService.update(gameId);
+
+        return ResponseEntity.ok("게임 시작, 방 상태 변경");
+    }
+
 }
