@@ -23,22 +23,22 @@ public class Game {
     @Enumerated(EnumType.STRING)
     private GameStatus status;
 
-    private Integer maxPlayer;
-    private Integer playerCount;
+    private Long maxPlayer;
+    private Long playerCount;
 
     public void gameStart() {
         this.status = GameStatus.STARTED;
-    }
-
-    public void gameEnd() {
-        this.status = GameStatus.FINISHED;
     }
 
     public void gameWait() {
         this.status = GameStatus.WAITING;
     }
 
-    public void setPlayerCount() {
+    public void setPlayerCountUp() {
         this.playerCount = this.playerCount + 1;
+    }
+
+    public void setPlayerCountDown() {
+        this.playerCount = this.playerCount - 1;
     }
 }

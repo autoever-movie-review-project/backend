@@ -2,6 +2,7 @@ package com.movie.domain.game.api;
 
 import com.movie.domain.game.domain.Game;
 import com.movie.domain.game.dto.request.CreateGameReqDto;
+import com.movie.domain.game.dto.response.GetGameDetailResDto;
 import com.movie.domain.game.service.GameService;
 import com.movie.domain.player.domain.Player;
 import com.movie.domain.player.service.PlayerService;
@@ -30,9 +31,9 @@ public class GameController {
             @PathVariable Long gameId
     ) {
 
-        Player player = playerService.save(gameId);
+        playerService.save(gameId);
 
-        return ResponseEntity.ok(player);
+        return ResponseEntity.ok("게임 참가 완료");
     }
 
     // 게임 방 나가기
@@ -53,6 +54,22 @@ public class GameController {
         gameService.update(gameId);
 
         return ResponseEntity.ok("게임 시작, 방 상태 변경");
+    }
+
+//@GetMapping("/game")
+//public ResponseEntity<?> getGame() {
+//
+//}
+
+
+
+    @GetMapping("/game/{gameId}/wait")
+    public ResponseEntity<?> getGameById(
+            @PathVariable Long gameId
+    ) {
+        GetGameDetailResDto getGameDetailResDto = gameService.getGameDetail(gameId);
+
+        return ResponseEntity.ok(getGameDetailResDto);
     }
 
 }

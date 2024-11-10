@@ -22,7 +22,7 @@ public class PlayerService {
     private final GameRepository gameRepository;
 
     @Transactional
-    public Player save(Long gameId) {
+    public void save(Long gameId) {
         // 로그인 된 유저 불러오기
         User loggedInUser = securityUtils.getLoginUser();
 
@@ -49,11 +49,10 @@ public class PlayerService {
 
         playerRepository.save(player);
 
-        game.setPlayerCount();
+        game.setPlayerCountUp();
 
         gameRepository.save(game);
 
-        return player;
     }
 
     @Transactional
@@ -74,5 +73,13 @@ public class PlayerService {
             gameRepository.deleteById(gameId);
 
         };
+
+        // Game의 참여중인 player의 수 -1 하는 로직 구현
+        Game game = gameRepository.findById(gameId)
+                .orElseThrow(GameIdNotFoundException::new);
+
+        game.setPlayerCountDown();
+
+        gameRepository.save(game);
     }
 }
