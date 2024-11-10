@@ -1,23 +1,23 @@
-package com.movie.domain.gameroom.domain;
+package com.movie.domain.player.domain;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 
 @Entity
+@Table
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Table
-public class GameRoom {
+@Getter
+public class Player {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private Long hostId;
-    private String title;
-    private String status;
-    private Integer maxPlayer;
-    private Integer playerCount;
+
+    private Long gameId;
+    private Long userId;
 }
