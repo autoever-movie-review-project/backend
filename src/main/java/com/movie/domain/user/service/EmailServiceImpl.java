@@ -40,7 +40,7 @@ public class EmailServiceImpl implements EmailService {
      */
     @Transactional
     @Override
-    public void sendEmailCode(CheckEmailReqDto checkEmailReqDto) {
+    public void sendEmailCode(String email) {
         // 임의의 authKey 생성
         if (random == null) random = new Random();
         String authKey = String.valueOf(random.nextInt(888888) + 111111);
@@ -51,7 +51,7 @@ public class EmailServiceImpl implements EmailService {
         try {
             MimeMessage mimeMessage = javaMailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, "utf-8");
-            helper.setTo(checkEmailReqDto.getEmail()); //메일 수신자 설정
+            helper.setTo(email); //메일 수신자 설정
             helper.setSubject(subject); // 메일 제목 설정
             helper.setText(text, true); // HTML이라는 의미로 true.
 
@@ -64,9 +64,9 @@ public class EmailServiceImpl implements EmailService {
         ValueOperations<String, Object> valueOperations = redisTemplate.opsForValue();
 
         // 유효 시간(5분)동안 {email, authKey} 저장
-        valueOperations.set(checkEmailReqDto.getEmail(), authKey, 60 * 5L, TimeUnit.SECONDS);
+        valueOperations.set(email, authKey, 60 * 5L, TimeUnit.SECONDS);
 
-        log.info("[이메일 발신] 이메일 발신 성공. email : {}, code : {}", checkEmailReqDto.getEmail(), authKey);
+        log.info("[이메일 발신] 이메일 발신 성공. email : {}, code : {}",email, authKey);
     }
 
     /**
@@ -74,16 +74,17 @@ public class EmailServiceImpl implements EmailService {
      */
     @Transactional
     @Override
-    public CheckResDto checkEmailDuplicated(CheckEmailReqDto checkEmailReqDto) {
-        log.info("[이메일 중복 검사] 중복 검사 요청. email : {}", checkEmailReqDto.getEmail());
-        if (userRepository.findByEmail(checkEmailReqDto.getEmail()).isPresent()) {
+    public CheckResDto checkEmailDuplicated(String email) {
+        log.info("[이메일 중복 검사] 중복 검사 요청. email : {}", email);
+        if (userRepository.findByEmail(email).isPresent()) {
             log.error("[이메일 중복 검사] 이메일 중복.");
             throw new EmailDuplicatedException(EMAIL_DUPLICATED.getMessage());
+
         }
-        log.info("[이메일 중복 검사] 중복 검사 완료.");
-        return CheckResDto.builder()
-                .success(true)
-                .build();
+            log.info("[이메일 중복 검사] 중복 검사 완료.");
+            return CheckResDto.builder()
+                    .success(true)
+                    .build();
     }
 
     /**

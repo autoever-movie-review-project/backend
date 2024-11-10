@@ -54,6 +54,9 @@ dependencies {
     // Testing
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.security:spring-security-test'
+
+    //Redis
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 }
 
 def querydslDir = file("$buildDir/generated/querydsl")

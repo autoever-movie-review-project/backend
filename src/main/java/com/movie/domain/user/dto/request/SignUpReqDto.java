@@ -26,6 +26,7 @@ public class SignUpReqDto {
                 .nickname(nickname)
                 .userType(UserType.ROLE_USER)
                 .profile(profile)
+                .points(0)
                 .rank(defaultRank)
                 .build();
     }
