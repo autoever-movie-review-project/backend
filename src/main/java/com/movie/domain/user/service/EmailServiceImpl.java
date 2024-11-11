@@ -3,7 +3,6 @@ package com.movie.domain.user.service;
 import com.movie.domain.user.constant.EmailExceptionMessage;
 import com.movie.domain.user.dao.UserRepository;
 import com.movie.domain.user.dto.request.CheckEmailCodeReqDto;
-import com.movie.domain.user.dto.request.CheckEmailReqDto;
 import com.movie.domain.user.dto.response.CheckResDto;
 import com.movie.domain.user.exception.EmailCodeNotFoundException;
 import com.movie.domain.user.exception.EmailDuplicatedException;
@@ -31,6 +30,7 @@ public class EmailServiceImpl implements EmailService {
 
     private final UserRepository userRepository;
     private final RedisTemplate<String, Object> redisTemplate;
+
     private final JavaMailSender javaMailSender;
     private Random random;
 
@@ -66,7 +66,7 @@ public class EmailServiceImpl implements EmailService {
         // 유효 시간(5분)동안 {email, authKey} 저장
         valueOperations.set(email, authKey, 60 * 5L, TimeUnit.SECONDS);
 
-        log.info("[이메일 발신] 이메일 발신 성공. email : {}, code : {}",email, authKey);
+        log.info("[이메일 발신] 이메일 발신 성공. email : {}, code : {}", email, authKey);
     }
 
     /**
@@ -81,10 +81,10 @@ public class EmailServiceImpl implements EmailService {
             throw new EmailDuplicatedException(EMAIL_DUPLICATED.getMessage());
 
         }
-            log.info("[이메일 중복 검사] 중복 검사 완료.");
-            return CheckResDto.builder()
-                    .success(true)
-                    .build();
+        log.info("[이메일 중복 검사] 중복 검사 완료.");
+        return CheckResDto.builder()
+                .success(true)
+                .build();
     }
 
     /**

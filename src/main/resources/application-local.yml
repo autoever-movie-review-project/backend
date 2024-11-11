@@ -67,6 +67,7 @@ logging:
       spring.security: DEBUG
       spring.web: DEBUG
       apache.tiles: INFO
+      spring.mail: DEBUG
     root: INFO
     com.samsung.security: DEBUG
 server:
