@@ -32,7 +32,7 @@ spring:
     password: ''
     username: sa
     hikari:
-      jdbc-url: jdbc:h2:tcp://localhost/~/project
+      jdbc-url: jdbc:h2:tcp://localhost/~/test
   h2:
     console:
       path: /h2-console
@@ -49,15 +49,15 @@ spring:
   mail:
     host: smtp.gmail.com
     port: 587
-    username: 2222@gmail.com
-    password: '11111'
+    username: ${secret.mail.username}
+    password: ${secret.mail.password}
     properties:
       mail.smtp.auth: true
       mail.smtp.starttls.enable: true
   redis:
-    host: localhost
-    port: 6379
-    password:
+    host: ${secret.redis.host}
+    port: ${secret.redis.port}
+    password: ${secret.redis.password}
 logging:
   level:
     org:
@@ -89,12 +89,8 @@ jwt:
   refresh-expired-in: '1296000000'  # Refresh Token 만료 시간 (15일)
   access-expired-in: '3600000' # Access Token 만료 시간 (1시간)
   cookieName: refresh-token
-  secret:
+  secret: ${secret-jwt.secret}
 springfox:
   documentation:
     swagger:
       use-model-v3: false
-rsa:
-  private-key:
-  public-key:
-

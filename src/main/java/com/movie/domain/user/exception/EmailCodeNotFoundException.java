@@ -2,8 +2,8 @@ package com.movie.domain.user.exception;
 
 import com.movie.global.exception.NotFoundException;
 
-public class UserNotFoundException extends NotFoundException {
-    public UserNotFoundException(String message) {
+public class EmailCodeNotFoundException extends NotFoundException {
+    public EmailCodeNotFoundException(String message) {
         super(message);
     }
 }

@@ -1,6 +1,7 @@
 package com.movie.domain.user.service;
 
 import com.movie.domain.user.dto.request.CheckEmailCodeReqDto;
+import com.movie.domain.user.dto.request.CheckEmailReqDto;
 import com.movie.domain.user.dto.response.CheckResDto;
 
 public interface EmailService {

@@ -2,14 +2,14 @@ package com.movie.domain.user.domain;
 
 import lombok.Builder;
 import lombok.Getter;
+import org.springframework.data.annotation.Id;
 import org.springframework.data.redis.core.RedisHash;
 import org.springframework.data.redis.core.TimeToLive;
 
-import javax.persistence.Id;
 import java.util.concurrent.TimeUnit;
 
 @Getter
-@RedisHash("refreshToekn")
+@RedisHash("refreshToken")
 public class RefreshToken {
 
     @Id
@@ -18,12 +18,12 @@ public class RefreshToken {
     private String refreshToken;
 
     @TimeToLive(unit = TimeUnit.MILLISECONDS)
-    private Long ttl;
+    private Long expiration;
 
     @Builder
-    public RefreshToken(String email, String refreshToken, Long ttl) {
+    public RefreshToken(String email, String refreshToken, Long expiration) {
         this.email = email;
         this.refreshToken = refreshToken;
-        this.ttl = ttl;
+        this.expiration = expiration;
     }
 }

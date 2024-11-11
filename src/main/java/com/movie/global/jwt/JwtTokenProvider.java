@@ -153,4 +153,19 @@ public class JwtTokenProvider {
             throw new ExpiredTokenException(EXPIRED_TOKEN.getMessage());
         }
     }
+
+    /**
+     * 토큰의 남은 만료 시간을 반환합니다.
+     */
+    public long getRemainingExpiration(String token) {
+        try {
+            Claims claims = Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody();
+            Date expiration = claims.getExpiration();
+            long now = (new Date()).getTime();
+            return expiration.getTime() - now; // 남은 시간
+        } catch (ExpiredJwtException e) {
+            return 0; // 만료된 경우 남은 시간을 0으로 반환
+        }
+    }
+
 }

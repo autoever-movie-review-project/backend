@@ -4,8 +4,7 @@ import lombok.Builder;
 import lombok.Getter;
 import org.springframework.data.redis.core.RedisHash;
 import org.springframework.data.redis.core.TimeToLive;
-
-import javax.persistence.Id;
+import org.springframework.data.annotation.Id;
 
 @Getter
 @RedisHash("logoutAccessToken")
@@ -17,12 +16,12 @@ public class LogoutAccessToken {
     private String accessToken;
 
     @TimeToLive
-    private Long ttl;
+    private Long expiration;
 
     @Builder
-    public LogoutAccessToken(String email, String accessToken, Long ttl) {
+    public LogoutAccessToken(String email, String accessToken, Long expiration) {
         this.email = email;
         this.accessToken = accessToken;
-        this.ttl = ttl;
+        this.expiration = expiration;
     }
 }
