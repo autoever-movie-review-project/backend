@@ -5,7 +5,6 @@ import com.movie.domain.game.domain.Game;
 import com.movie.domain.game.domain.GameStatus;
 import com.movie.domain.game.dto.request.CreateGameReqDto;
 import com.movie.domain.game.dto.response.GetGameDetailResDto;
-import com.movie.domain.game.dto.response.GetGameResDto;
 import com.movie.domain.game.exception.GameIdNotFoundException;
 import com.movie.domain.player.dao.PlayerRepository;
 import com.movie.domain.player.domain.Player;
@@ -78,7 +77,7 @@ public class GameService {
         List<User> users = new ArrayList<>();
 
         for(Player p : player) {
-            User u = userRepository.findById(p.getUserId())
+            User u = userRepository.findById(p.getUser().getUserId())
                     .orElseThrow(() -> new UserIdNotFoundException("user Id를 찾을 수 없습니다"));
             users.add(u);
         }

@@ -4,7 +4,6 @@ import com.movie.domain.game.domain.Game;
 import com.movie.domain.game.dto.request.CreateGameReqDto;
 import com.movie.domain.game.dto.response.GetGameDetailResDto;
 import com.movie.domain.game.service.GameService;
-import com.movie.domain.player.domain.Player;
 import com.movie.domain.player.service.PlayerService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -56,10 +55,10 @@ public class GameController {
         return ResponseEntity.ok("게임 시작, 방 상태 변경");
     }
 
-//@GetMapping("/game")
-//public ResponseEntity<?> getGame() {
-//
-//}
+    @GetMapping("/games")
+    public ResponseEntity<?> getGame() {
+
+    }
 
 
 

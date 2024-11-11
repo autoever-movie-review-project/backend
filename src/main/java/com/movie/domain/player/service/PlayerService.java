@@ -43,8 +43,8 @@ public class PlayerService {
 
         // 유저의 Id를 불러온 뒤 Player entity 생성
         Player player = Player.builder()
-                .gameId(gameId)
-                .userId(loggedInUser.getUserId())
+                .game(game)
+                .user(loggedInUser)
                 .build();
 
         playerRepository.save(player);

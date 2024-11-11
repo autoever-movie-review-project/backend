@@ -1,5 +1,7 @@
 package com.movie.domain.player.domain;
 
+import com.movie.domain.game.domain.Game;
+import com.movie.domain.user.domain.User;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -18,6 +20,11 @@ public class Player {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private Long gameId;
-    private Long userId;
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
+    @JoinColumn(name = "gameId")
+    private Game game;
+
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
+    @JoinColumn(name = "userId")
+    private User user;
 }
