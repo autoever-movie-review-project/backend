@@ -1,6 +1,5 @@
 package com.movie.domain.user.service;
 
-import com.movie.domain.rank.constant.RankName;
 import com.movie.domain.rank.dao.RankRepository;
 import com.movie.domain.rank.domain.Rank;
 import com.movie.domain.user.constant.EmailExceptionMessage;
@@ -12,8 +11,8 @@ import com.movie.domain.user.domain.LogoutAccessToken;
 import com.movie.domain.user.domain.RefreshToken;
 import com.movie.domain.user.domain.User;
 import com.movie.domain.user.dto.request.LoginReqDto;
-import com.movie.domain.user.dto.request.UpdatePasswordReqDto;
 import com.movie.domain.user.dto.request.SignUpReqDto;
+import com.movie.domain.user.dto.request.UpdatePasswordReqDto;
 import com.movie.domain.user.dto.request.UpdateUserReqDto;
 import com.movie.domain.user.dto.response.LoginResDto;
 import com.movie.domain.user.dto.response.TokenInfo;
@@ -64,7 +63,7 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     public void signUp(SignUpReqDto userInfoReqDto) {
-        //이메일 중복 검사
+        // 이메일 중복 검사
         String email = userInfoReqDto.getEmail();
         log.info("[회원가입] 회원가입 요청. email : {}", email);
 
@@ -87,9 +86,9 @@ public class UserServiceImpl implements UserService {
         userInfoReqDto.setPassword(passwordEncoder.encode(userInfoReqDto.getPassword()));
         log.info("[회원가입] 패스워드 암호화 완료.");
 
-        // 기본 포인트 0인 해당 범위의 랭크 찾기
+        // 기본 포인트를 기준으로 Rank 찾기
         Integer defaultPoints = 0;
-        Rank defaultRank = rankRepository.findByStartPointLessThanEqualAndEndPointGreaterThanEqual(defaultPoints)
+        Rank defaultRank = rankRepository.findByPointsBetweenStartAndEnd(defaultPoints)
                 .orElseThrow(() -> new RuntimeException("[회원가입] 기본 Rank를 찾을 수 없습니다."));
 
         User user = userRepository.save(userInfoReqDto.dtoToEntity(defaultRank));

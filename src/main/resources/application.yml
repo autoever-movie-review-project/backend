@@ -1,4 +1,6 @@
 spring:
   profiles:
     active: local
-#    active: develop
+  #    active: prod
+  config:
+    import: application-secret.yml

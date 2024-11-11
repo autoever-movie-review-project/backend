@@ -49,17 +49,16 @@ spring:
   mail:
     host: smtp.gmail.com
     port: 587
-    username: ${spring.mail.username}
-    password: ${spring.mail.password}
+    username: ${secret.mail.username}
+    password: ${secret.mail.password}
     properties:
       mail.smtp.auth: true
       mail.smtp.starttls.enable: true
   redis:
-    host: ${spring.redis.host}
-    port: ${spring.redis.port}
-    password: ${spring.redis.password}
-application-develop:
-  yml:logging:
+    host: ${secret.redis.host}
+    port: ${secret.redis.port}
+    password: ${secret.redis.password}
+logging:
   level:
     org:
       hibernate.SQL: DEBUG
@@ -90,9 +89,8 @@ jwt:
   refresh-expired-in: '1296000000'  # Refresh Token 만료 시간 (15일)
   access-expired-in: '3600000' # Access Token 만료 시간 (1시간)
   cookieName: refresh-token
-  secret: ${jwt.secret}
+  secret: ${secret-jwt.secret}
 springfox:
   documentation:
     swagger:
       use-model-v3: false
-
