@@ -27,7 +27,7 @@ public class User {
     @Column(nullable = false)
     private String password;
 
-    @Column(length = 20, nullable = false)
+    @Column(length = 16, nullable = false)
     private String nickname;
 
     @Column(nullable = false, columnDefinition = "varchar(50) default 'ROLE_USER'")

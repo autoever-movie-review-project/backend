@@ -19,6 +19,7 @@ public class UserInfoResDto {
                 .email(user.getEmail())
                 .nickname(user.getNickname())
                 .profile(user.getProfile())
+                .points(user.getPoints())
                 .rankName(user.getRank().getRankName())
                 .rankImg(user.getRank().getRankImg())
                 .build();

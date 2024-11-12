@@ -1,8 +1,8 @@
 package com.movie.domain.user.api;
 
 import com.movie.domain.user.dto.request.*;
+import com.movie.domain.user.dto.response.AuthenticatedResDto;
 import com.movie.domain.user.dto.response.CheckResDto;
-import com.movie.domain.user.dto.response.LoginResDto;
 import com.movie.domain.user.dto.response.TokenInfo;
 import com.movie.domain.user.dto.response.UserInfoResDto;
 import com.movie.domain.user.service.EmailService;
@@ -88,16 +88,14 @@ public class UserController {
      */
     @Operation(summary = "로그인", description = "아이디와 비밀번호를 입력하여 로그인합니다.")
     @PostMapping("/login")
-    public ResponseEntity<LoginResDto> login(@RequestBody LoginReqDto loginReqDto) {
-        // 로그인 처리
-        LoginResDto loginResDto = userService.login(loginReqDto);
+    public ResponseEntity<UserInfoResDto> login(@RequestBody LoginReqDto loginReqDto) {
 
-        // Access Token을 헤더에 추가
+        AuthenticatedResDto authenticatedResDto = userService.login(loginReqDto);
+
         HttpHeaders headers = new HttpHeaders();
-        headers.add(JwtHeaderUtil.AUTHORIZATION.getValue(), JwtHeaderUtil.GRANT_TYPE.getValue() + " " + loginResDto.getAccessToken());
+        headers.add(HttpHeaders.AUTHORIZATION, "Bearer " + authenticatedResDto.getTokenInfo().getAccessToken());
 
-        // Refresh Token을 HttpOnly 쿠키로 설정
-        ResponseCookie refreshTokenCookie = ResponseCookie.from("refreshToken", loginResDto.getRefreshToken())
+        ResponseCookie refreshTokenCookie = ResponseCookie.from("refreshToken", authenticatedResDto.getTokenInfo().getRefreshToken())
                 .httpOnly(true)
                 .secure(true)
                 .path("/")
@@ -108,10 +106,7 @@ public class UserController {
 
         return ResponseEntity.ok()
                 .headers(headers)
-                .body(LoginResDto.builder()
-                        .nickname(loginResDto.getNickname())
-                        .profile(loginResDto.getProfile())
-                        .build());
+                .body(authenticatedResDto.getUserInfo());
     }
 
     /**
@@ -120,16 +115,13 @@ public class UserController {
      */
     @Operation(summary = "토큰 재발급", description = "JWT 토큰을 재발급합니다.")
     @PostMapping("/reissue-token")
-    public ResponseEntity<TokenInfo> reissueToken(@RequestHeader("Authorization") String accessToken,
-                                                  @CookieValue(name = "refreshToken") String refreshToken) {
-        // 토큰 재발급 처리
+    public ResponseEntity<Void> reissueToken(@RequestHeader("Authorization") String accessToken,
+                                             @CookieValue(name = "refreshToken") String refreshToken) {
         TokenInfo newTokenInfo = userService.reissueToken(JwtHeaderUtil.extractToken(accessToken), refreshToken);
 
-        // 새로운 Access Token을 Authorization 헤더에 설정
         HttpHeaders headers = new HttpHeaders();
         headers.add(HttpHeaders.AUTHORIZATION, JwtHeaderUtil.GRANT_TYPE.getValue() + " " + newTokenInfo.getAccessToken());
 
-        // 새로운 Refresh Token을 HttpOnly 쿠키로 설정
         ResponseCookie newRefreshTokenCookie = ResponseCookie.from("refreshToken", newTokenInfo.getRefreshToken())
                 .httpOnly(true)
                 .secure(true)
@@ -139,11 +131,9 @@ public class UserController {
                 .build();
         headers.add(HttpHeaders.SET_COOKIE, newRefreshTokenCookie.toString());
 
-        // 응답에 새로운 토큰 정보 포함
-        return ResponseEntity.ok()
-                .headers(headers)
-                .body(newTokenInfo);
+        return ResponseEntity.ok().headers(headers).build();
     }
+
 
     /**
      * 로그아웃 처리
@@ -160,7 +150,7 @@ public class UserController {
      * 회원 정보 수정
      */
     @Operation(summary = "회원 정보 수정", description = "필요한 정보를 입력하여 회원 정보를 수정합니다.")
-    @PutMapping
+    @PutMapping("/update")
     public ResponseEntity<Void> updateUser(@RequestBody UpdateUserReqDto updateUserReqDto) {
         userService.updateUser(updateUserReqDto);
         return ResponseEntity.ok().build();
