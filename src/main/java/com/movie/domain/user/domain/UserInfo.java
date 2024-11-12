@@ -18,10 +18,9 @@ public class UserInfo {
     @Id
     private String userId;
     private String email;
-    private Integer emailAlert;
     private String nickname;
-    private String profileImg;
-    private Integer point;
+    private String profile;
+    private Integer points;
     private UserType userType;
 
     @TimeToLive(unit = TimeUnit.MILLISECONDS)

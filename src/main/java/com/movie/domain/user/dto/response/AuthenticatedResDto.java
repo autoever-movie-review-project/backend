@@ -7,13 +7,13 @@ import lombok.Data;
 @Data
 @Builder
 public class AuthenticatedResDto {
-    private final TokenInfo tokens;
+    private final TokenInfo tokenInfo;
     private final UserInfoResDto userInfo;
 
-    public static AuthenticatedResDto entityToResDto(TokenInfo tokens, User user) {
+    public static AuthenticatedResDto entityToResDto(TokenInfo tokenInfo, User user) {
         UserInfoResDto userInfo = UserInfoResDto.entityToResDto(user);
         return AuthenticatedResDto.builder()
-                .tokens(tokens)
+                .tokenInfo(tokenInfo)
                 .userInfo(userInfo)
                 .build();
     }
