@@ -46,6 +46,14 @@ public class GameService {
         // 저장
         gameRepository.save(game);
 
+        // 유저의 Id를 불러온 뒤 Player entity 생성
+        Player player = Player.builder()
+                .game(game)
+                .user(loggedInUser)
+                .build();
+
+        playerRepository.save(player);
+
         return game;
     }
 

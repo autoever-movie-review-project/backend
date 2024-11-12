@@ -63,23 +63,26 @@ public class PlayerService {
         // 유저의 id값으로 Player 불러오기
         Player player = playerRepository.findByUser_UserId(loggedInUser.getUserId());
 
+        // 해당 Player 삭제
         playerRepository.delete(player);
 
         // ** 게임 방 인원이 0명일 경우 게임 방 삭제 로직 **
 
         // playerRepository에서 gameId의 값에 해당하는 Player가 없을 경우 방 삭제
-        if(!playerRepository.existsByGameId(gameId)) {
+        if (!playerRepository.existsByGameId(gameId)) {
+            // gameId가 존재하는지 확인 후 삭제 시도
+            if (gameRepository.existsById(gameId)) {
+                gameRepository.deleteById(gameId);
+            }
+        } else {
+            // Game의 참여중인 player의 수 -1 하는 로직
+            Game game = gameRepository.findById(gameId)
+                    .orElseThrow(GameIdNotFoundException::new);
 
-            gameRepository.deleteById(gameId);
+            game.setPlayerCountDown();
 
-        };
-
-        // Game의 참여중인 player의 수 -1 하는 로직 구현
-        Game game = gameRepository.findById(gameId)
-                .orElseThrow(GameIdNotFoundException::new);
-
-        game.setPlayerCountDown();
-
-        gameRepository.save(game);
+            gameRepository.save(game);
+        }
     }
+
 }
