@@ -17,7 +17,6 @@ public class SignUpReqDto {
     @Length(min = 8, max = 16, message = "비밀번호는 최소 8글자 최대 16글자 입니다.")
     private String password;
     private String nickname;
-    private String profile;
 
     public User dtoToEntity(Rank defaultRank) {
         return User.builder()
@@ -25,7 +24,6 @@ public class SignUpReqDto {
                 .password(password)
                 .nickname(nickname)
                 .userType(UserType.ROLE_USER)
-                .profile(profile)
                 .points(0)
                 .rank(defaultRank)
                 .build();

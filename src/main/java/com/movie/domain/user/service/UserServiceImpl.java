@@ -14,7 +14,7 @@ import com.movie.domain.user.dto.request.LoginReqDto;
 import com.movie.domain.user.dto.request.SignUpReqDto;
 import com.movie.domain.user.dto.request.UpdatePasswordReqDto;
 import com.movie.domain.user.dto.request.UpdateUserReqDto;
-import com.movie.domain.user.dto.response.LoginResDto;
+import com.movie.domain.user.dto.response.AuthenticatedResDto;
 import com.movie.domain.user.dto.response.TokenInfo;
 import com.movie.domain.user.dto.response.UserInfoResDto;
 import com.movie.domain.user.exception.EmailVerificationException;
@@ -99,19 +99,16 @@ public class UserServiceImpl implements UserService {
      * 로그인 처리 후 Access 및 Refresh Token 발급
      */
     @Override
-    public LoginResDto login(LoginReqDto loginReqDto) {
+    public AuthenticatedResDto login(LoginReqDto loginReqDto) {
         TokenInfo tokenInfo = setFirstAuthentication(loginReqDto.getEmail(),
                 loginReqDto.getPassword());
         log.info("[유저 로그인] 로그인 요청. {} ", tokenInfo);
 
         User user = userRepository.findByEmail(loginReqDto.getEmail()).get();
+
         userRedisService.addRefreshToken(user.getEmail(), tokenInfo.getRefreshToken());
-        return LoginResDto.builder()
-                .accessToken(tokenInfo.getAccessToken())
-                .refreshToken(tokenInfo.getRefreshToken())
-                .nickname(user.getNickname())
-                .profile(user.getProfile())
-                .build();
+
+        return AuthenticatedResDto.entityToResDto(tokenInfo, user);
     }
 
     /**
@@ -293,15 +290,16 @@ public class UserServiceImpl implements UserService {
      * 인증 후 Access 및 Refresh Token 발급
      */
     private TokenInfo setFirstAuthentication(String email, String password) {
-        // 1. email과 password를 기반으로 Authentication 객체 생성
         UsernamePasswordAuthenticationToken authenticationToken =
                 new UsernamePasswordAuthenticationToken(email, password);
 
-        // 2. 검증 진행 - CustomUserDetailsService.loadUserByUsername 메서드가 실행됨
-        Authentication authentication = authenticationManagerBuilder.getObject()
-                .authenticate(authenticationToken);
-
-        log.info("[인증 처리] 인증 성공. email : {}", email);
-        return jwtTokenProvider.generateToken(authentication);
+        try {
+            Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
+            log.info("[인증 처리] 인증 성공. email : {}", email);
+            return jwtTokenProvider.generateToken(authentication);
+        } catch (Exception e) {
+            log.error("[인증 실패] email : {}, error: {}", email, e.getMessage());
+            throw e;
+        }
     }
 }

@@ -4,6 +4,7 @@ import com.movie.domain.user.dto.request.LoginReqDto;
 import com.movie.domain.user.dto.request.SignUpReqDto;
 import com.movie.domain.user.dto.request.UpdatePasswordReqDto;
 import com.movie.domain.user.dto.request.UpdateUserReqDto;
+import com.movie.domain.user.dto.response.AuthenticatedResDto;
 import com.movie.domain.user.dto.response.LoginResDto;
 import com.movie.domain.user.dto.response.TokenInfo;
 import com.movie.domain.user.dto.response.UserInfoResDto;
@@ -11,7 +12,7 @@ import com.movie.domain.user.dto.response.UserInfoResDto;
 public interface UserService {
     void signUp(SignUpReqDto userInfoReqDto); //회원가입
 
-    LoginResDto login(LoginReqDto loginReqDto); //로그인
+    AuthenticatedResDto login(LoginReqDto loginReqDto); //로그인
 
     void logout(String accessToken); //로그아웃
 
