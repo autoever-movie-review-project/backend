@@ -1,7 +1,6 @@
 package com.movie.global.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.movie.domain.user.constant.UserType;
 import com.movie.domain.user.service.UserRedisService;
 import com.movie.global.jwt.JwtTokenProvider;
 import com.movie.global.security.filter.CustomAuthenticationFilter;
@@ -10,7 +9,6 @@ import com.movie.global.security.handler.CustomAuthenticationEntryPoint;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -49,21 +47,8 @@ public class SecurityConfig {
 
                 .authorizeRequests()
 
-                .regexMatchers(HttpMethod.POST, Constants.PostPermitArray).permitAll()
-                .regexMatchers(HttpMethod.GET, Constants.GetPermitArray).permitAll()
-
-                .regexMatchers(Constants.AdminPermitArray)
-                .hasAuthority(UserType.ROLE_ADMIN.name())
-
-                .antMatchers("/swagger-ui/**").permitAll()
-                .antMatchers("/v3/api-docs/**").permitAll()
-                .antMatchers("/**/*.html").permitAll()
-                .antMatchers("/**/*.css").permitAll()
-                .antMatchers("/**/*.js").permitAll()
-                .antMatchers("/**/*.png").permitAll()
-                .antMatchers("/images/**").permitAll()
-
-                .anyRequest().authenticated()
+                // 모든 요청에 대해 인증 없이 접근 가능하도록 설정
+                .anyRequest().permitAll()
 
                 .and()
                 .exceptionHandling()
@@ -76,6 +61,49 @@ public class SecurityConfig {
 
         return http.build();
     }
+
+
+//    @Bean
+//    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+//        http
+//                .cors().configurationSource(corsConfigurationSource())
+//                .and()
+//
+//                .httpBasic().disable()
+//                .csrf().disable()
+//                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+//                .and()
+//
+//                .authorizeRequests()
+//
+//                .regexMatchers(HttpMethod.POST, Constants.PostPermitArray).permitAll()
+//                .regexMatchers(HttpMethod.GET, Constants.GetPermitArray).permitAll()
+//
+//                .regexMatchers(Constants.AdminPermitArray)
+//                .hasAuthority(UserType.ROLE_ADMIN.name())
+//
+//                .antMatchers("/swagger-ui/**").permitAll()
+//                .antMatchers("/v3/api-docs/**").permitAll()
+//                .antMatchers("/**/*.html").permitAll()
+//                .antMatchers("/**/*.css").permitAll()
+//                .antMatchers("/**/*.js").permitAll()
+//                .antMatchers("/**/*.png").permitAll()
+//                .antMatchers("/images/**").permitAll()
+//
+//
+//                .anyRequest().authenticated()
+//
+//                .and()
+//                .exceptionHandling()
+//                .accessDeniedHandler(new CustomAccessDeniedHandler(objectMapper))
+//                .authenticationEntryPoint(new CustomAuthenticationEntryPoint(objectMapper))
+//                .and()
+//                .addFilterBefore(
+//                        new CustomAuthenticationFilter(userRedisService, jwtTokenProvider, objectMapper),
+//                        UsernamePasswordAuthenticationFilter.class);
+//
+//        return http.build();
+//    }
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {

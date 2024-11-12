@@ -1,6 +1,8 @@
 package com.movie.domain.user.exception;
 
-public class UserNotFoundException extends RuntimeException {
+import com.movie.global.exception.NotFoundException;
+
+public class UserNotFoundException extends NotFoundException {
     public UserNotFoundException(String message) {
         super(message);
     }

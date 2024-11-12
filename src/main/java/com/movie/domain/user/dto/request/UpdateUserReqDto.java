@@ -7,4 +7,5 @@ import lombok.Data;
 @Builder
 public class UpdateUserReqDto {
     private String nickname;
+    private String profile;
 }

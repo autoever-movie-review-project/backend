@@ -42,6 +42,7 @@ public class CustomAuthenticationFilter extends OncePerRequestFilter {
     private final ObjectMapper objectMapper;
     private static final String UTF_8 = "utf-8";
 
+
     /**
      * doFilterInternal 메서드는 HTTP 요청에 포함된 Access Token을 검증하고 인증을 설정합니다.
      * 만료된 경우 Redis에 저장된 Refresh Token을 통해 새로운 Access Token을 재발급합니다.
@@ -49,25 +50,47 @@ public class CustomAuthenticationFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
-//        try {
-//            Token token = resolveAccessToken(request);
-//
-//            // Access Token이 유효한 경우 SecurityContext에 인증 정보를 설정합니다.
-//            if (token != null && jwtTokenProvider.validateToken(token.getToken())) {
-//                Authentication authentication = jwtTokenProvider.getAuthentication(token.getToken());
-//                SecurityContextHolder.getContext().setAuthentication(authentication);
-//
-//                // Access Token이 만료된 경우 Refresh Token을 사용해 Access Token을 재발급합니다.
-//            } else if (token != null && !jwtTokenProvider.validateToken(token.getToken())) {
-//                handleExpiredAccessToken(request, response);
-//                return;
-//            }
-//
-//            filterChain.doFilter(request, response);
-//        } catch (TokenException e) {
-//            makeTokenExceptionResponse(response, e);
-//        }
+        String requestURI = request.getRequestURI();
+        log.debug("Request URI: {}", requestURI);
+
+        // 허용할 URL 경로 배열
+        String[] permitUrls = {
+                "/api/user/signup",
+                "/api/user/login",
+                "/api/user/send-email-code",
+                "/api/user/check-email-code",
+                "/api/user/reissue-token"
+        };
+
+        // 현재 요청 URI가 허용할 URL 경로 중 하나인지 확인
+        for (String url : permitUrls) {
+            if (requestURI.startsWith(url)) {
+                filterChain.doFilter(request, response);
+                return;
+            }
+        }
+
+        // 허용된 URL이 아닌 경우 토큰 처리
+        try {
+            Token token = resolveAccessToken(request);
+
+            // Access Token이 유효한 경우 SecurityContext에 인증 정보를 설정합니다.
+            if (token != null && jwtTokenProvider.validateToken(token.getToken())) {
+                Authentication authentication = jwtTokenProvider.getAuthentication(token.getToken());
+                SecurityContextHolder.getContext().setAuthentication(authentication);
+
+                // Access Token이 만료된 경우 Refresh Token을 사용해 Access Token을 재발급합니다.
+            } else if (token != null && !jwtTokenProvider.validateToken(token.getToken())) {
+                handleExpiredAccessToken(request, response);
+                return;
+            }
+
+            filterChain.doFilter(request, response);
+        } catch (TokenException e) {
+            makeTokenExceptionResponse(response, e);
+        }
     }
+
 
     /**
      * Access Token이 만료된 경우 Redis에 저장된 Refresh Token을 통해 새로운 Access Token을 발급합니다.

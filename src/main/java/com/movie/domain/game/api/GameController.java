@@ -55,10 +55,10 @@ public class GameController {
         return ResponseEntity.ok("게임 시작, 방 상태 변경");
     }
 
-    @GetMapping("/games")
-    public ResponseEntity<?> getGame() {
-
-    }
+//    @GetMapping("/games")
+//    public ResponseEntity<?> getGame() {
+//
+//    }
 
 
 

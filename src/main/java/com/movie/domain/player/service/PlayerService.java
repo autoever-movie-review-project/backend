@@ -61,14 +61,14 @@ public class PlayerService {
         User loggedInUser = securityUtils.getLoginUser();
 
         // 유저의 id값으로 Player 불러오기
-        Player player = playerRepository.findByUserId(loggedInUser.getUserId());
+        Player player = playerRepository.findByUser_UserId(loggedInUser.getUserId());
 
         playerRepository.delete(player);
 
         // ** 게임 방 인원이 0명일 경우 게임 방 삭제 로직 **
 
         // playerRepository에서 gameId의 값에 해당하는 Player가 없을 경우 방 삭제
-        if(!playerRepository.existByGameId(gameId)) {
+        if(!playerRepository.existsByGameId(gameId)) {
 
             gameRepository.deleteById(gameId);
 

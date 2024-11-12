@@ -13,7 +13,7 @@ public class SwaggerConfig {
         String[] paths = {"/**"};
 
         return GroupedOpenApi.builder()
-                .group("Movie-Review Project API")
+                .group("Movie-Play Project API")
                 .pathsToMatch(paths)
                 .build();
     }

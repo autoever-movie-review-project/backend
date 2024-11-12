@@ -6,9 +6,8 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 
 @EnableScheduling
 @SpringBootApplication
-public class Main {
+public class MoviePlayApplication {
     public static void main(String[] args) {
-//        System.out.println("Hello world!");
-        SpringApplication.run(Main.class, args);
+        SpringApplication.run(MoviePlayApplication.class, args);
     }
 }

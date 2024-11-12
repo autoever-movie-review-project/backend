@@ -18,19 +18,13 @@ public class SecurityUtils {
     private final UserRepository userRepository;
 
     public static String getLoginUserEmail() {
-        try {
-            Authentication authentication = Objects.requireNonNull(SecurityContextHolder
-                    .getContext()
-                    .getAuthentication());
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-            if (authentication instanceof AnonymousAuthenticationToken) {
-                authentication = null;
-            }
-
-            return authentication.getName();
-        } catch (NullPointerException e) {
-            throw new RuntimeException();
+        if (authentication == null || authentication instanceof AnonymousAuthenticationToken) {
+            throw new IllegalStateException("현재 로그인된 사용자가 없습니다.");
         }
+
+        return authentication.getName();
     }
 
     public User getLoginUser() {

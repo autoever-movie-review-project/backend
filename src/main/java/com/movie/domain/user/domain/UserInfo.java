@@ -2,10 +2,10 @@ package com.movie.domain.user.domain;
 
 import com.movie.domain.user.constant.UserType;
 import lombok.*;
-import org.springframework.data.annotation.Id;
 import org.springframework.data.redis.core.RedisHash;
 import org.springframework.data.redis.core.TimeToLive;
 
+import org.springframework.data.annotation.Id;
 import java.util.concurrent.TimeUnit;
 
 @Getter
