@@ -1,5 +1,6 @@
 package com.movie.domain.like.domain;
 
+import com.movie.domain.movie.domain.Movie;
 import com.movie.domain.user.domain.User;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -23,7 +24,7 @@ public class LikeMovie {
     @JoinColumn(name = "userId")
     private User user;
 
-//    @ManyToOne
-//    @JoinColumn(name = "movieId")
-//    private Movie movie;
+    @ManyToOne
+    @JoinColumn(name = "movieId")
+    private Movie movie;
 }
