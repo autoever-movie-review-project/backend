@@ -57,8 +57,11 @@ public class CustomAuthenticationFilter extends OncePerRequestFilter {
         String[] permitUrls = {
                 "/api/user/signup",
                 "/api/user/login",
+                "/api/user/logout",
+                "/api/user/update",
                 "/api/user/send-email-code",
                 "/api/user/check-email-code",
+                "/api/user/check-login-email",
                 "/api/user/reissue-token"
         };
 
