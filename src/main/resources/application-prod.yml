@@ -81,7 +81,7 @@ build:
 jwt:
   refresh-expired-in: '1296000000'  # Refresh Token 만료 시간 (15일)
   access-expired-in: '3600000' # Access Token 만료 시간 (1시간)
-  cookieName: refresh-token
+  cookieName: refreshToken
   secret: ${secret-jwt.secret}
 springfox:
   documentation:
