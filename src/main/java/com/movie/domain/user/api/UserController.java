@@ -32,7 +32,7 @@ public class UserController {
     private final EmailService emailService;
 
     @Value("${jwt.cookieName}")
-    private String jwtCookieName;
+    private String COOKIE_NAME;
 
     @Value("${jwt.refresh-expired-in}")
     private long REFRESH_TOKEN_EXPIRED_IN;
@@ -95,7 +95,7 @@ public class UserController {
         HttpHeaders headers = new HttpHeaders();
         headers.add(HttpHeaders.AUTHORIZATION, "Bearer " + authenticatedResDto.getTokenInfo().getAccessToken());
 
-        ResponseCookie refreshTokenCookie = ResponseCookie.from("refreshToken", authenticatedResDto.getTokenInfo().getRefreshToken())
+        ResponseCookie refreshTokenCookie = ResponseCookie.from(COOKIE_NAME, authenticatedResDto.getTokenInfo().getRefreshToken())
                 .httpOnly(true)
                 .secure(true)
                 .path("/")
@@ -122,7 +122,7 @@ public class UserController {
         HttpHeaders headers = new HttpHeaders();
         headers.add(HttpHeaders.AUTHORIZATION, JwtHeaderUtil.GRANT_TYPE.getValue() + " " + newTokenInfo.getAccessToken());
 
-        ResponseCookie newRefreshTokenCookie = ResponseCookie.from("refreshToken", newTokenInfo.getRefreshToken())
+        ResponseCookie newRefreshTokenCookie = ResponseCookie.from(COOKIE_NAME, newTokenInfo.getRefreshToken())
                 .httpOnly(true)
                 .secure(true)
                 .path("/")
