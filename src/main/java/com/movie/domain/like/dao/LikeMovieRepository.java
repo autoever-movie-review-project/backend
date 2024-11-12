@@ -7,4 +7,6 @@ public interface LikeMovieRepository extends JpaRepository<LikeMovie, Long> {
     boolean existsByUserUserIdAndMovieId(Long userId, Long movieId);
 
     Long countByMovieId(Long movieId);
+
+    LikeMovie findByUserUserIdAndMovieId(Long userId, Long movieId);
 }

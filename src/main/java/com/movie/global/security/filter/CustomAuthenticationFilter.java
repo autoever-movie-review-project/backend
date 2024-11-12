@@ -62,7 +62,7 @@ public class CustomAuthenticationFilter extends OncePerRequestFilter {
                 "/api/user/send-email-code",
                 "/api/user/check-email-code",
                 "/api/user/check-login-email",
-                "/api/user/reissue-token"
+                "/api/user/reissue-token",
         };
 
         // 현재 요청 URI가 허용할 URL 경로 중 하나인지 확인

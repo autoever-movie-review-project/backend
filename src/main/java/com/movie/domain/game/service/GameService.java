@@ -59,6 +59,7 @@ public class GameService {
 
     // 게임 상태 업데이트
     public void update(Long gameId) {
+
         // gameId에 해당하는 Game을 가져온다
         Game game = gameRepository.findById(gameId)
                 .orElseThrow(GameIdNotFoundException::new);
@@ -95,6 +96,8 @@ public class GameService {
         for(User u : users) {
             playerInfoDto.add(PlayerInfoDto.of(u));
         }
+
+        System.out.println(playerInfoDto);
 
         return GetGameDetailResDto.of(game, playerInfoDto);
     }

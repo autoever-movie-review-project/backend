@@ -1,5 +1,6 @@
 package com.movie.domain.player.domain;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.movie.domain.game.domain.Game;
 import com.movie.domain.user.domain.User;
 import lombok.AllArgsConstructor;

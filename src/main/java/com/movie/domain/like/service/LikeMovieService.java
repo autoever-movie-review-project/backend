@@ -44,4 +44,17 @@ public class LikeMovieService {
         return countLikes;
 
     }
+
+    public Long delete(Long movieId) {
+        // 1) 현재 로그인 된 멤버의 ID를 가져온다.
+        User loggedInUser = securityUtils.getLoginUser();
+
+        LikeMovie like = likeMovieRepository.findByUserUserIdAndMovieId(loggedInUser.getUserId(), movieId);
+
+        likeMovieRepository.delete(like);
+
+        Long countLikes = likeMovieRepository.countByMovieId(movieId);
+
+        return countLikes;
+    }
 }
