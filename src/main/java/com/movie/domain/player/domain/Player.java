@@ -22,10 +22,13 @@ public class Player {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
-    @JoinColumn(name = "gameId")
+    @JoinColumn(name = "game_id")
     private Game game;
 
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
-    @JoinColumn(name = "userId")
+    @JoinColumn(name = "user_id")
     private User user;
+
+    private Long score;
+    private boolean isReady=false;
 }

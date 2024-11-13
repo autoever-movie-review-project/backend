@@ -95,18 +95,23 @@ public class GameService {
         List<PlayerInfoDto> playerInfoDto = new ArrayList<>();
 
         for(User u : users) {
+            Player player2 = playerRepository.findByUser_UserIdAndGameId(u.getUserId(), gameId);
+
             InGameRankDto inGameRankDto = InGameRankDto.builder()
                     .rankId(u.getRank().getRankId())
                     .rankImg(u.getRank().getRankImg())
                     .rankName(u.getRank().getRankName())
                     .build();
 
-            playerInfoDto.add(PlayerInfoDto.of(u, inGameRankDto));
+            playerInfoDto.add(PlayerInfoDto.of(player2, u, inGameRankDto));
         }
 
         System.out.println(playerInfoDto);
 
         return GetGameDetailResDto.of(game, playerInfoDto);
+    }
+
+    public void ready(Long gameId) {
     }
 
     // 게임 대기실 리스트 가져오기

@@ -62,13 +62,22 @@ public class GameController {
 
 
 
-    @GetMapping("/game/{gameId}/wait")
+    @GetMapping("/game/{gameId}")
     public ResponseEntity<?> getGameById(
             @PathVariable Long gameId
     ) {
         GetGameDetailResDto getGameDetailResDto = gameService.getGameDetail(gameId);
 
         return ResponseEntity.ok(getGameDetailResDto);
+    }
+
+    @PostMapping("/game/{gameId}/ready")
+    public ResponseEntity<?> readyGame(
+            @PathVariable Long gameId
+    ) {
+        gameService.ready(gameId);
+
+        return ResponseEntity.ok("준비 완료");
     }
 
 }
