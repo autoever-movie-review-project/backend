@@ -28,7 +28,7 @@ jobs:
           cd ./src/main
           mkdir -p resources
           cd resources
-          echo "${{ secrets.YAML }}" > application.yaml
+          echo "${{ secrets.YAML }}" > application-secret.yml
         shell: bash
 
       - name: Grant execute permission for gradlew
