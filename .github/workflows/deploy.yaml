@@ -1,10 +1,10 @@
 name: Deploy Spring Application to EC2
 
-# main에 대한 브랜치 push가 수행되었을 때 동작
+# main에 대한 브랜치 push와 수동 트리거에 반응
 on:
   push:
     branches: [ "develop_es" ]
-    workflow_dispatch:
+  workflow_dispatch:
 
 # 워크플로우가 저장소의 콘텐츠를 읽을 수 있는 권한을 갖도록 설정
 permissions:
@@ -34,18 +34,15 @@ jobs:
 
       - name: Grant execute permission for gradlew
         run: |
-          cd ./
-          chmod +x gradlew
+          chmod +x ./gradlew
 
       - name: Build with Gradle
         run: |
-          cd ./
           ./gradlew clean build -x test
 
       # Dockerfile을 통해 이미지를 빌드하고, 이를 Docker repo로 push
       - name: Docker build & push to Docker repo
         run: |
-          cd ./ 
           echo ${{ secrets.DOCKER_PASSWORD }} | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
           docker build --build-arg DEPENDENCY=build/dependency -t ${{ secrets.DOCKER_ID }}/${{ secrets.DOCKER_REPO }} --platform linux/amd64 .
           docker push ${{ secrets.DOCKER_ID }}/${{ secrets.DOCKER_REPO }}
@@ -61,7 +58,7 @@ jobs:
             echo ${{ secrets.DOCKER_PASSWORD }} | sudo docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
             sudo docker pull ${{ secrets.DOCKER_ID }}/${{ secrets.DOCKER_REPO }}:latest
             # 기존에 실행 중인 컨테이너 중지 및 삭제
-            if [ $(sudo docker ps -q -f "name=movie-server") ]; then
+            if [ $(sudo docker ps -a -q -f "name=movie-server") ]; then
               sudo docker stop movie-server
               sudo docker rm -f movie-server
             fi
