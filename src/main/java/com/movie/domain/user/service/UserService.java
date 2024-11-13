@@ -1,11 +1,7 @@
 package com.movie.domain.user.service;
 
-import com.movie.domain.user.dto.request.LoginReqDto;
-import com.movie.domain.user.dto.request.SignUpReqDto;
-import com.movie.domain.user.dto.request.UpdatePasswordReqDto;
-import com.movie.domain.user.dto.request.UpdateUserReqDto;
+import com.movie.domain.user.dto.request.*;
 import com.movie.domain.user.dto.response.AuthenticatedResDto;
-import com.movie.domain.user.dto.response.LoginResDto;
 import com.movie.domain.user.dto.response.TokenInfo;
 import com.movie.domain.user.dto.response.UserInfoResDto;
 
@@ -17,6 +13,8 @@ public interface UserService {
     void logout(String accessToken); //로그아웃
 
     UserInfoResDto updateUser(UpdateUserReqDto updateUserReqDto); //회원 정보 수정
+
+    void updateProfile(UpdateProfileReqDto updateProfileReqDto);//프로필 사진 변경
 
     void deleteUser(); //회원 탈퇴
 

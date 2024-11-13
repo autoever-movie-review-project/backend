@@ -2,6 +2,7 @@ package com.movie.domain.user.domain;
 
 import com.movie.domain.rank.domain.Rank;
 import com.movie.domain.user.constant.UserType;
+import com.movie.domain.user.dto.request.UpdateProfileReqDto;
 import com.movie.domain.user.dto.request.UpdateUserReqDto;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -59,6 +60,10 @@ public class User {
     public void updateUser(UpdateUserReqDto updateUserReqDto) {
         this.nickname = updateUserReqDto.getNickname();
         this.profile = updateUserReqDto.getProfile();
+    }
+
+    public void updateProfile(UpdateProfileReqDto updateProfileReqDtou) {
+        this.profile = updateProfileReqDtou.getProfile();
     }
 
     public void updatePassword(String encryptedPassword) {
