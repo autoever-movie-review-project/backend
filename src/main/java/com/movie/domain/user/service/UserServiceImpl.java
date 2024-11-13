@@ -105,7 +105,7 @@ public class UserServiceImpl implements UserService {
         log.info("[유저 로그인] 로그인 요청. {} ", tokenInfo);
 
         User user = userRepository.findByEmail(loginReqDto.getEmail()).get();
-
+        logoutAccessTokenRepository.deleteById(loginReqDto.getEmail());
         userRedisService.addRefreshToken(user.getEmail(), tokenInfo.getRefreshToken());
 
         return AuthenticatedResDto.entityToResDto(tokenInfo, user);

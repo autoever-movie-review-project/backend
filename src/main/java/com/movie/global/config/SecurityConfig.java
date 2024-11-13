@@ -51,7 +51,6 @@ public class SecurityConfig {
                 .and()
 
                 .authorizeRequests()
-
                 // 모든 요청에 대해 인증 없이 접근 가능하도록 설정
                 .anyRequest().permitAll()
 
@@ -76,6 +75,7 @@ public class SecurityConfig {
         configuration.addAllowedHeader("*");
         configuration.addAllowedMethod("*");
         configuration.setAllowCredentials(true);
+        configuration.addExposedHeader("Authorization");
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
 

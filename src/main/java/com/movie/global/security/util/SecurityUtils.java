@@ -1,8 +1,11 @@
 package com.movie.global.security.util;
 
+import com.movie.global.exception.NotFoundException;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+
+import static com.movie.global.constant.ExceptionMessage.NOT_FOUND_LOGIN_USER;
 
 public class SecurityUtils {
 
@@ -10,7 +13,7 @@ public class SecurityUtils {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
         if (authentication == null || authentication instanceof AnonymousAuthenticationToken) {
-            throw new IllegalStateException("현재 로그인된 사용자가 없습니다.");
+            throw new NotFoundException(NOT_FOUND_LOGIN_USER.getMessage());
         }
 
         return authentication.getName();
