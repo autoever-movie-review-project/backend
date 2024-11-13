@@ -28,24 +28,21 @@ jobs:
           cd ./src/main
           mkdir -p resources
           cd resources
-          touch application.yaml
           echo "${{ secrets.YAML }}" > application.yaml
         shell: bash
 
       - name: Grant execute permission for gradlew
-        run: |
-          chmod +x ./gradlew
+        run: chmod +x ./gradlew
 
       - name: Build with Gradle
-        run: |
-          ./gradlew clean build -x test
+        run: ./gradlew clean build -x test
 
       # Dockerfile을 통해 이미지를 빌드하고, 이를 Docker repo로 push
       - name: Docker build & push to Docker repo
         run: |
-          echo ${{ secrets.DOCKER_PASSWORD }} | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
-          docker build --build-arg DEPENDENCY=build/dependency -t ${{ secrets.DOCKER_ID }}/${{ secrets.DOCKER_REPO }} --platform linux/amd64 .
-          docker push ${{ secrets.DOCKER_ID }}/${{ secrets.DOCKER_REPO }}
+          echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+          docker build --build-arg DEPENDENCY=build/dependency -t "${{ secrets.DOCKER_ID }}/${{ secrets.DOCKER_REPO }}" --platform linux/amd64 .
+          docker push "${{ secrets.DOCKER_ID }}/${{ secrets.DOCKER_REPO }}"
 
       # 서버에 접속 후 Docker 이미지 가져와서 배포
       - name: Deploy to server
@@ -54,13 +51,14 @@ jobs:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_PRIVATE_KEY }}
+          port: 22
           script: |
-            echo ${{ secrets.DOCKER_PASSWORD }} | sudo docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
-            sudo docker pull ${{ secrets.DOCKER_ID }}/${{ secrets.DOCKER_REPO }}:latest
+            echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+            docker pull "${{ secrets.DOCKER_ID }}/${{ secrets.DOCKER_REPO }}:latest"
             # 기존에 실행 중인 컨테이너 중지 및 삭제
-            if [ $(sudo docker ps -a -q -f "name=movie-server") ]; then
-              sudo docker stop movie-server
-              sudo docker rm -f movie-server
+            if [ "$(docker ps -aq -f name=movie-server)" ]; then
+              docker stop movie-server
+              docker rm -f movie-server
             fi
             # 새로운 컨테이너 실행
-            sudo docker run -d -p 8080:8080 --name movie-server ${{ secrets.DOCKER_ID }}/${{ secrets.DOCKER_REPO }}:latest
+            docker run -d -p 8080:8080 --name movie-server "${{ secrets.DOCKER_ID }}/${{ secrets.DOCKER_REPO }}:latest"
