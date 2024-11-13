@@ -9,14 +9,14 @@ public record PlayerInfoDto(
         InGameRankDto inGameRankDto,
         String nickname,
         String profile,
-        boolean isReady
+        Long userId
 ) {
-    public static PlayerInfoDto of(Player player, User user, InGameRankDto inGameRankDto) {
+    public static PlayerInfoDto of(User user, InGameRankDto inGameRankDto) {
         return new PlayerInfoDto(
                 inGameRankDto,
                 user.getNickname(),
                 user.getProfile(),
-                player.isReady()
+                user.getUserId()
         );
     }
 }

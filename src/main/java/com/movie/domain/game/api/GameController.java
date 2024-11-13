@@ -4,10 +4,13 @@ import com.movie.domain.game.domain.Game;
 import com.movie.domain.game.dto.request.CreateGameReqDto;
 import com.movie.domain.game.dto.response.GetGameDetailResDto;
 import com.movie.domain.game.service.GameService;
+import com.movie.domain.player.dto.response.IsReadyPlayerResDto;
 import com.movie.domain.player.service.PlayerService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -71,13 +74,13 @@ public class GameController {
         return ResponseEntity.ok(getGameDetailResDto);
     }
 
-    @PostMapping("/game/{gameId}/ready")
-    public ResponseEntity<?> readyGame(
-            @PathVariable Long gameId
-    ) {
-        gameService.ready(gameId);
-
-        return ResponseEntity.ok("준비 완료");
-    }
+//    @PostMapping("/game/{gameId}/ready")
+//    public ResponseEntity<?> readyGame(
+//            @PathVariable Long gameId
+//    ) {
+//        List<IsReadyPlayerResDto> isReadyPlayerResDto = gameService.ready(gameId);
+//
+//        return ResponseEntity.ok(isReadyPlayerResDto);
+//    }
 
 }

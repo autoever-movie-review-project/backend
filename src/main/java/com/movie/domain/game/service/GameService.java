@@ -8,6 +8,7 @@ import com.movie.domain.game.dto.response.GetGameDetailResDto;
 import com.movie.domain.game.exception.GameIdNotFoundException;
 import com.movie.domain.player.dao.PlayerRepository;
 import com.movie.domain.player.domain.Player;
+import com.movie.domain.player.dto.response.IsReadyPlayerResDto;
 import com.movie.domain.player.dto.response.PlayerInfoDto;
 import com.movie.domain.rank.dto.response.InGameRankDto;
 import com.movie.domain.user.dao.UserRepository;
@@ -95,15 +96,13 @@ public class GameService {
         List<PlayerInfoDto> playerInfoDto = new ArrayList<>();
 
         for(User u : users) {
-            Player player2 = playerRepository.findByUser_UserIdAndGameId(u.getUserId(), gameId);
-
             InGameRankDto inGameRankDto = InGameRankDto.builder()
                     .rankId(u.getRank().getRankId())
                     .rankImg(u.getRank().getRankImg())
                     .rankName(u.getRank().getRankName())
                     .build();
 
-            playerInfoDto.add(PlayerInfoDto.of(player2, u, inGameRankDto));
+            playerInfoDto.add(PlayerInfoDto.of(u, inGameRankDto));
         }
 
         System.out.println(playerInfoDto);
@@ -111,8 +110,13 @@ public class GameService {
         return GetGameDetailResDto.of(game, playerInfoDto);
     }
 
-    public void ready(Long gameId) {
-    }
+//    @Transactional
+//    public List<IsReadyPlayerResDto> ready(Long gameId) {
+//
+//
+//
+//        return isReadyPlayerResDto;
+//    }
 
     // 게임 대기실 리스트 가져오기
 //    @Transactional
