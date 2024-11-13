@@ -6,6 +6,7 @@ import com.movie.domain.game.domain.GameStatus;
 import com.movie.domain.game.dto.request.CreateGameReqDto;
 import com.movie.domain.game.dto.response.GetGameDetailResDto;
 import com.movie.domain.game.exception.GameIdNotFoundException;
+import com.movie.domain.likeMovie.exception.LikeMovieDuplicateException;
 import com.movie.domain.player.dao.PlayerRepository;
 import com.movie.domain.player.domain.Player;
 import com.movie.domain.player.dto.response.IsReadyPlayerResDto;
@@ -105,18 +106,35 @@ public class GameService {
             playerInfoDto.add(PlayerInfoDto.of(u, inGameRankDto));
         }
 
-        System.out.println(playerInfoDto);
-
         return GetGameDetailResDto.of(game, playerInfoDto);
     }
 
-//    @Transactional
-//    public List<IsReadyPlayerResDto> ready(Long gameId) {
-//
-//
-//
-//        return isReadyPlayerResDto;
-//    }
+    @Transactional
+    public List<IsReadyPlayerResDto> ready(Long gameId) {
+        // 현재 로그인 된 유저를 가져온다.
+        User loggedInUser = securityUtils.getLoginUser();
+
+        Long userId = loggedInUser.getUserId();
+
+        Player player = playerRepository.findByUser_UserIdAndGameId(userId, gameId);
+
+        // 현재 isReady 상태를 반전시킨다
+        player.setIsReady(!player.isReady());
+
+        playerRepository.save(player);
+
+        List<IsReadyPlayerResDto> isReadyPlayerResDto = new ArrayList<>();
+
+        List<Player> players = playerRepository.findAllByGameId(gameId);
+
+        for(Player p : players) {
+
+            isReadyPlayerResDto.add(IsReadyPlayerResDto.of(p.getUser(), p.isReady()));
+
+        }
+
+        return isReadyPlayerResDto;
+    }
 
     // 게임 대기실 리스트 가져오기
 //    @Transactional

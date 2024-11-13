@@ -3,10 +3,7 @@ package com.movie.domain.player.domain;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.movie.domain.game.domain.Game;
 import com.movie.domain.user.domain.User;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import javax.persistence.*;
 
@@ -31,4 +28,8 @@ public class Player {
 
     private Long score;
     private boolean isReady=false;
+
+    public void setIsReady(boolean setIsReady) {
+        this.isReady=setIsReady;
+    }
 }
