@@ -54,11 +54,11 @@ jobs:
           port: 22
           script: |
             echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
-            docker pull "${{ secrets.DOCKER_ID }}/${{ secrets.DOCKER_REPO }}:latest"
+            sudo docker pull "${{ secrets.DOCKER_ID }}/${{ secrets.DOCKER_REPO }}:latest"
             # 기존에 실행 중인 컨테이너 중지 및 삭제
             if [ "$(docker ps -aq -f name=movie-server)" ]; then
-              docker stop movie-server
-              docker rm -f movie-server
+              sudo docker stop movie-server
+              sudo docker rm -f movie-server
             fi
             # 새로운 컨테이너 실행
-            docker run -d -p 8080:8080 --name movie-server "${{ secrets.DOCKER_ID }}/${{ secrets.DOCKER_REPO }}:latest"
+            sudo docker run -d -p 8080:8080 --name movie-server "${{ secrets.DOCKER_ID }}/${{ secrets.DOCKER_REPO }}:latest"
