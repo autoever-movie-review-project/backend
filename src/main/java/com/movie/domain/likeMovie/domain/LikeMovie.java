@@ -1,4 +1,4 @@
-package com.movie.domain.like.domain;
+package com.movie.domain.likeMovie.domain;
 
 import com.movie.domain.movie.domain.Movie;
 import com.movie.domain.user.domain.User;

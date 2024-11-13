@@ -64,4 +64,5 @@ public class User {
     public void updatePassword(String encryptedPassword) {
         this.password = encryptedPassword;
     }
+
 }

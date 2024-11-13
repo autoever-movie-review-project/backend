@@ -1,16 +1,17 @@
 package com.movie.domain.player.dto.response;
 
 import com.movie.domain.rank.domain.Rank;
+import com.movie.domain.rank.dto.response.InGameRankDto;
 import com.movie.domain.user.domain.User;
 
 public record PlayerInfoDto(
-        Rank rank,
+        InGameRankDto inGameRankDto,
         String nickname,
         String profile
 ) {
-    public static PlayerInfoDto of(User user) {
+    public static PlayerInfoDto of(User user, InGameRankDto inGameRankDto) {
         return new PlayerInfoDto(
-                user.getRank(),
+                inGameRankDto,
                 user.getNickname(),
                 user.getProfile()
         );

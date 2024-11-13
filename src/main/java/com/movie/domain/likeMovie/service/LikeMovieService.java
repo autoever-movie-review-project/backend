@@ -1,8 +1,8 @@
-package com.movie.domain.like.service;
+package com.movie.domain.likeMovie.service;
 
-import com.movie.domain.like.dao.LikeMovieRepository;
-import com.movie.domain.like.domain.LikeMovie;
-import com.movie.domain.like.exception.LikeMovieDuplicateException;
+import com.movie.domain.likeMovie.dao.LikeMovieRepository;
+import com.movie.domain.likeMovie.domain.LikeMovie;
+import com.movie.domain.likeMovie.exception.LikeMovieDuplicateException;
 import com.movie.domain.movie.dao.MovieRepository;
 import com.movie.domain.movie.domain.Movie;
 import com.movie.domain.user.dao.UserRepository;

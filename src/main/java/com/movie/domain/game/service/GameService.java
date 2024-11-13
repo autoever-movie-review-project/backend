@@ -9,6 +9,7 @@ import com.movie.domain.game.exception.GameIdNotFoundException;
 import com.movie.domain.player.dao.PlayerRepository;
 import com.movie.domain.player.domain.Player;
 import com.movie.domain.player.dto.response.PlayerInfoDto;
+import com.movie.domain.rank.dto.response.InGameRankDto;
 import com.movie.domain.user.dao.UserRepository;
 import com.movie.domain.user.domain.User;
 import com.movie.domain.user.exception.UserIdNotFoundException;
@@ -94,7 +95,13 @@ public class GameService {
         List<PlayerInfoDto> playerInfoDto = new ArrayList<>();
 
         for(User u : users) {
-            playerInfoDto.add(PlayerInfoDto.of(u));
+            InGameRankDto inGameRankDto = InGameRankDto.builder()
+                    .rankId(u.getRank().getRankId())
+                    .rankImg(u.getRank().getRankImg())
+                    .rankName(u.getRank().getRankName())
+                    .build();
+
+            playerInfoDto.add(PlayerInfoDto.of(u, inGameRankDto));
         }
 
         System.out.println(playerInfoDto);

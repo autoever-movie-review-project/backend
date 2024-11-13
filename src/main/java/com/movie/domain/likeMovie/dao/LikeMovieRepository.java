@@ -1,6 +1,6 @@
-package com.movie.domain.like.dao;
+package com.movie.domain.likeMovie.dao;
 
-import com.movie.domain.like.domain.LikeMovie;
+import com.movie.domain.likeMovie.domain.LikeMovie;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface LikeMovieRepository extends JpaRepository<LikeMovie, Long> {

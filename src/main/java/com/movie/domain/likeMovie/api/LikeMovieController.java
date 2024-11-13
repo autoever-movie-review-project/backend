@@ -1,7 +1,6 @@
-package com.movie.domain.like.api;
+package com.movie.domain.likeMovie.api;
 
-import com.movie.domain.like.dto.response.LikeMovieResDto;
-import com.movie.domain.like.service.LikeMovieService;
+import com.movie.domain.likeMovie.service.LikeMovieService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

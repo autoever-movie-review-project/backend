@@ -1,4 +1,4 @@
-package com.movie.domain.like.exception;
+package com.movie.domain.likeMovie.exception;
 
 import com.movie.global.exception.DuplicatedException;
 
