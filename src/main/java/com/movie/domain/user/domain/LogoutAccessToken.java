@@ -16,10 +16,10 @@ public class LogoutAccessToken {
     private String accessToken;
 
     @TimeToLive
-    private Long expiration;
+    private long expiration;
 
     @Builder
-    public LogoutAccessToken(String email, String accessToken, Long expiration) {
+    public LogoutAccessToken(String email, String accessToken, long expiration) {
         this.email = email;
         this.accessToken = accessToken;
         this.expiration = expiration;

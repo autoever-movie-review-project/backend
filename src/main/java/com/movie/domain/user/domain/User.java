@@ -40,20 +40,20 @@ public class User {
 
     @Column(nullable = false)
     @ColumnDefault("0")
-    private Integer points = 0;
+    private int points = 0;
 
     @ManyToOne
     @JoinColumn(name = "rank_id")
     private Rank rank;
 
     @Builder
-    public User(String email, String password, String nickname, UserType userType, String profile, Integer points, Rank rank) {
+    public User(String email, String password, String nickname, UserType userType, String profile, int points, Rank rank) {
         this.email = email;
         this.password = password;
         this.nickname = nickname;
         this.userType = (userType != null) ? userType : UserType.ROLE_USER;
         this.profile = profile;
-        this.points = (points != null) ? points : 0;
+        this.points = points;
         this.rank = rank;
     }
 

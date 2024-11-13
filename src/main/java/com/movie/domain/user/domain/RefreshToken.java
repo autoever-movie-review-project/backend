@@ -18,10 +18,10 @@ public class RefreshToken {
     private String refreshToken;
 
     @TimeToLive(unit = TimeUnit.MILLISECONDS)
-    private Long expiration;
+    private long expiration;
 
     @Builder
-    public RefreshToken(String email, String refreshToken, Long expiration) {
+    public RefreshToken(String email, String refreshToken, long expiration) {
         this.email = email;
         this.refreshToken = refreshToken;
         this.expiration = expiration;
