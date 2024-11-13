@@ -56,7 +56,7 @@ jobs:
             echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
             sudo docker pull "${{ secrets.DOCKER_ID }}/${{ secrets.DOCKER_REPO }}:latest"
             # 기존에 실행 중인 컨테이너 중지 및 삭제
-            if [ "$(docker ps -aq -f name=movie-server)" ]; then
+            if [ "$(docker ps -al -f name=movie-server)" ]; then
               sudo docker stop movie-server
               sudo docker rm -f movie-server
             fi
