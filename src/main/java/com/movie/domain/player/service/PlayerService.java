@@ -65,18 +65,21 @@ public class PlayerService {
         User loggedInUser = securityUtils.getLoginUser();
 
         // 유저의 id값으로 Player 불러오기
-        Player player = playerRepository.findByUser_UserId(loggedInUser.getUserId());
+        Player player = playerRepository.findByUser_UserIdAndGameId(loggedInUser.getUserId(), gameId);
 
         // 해당 Player 삭제
         playerRepository.delete(player);
 
         // ** 게임 방 인원이 0명일 경우 게임 방 삭제 로직 **
-
-        // playerRepository에서 gameId의 값에 해당하는 Player가 없을 경우 방 삭제
         if (!playerRepository.existsByGameId(gameId)) {
             // gameId가 존재하는지 확인 후 삭제 시도
             if (gameRepository.existsById(gameId)) {
+                Game game = gameRepository.findById(gameId).orElseThrow(GameIdNotFoundException::new);
+
+                // playerCount 감소
+                game.setPlayerCountDown();
                 gameRepository.deleteById(gameId);
+
                 return new GameStatusResDto(gameId, true, null); // 방 삭제된 경우
             }
 
@@ -85,7 +88,7 @@ public class PlayerService {
             Game game = gameRepository.findById(gameId)
                     .orElseThrow(GameIdNotFoundException::new);
 
-            if(loggedInUser.getUserId().equals(game.getHostId())) {
+            if (loggedInUser.getUserId().equals(game.getHostId())) {
                 // 무작위 선정을 위한 List<Player> 불러오기
                 List<Player> players = playerRepository.findAllByGameId(gameId);
 
@@ -95,21 +98,50 @@ public class PlayerService {
                 // game의 hostId 새로 설정
                 game.setHostId(hostPlayer.getUser().getUserId());
 
+                // playerCount 감소
+                game.setPlayerCountDown();
+                gameRepository.save(game);
+
                 return new GameStatusResDto(gameId, false, game.getHostId()); // hostId가 바뀐 경우
             }
 
-            // Game의 참여중인 player의 수 -1 하는 로직
-            Game joinGame = gameRepository.findById(gameId)
-                    .orElseThrow(GameIdNotFoundException::new);
-
-            joinGame.setPlayerCountDown();
-            gameRepository.save(joinGame);
-
-
+            // playerCount 감소
+            game.setPlayerCountDown();
+            gameRepository.save(game);
         }
 
         return new GameStatusResDto(gameId, false, null); // 기본 반환
-
     }
 
+
+    public Long saveRandom() {
+        // 로그인 된 유저 불러오기
+        User loggedInUser = securityUtils.getLoginUser();
+
+        // status가 대기 상태이고, 인원이 다 차지 않은 game 리스트 불러오기
+        List<Game> games = gameRepository.findAvailableGames(GameStatus.WAITING);
+
+        if (!games.isEmpty()) {
+            // 무작위로 하나의 게임 선택
+            Random random = new Random();
+            Game selectedGame = games.get(random.nextInt(games.size()));
+
+            // 선택된 게임에 현재 유저 추가
+            Player newPlayer = Player.builder()
+                    .game(selectedGame)
+                    .user(loggedInUser)
+                    .isReady(false)
+                    .score(0L) // 기본 점수 설정
+                    .build();
+            playerRepository.save(newPlayer);
+
+            // 게임의 playerCount 증가
+            selectedGame.setPlayerCountUp();
+            gameRepository.save(selectedGame);
+            return selectedGame.getId();
+        } else {
+            // 대기 중인 게임이 없을 때의 처리
+            return null;
+        }
+    }
 }

@@ -8,11 +8,11 @@ import lombok.*;
 import javax.persistence.*;
 
 @Entity
-@Table
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 @Getter
+@Table
 public class Player {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

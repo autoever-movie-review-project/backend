@@ -84,11 +84,12 @@ public class GameController {
         return ResponseEntity.ok(isReadyPlayerResDto);
     }
 
-//    @GetMapping("/game/{gameId}/allready")
-//    public ResponseEntity<?> allreadyGame(
-//            @PathVariable Long gameId
-//    ) {
-//
-//    }
+    // 빠른 참가
+    @PostMapping("/game/fastjoin")
+    public ResponseEntity<?> fastJoinGame() {
+        Long answer = playerService.saveRandom();
+
+        return ResponseEntity.ok("참가한 gameId의 값 : " + answer);
+    }
 
 }
