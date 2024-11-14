@@ -24,7 +24,7 @@ spring:
         format_sql: true
         show_sql: true
     hibernate:
-        ddl-auto: create
+        ddl-auto: none
 
   datasource:
     url: ${secret.datasource.url}
