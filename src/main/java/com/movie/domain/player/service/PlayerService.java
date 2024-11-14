@@ -74,6 +74,7 @@ public class PlayerService {
             if (gameRepository.existsById(gameId)) {
                 gameRepository.deleteById(gameId);
             }
+
         } else {
             // Game의 참여중인 player의 수 -1 하는 로직
             Game game = gameRepository.findById(gameId)

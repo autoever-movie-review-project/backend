@@ -110,7 +110,7 @@ public class GameService {
     }
 
     @Transactional
-    public List<IsReadyPlayerResDto> ready(Long gameId) {
+    public List<IsReadyPlayerResDto> readyList(Long gameId) {
         // 현재 로그인 된 유저를 가져온다.
         User loggedInUser = securityUtils.getLoginUser();
 
@@ -136,9 +136,12 @@ public class GameService {
         return isReadyPlayerResDto;
     }
 
+
+
     // 게임 대기실 리스트 가져오기
 //    @Transactional
 //    public GetGameResDto getGame(Long gameId) {
 //
 //    }
+
 }

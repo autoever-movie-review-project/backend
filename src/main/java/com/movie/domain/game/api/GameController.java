@@ -78,9 +78,16 @@ public class GameController {
     public ResponseEntity<?> readyGame(
             @PathVariable Long gameId
     ) {
-        List<IsReadyPlayerResDto> isReadyPlayerResDto = gameService.ready(gameId);
+        List<IsReadyPlayerResDto> isReadyPlayerResDto = gameService.readyList(gameId);
 
         return ResponseEntity.ok(isReadyPlayerResDto);
     }
+
+//    @GetMapping("/game/{gameId}/allready")
+//    public ResponseEntity<?> allreadyGame(
+//            @PathVariable Long gameId
+//    ) {
+//
+//    }
 
 }
