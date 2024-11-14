@@ -1,11 +1,13 @@
 package com.movie.domain.game.domain;
 
+import com.movie.global.entity.BaseEntity;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 
 @Entity
 @NoArgsConstructor
@@ -13,7 +15,7 @@ import javax.persistence.*;
 @Builder
 @Table
 @Getter
-public class Game {
+public class Game{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -25,6 +27,7 @@ public class Game {
 
     private Long maxPlayer;
     private Long playerCount;
+    LocalDateTime createdAt;
 
     public void gameStart() {
         this.status = GameStatus.STARTED;

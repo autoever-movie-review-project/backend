@@ -5,7 +5,6 @@ import com.movie.domain.game.domain.Game;
 import com.movie.domain.game.domain.GameStatus;
 import com.movie.domain.game.dto.request.CreateGameReqDto;
 import com.movie.domain.game.dto.response.GetGameDetailResDto;
-import com.movie.domain.game.dto.response.GetGameListResDto;
 import com.movie.domain.game.exception.GameIdNotFoundException;
 import com.movie.domain.likeMovie.exception.LikeMovieDuplicateException;
 import com.movie.domain.player.dao.PlayerRepository;
@@ -18,10 +17,7 @@ import com.movie.domain.user.domain.User;
 import com.movie.domain.user.exception.UserIdNotFoundException;
 import com.movie.global.security.util.SecurityUtils;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -149,7 +145,7 @@ public class GameService {
         // 2) 페이지 요청에 따른 모든 Game 조회
         Page<Game> games = gameRepository.findAll(pageable);
 
-
+        return games;
     }
 
 

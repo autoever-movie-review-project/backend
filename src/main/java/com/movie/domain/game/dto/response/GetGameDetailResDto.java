@@ -4,6 +4,8 @@ import com.movie.domain.game.domain.Game;
 import com.movie.domain.game.domain.GameStatus;
 import com.movie.domain.player.dto.response.PlayerInfoDto;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 public record GetGameDetailResDto(
@@ -13,6 +15,7 @@ public record GetGameDetailResDto(
         GameStatus status,
         Long maxPlayer,
         Long playerCount,
+        LocalDateTime createdAt,
 
         List<PlayerInfoDto> playerInfo
 ) {
@@ -24,6 +27,7 @@ public record GetGameDetailResDto(
                 game.getStatus(),
                 game.getMaxPlayer(),
                 game.getPlayerCount(),
+                game.getCreatedAt(),
                 playerInfo
         );
     }

@@ -4,7 +4,6 @@ import com.movie.domain.game.domain.Game;
 import com.movie.domain.game.dto.request.CreateGameReqDto;
 import com.movie.domain.game.dto.response.GameStatusResDto;
 import com.movie.domain.game.dto.response.GetGameDetailResDto;
-import com.movie.domain.game.dto.response.GetGameListResDto;
 import com.movie.domain.game.service.GameService;
 import com.movie.domain.player.dto.response.IsReadyPlayerResDto;
 import com.movie.domain.player.service.PlayerService;
@@ -65,9 +64,9 @@ public class GameController {
     @GetMapping("/games")
     public ResponseEntity<?> getGame(
             @RequestParam(defaultValue = "0") int page) {
-        Page<GetGameDetailResDto> gameList = gameService.getGameList(page);
+        Page<Game> gamesList = gameService.getGameList(page);
 
-        return ResponseEntity.ok(gameList);
+        return ResponseEntity.ok(gamesList);
     }
 
 
