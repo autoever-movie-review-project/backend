@@ -1,6 +1,7 @@
 package com.movie.domain.movie.domain;
 
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -22,4 +23,12 @@ public class MovieActors {
     @JoinColumn(name = "actor_id")
     private Actor actor;
 
+    private String character;
+
+    @Builder
+    public MovieActors(Movie movie, Actor actor, String character) {
+        this.movie = movie;
+        this.actor = actor;
+        this.character = character;
+    }
 }

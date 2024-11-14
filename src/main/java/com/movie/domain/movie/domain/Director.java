@@ -1,6 +1,7 @@
 package com.movie.domain.movie.domain;
 
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -19,9 +20,17 @@ public class Director {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long directorId;
 
+    private Long tmdbDirectorId;
     private String directorName;
-    private LocalDate birthdate;
+    private LocalDate birthDate;
 
     @OneToMany(mappedBy = "director", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<MovieDirectors> movieDirectors = new ArrayList<>();
+
+    @Builder
+    public Director(Long tmdbDirectorId, String directorName, LocalDate birthDate) {
+        this.tmdbDirectorId = tmdbDirectorId;
+        this.directorName = directorName;
+        this.birthDate = birthDate;
+    }
 }
