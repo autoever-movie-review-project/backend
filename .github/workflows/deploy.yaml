@@ -60,5 +60,9 @@ jobs:
               sudo docker stop movie-server
               sudo docker rm -f movie-server
             fi
-            # 새로운 컨테이너 실행
-            sudo docker run -d -p 8080:8080 --name movie-server "${{ secrets.DOCKER_ID }}/${{ secrets.DOCKER_REPO }}:latest"
+            # 새로운 컨테이너 실행, Redis 환경 변수 설정
+            sudo docker run -d -p 8080:8080 --name movie-server \
+              -e REDIS_HOST=43.201.19.163 \
+              -e REDIS_PORT=6379 \
+              -e REDIS_PASSWORD=${{ secrets.REDIS_PASSWORD }} \
+              "${{ secrets.DOCKER_ID }}/${{ secrets.DOCKER_REPO }}:latest"
