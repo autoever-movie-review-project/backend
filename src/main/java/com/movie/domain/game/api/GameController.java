@@ -4,10 +4,12 @@ import com.movie.domain.game.domain.Game;
 import com.movie.domain.game.dto.request.CreateGameReqDto;
 import com.movie.domain.game.dto.response.GameStatusResDto;
 import com.movie.domain.game.dto.response.GetGameDetailResDto;
+import com.movie.domain.game.dto.response.GetGameListResDto;
 import com.movie.domain.game.service.GameService;
 import com.movie.domain.player.dto.response.IsReadyPlayerResDto;
 import com.movie.domain.player.service.PlayerService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -59,10 +61,14 @@ public class GameController {
         return ResponseEntity.ok("게임 시작, 방 상태 변경");
     }
 
-//    @GetMapping("/games")
-//    public ResponseEntity<?> getGame() {
-//
-//    }
+    // 게임방 리스트 조회
+    @GetMapping("/games")
+    public ResponseEntity<?> getGame(
+            @RequestParam(defaultValue = "0") int page) {
+        Page<GetGameDetailResDto> gameList = gameService.getGameList(page);
+
+        return ResponseEntity.ok(gameList);
+    }
 
 
 
