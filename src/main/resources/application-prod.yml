@@ -26,6 +26,7 @@ spring:
     hibernate:
         ddl-auto: create
 
+
   datasource:
     url: ${secret.datasource.url}
     username: ${secret.datasource.username}
