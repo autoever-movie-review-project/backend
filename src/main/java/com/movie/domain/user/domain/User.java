@@ -4,6 +4,7 @@ import com.movie.domain.rank.domain.Rank;
 import com.movie.domain.user.constant.UserType;
 import com.movie.domain.user.dto.request.UpdateProfileReqDto;
 import com.movie.domain.user.dto.request.UpdateUserReqDto;
+import com.movie.global.entity.BaseEntity;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -16,7 +17,7 @@ import javax.persistence.*;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "users")
 @Entity
-public class User {
+public class User extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
