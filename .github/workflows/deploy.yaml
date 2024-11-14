@@ -3,7 +3,7 @@ name: Deploy Spring Application to EC2
 # main에 대한 브랜치 push와 수동 트리거에 반응
 on:
   push:
-    branches: [ "develop_es" ]
+    branches: [ "deploy_test" ]
   workflow_dispatch:
 
 # 워크플로우가 저장소의 콘텐츠를 읽을 수 있는 권한을 갖도록 설정
