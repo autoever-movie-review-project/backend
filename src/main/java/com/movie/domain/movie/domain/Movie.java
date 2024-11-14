@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 @Getter
@@ -36,7 +37,7 @@ public class Movie {
     private int voteCount;                 // 평점을 매긴 사람 수
     private String language;               // 원본 언어
     private Integer runtime;               // 러닝타임
-    private Integer ageRating;             // 관람 등급
+    private String ageRating;             // 관람 등급
     private Integer reviewCount;           // 리뷰 수
 
     @OneToMany(mappedBy = "movie", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -54,7 +55,7 @@ public class Movie {
     @Builder
     public Movie(Long tmdbId, String title, String tagline, String plot, double popularity, String backdropImg,
                  String mainImg, LocalDate releaseDate, double rating, int voteCount, String language,
-                 Integer runtime, Integer ageRating, Integer reviewCount, List<Review> reviews,
+                 Integer runtime, String ageRating, Integer reviewCount, List<Review> reviews,
                  List<MovieGenres> movieGenres, List<MovieActors> movieActors, List<MovieDirectors> movieDirectors) {
         this.tmdbId = tmdbId;
         this.title = title;
@@ -77,14 +78,30 @@ public class Movie {
     }
 
     public void addMovieGenres(List<MovieGenres> genres) {
-        this.movieGenres.addAll(genres);
+        if (this.movieGenres == null) {
+            this.movieGenres = new ArrayList<>();
+        }
+        if (genres != null) {
+            this.movieGenres.addAll(genres);
+        }
     }
 
     public void addMovieDirectors(List<MovieDirectors> directors) {
-        this.movieDirectors.addAll(directors);
+        if (this.movieDirectors == null) {
+            this.movieDirectors = new ArrayList<>();
+        }
+        if (directors != null) {
+            this.movieDirectors.addAll(directors);
+        }
     }
 
     public void addMovieActors(List<MovieActors> actors) {
-        this.movieActors.addAll(actors);
+        if (this.movieActors == null) {
+            this.movieActors = new ArrayList<>();
+        }
+        if (actors != null) {
+            this.movieActors.addAll(actors);
+        }
     }
+
 }
