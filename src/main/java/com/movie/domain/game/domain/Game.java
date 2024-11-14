@@ -41,4 +41,8 @@ public class Game {
     public void setPlayerCountDown() {
         this.playerCount = this.playerCount - 1;
     }
+
+    public void setHostId(Long userId) {
+        this.hostId = userId;
+    }
 }

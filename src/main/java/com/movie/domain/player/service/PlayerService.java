@@ -3,6 +3,7 @@ package com.movie.domain.player.service;
 import com.movie.domain.game.dao.GameRepository;
 import com.movie.domain.game.domain.Game;
 import com.movie.domain.game.domain.GameStatus;
+import com.movie.domain.game.dto.response.GameStatusResDto;
 import com.movie.domain.game.exception.GameIdNotFoundException;
 import com.movie.domain.player.dao.PlayerRepository;
 import com.movie.domain.player.domain.Player;
@@ -13,6 +14,9 @@ import com.movie.global.security.util.SecurityUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.Random;
 
 @Service
 @RequiredArgsConstructor
@@ -56,7 +60,7 @@ public class PlayerService {
     }
 
     @Transactional
-    public void delete(Long gameId) {
+    public GameStatusResDto delete(Long gameId) {
         // 로그인 된 유저 불러오기
         User loggedInUser = securityUtils.getLoginUser();
 
@@ -73,17 +77,39 @@ public class PlayerService {
             // gameId가 존재하는지 확인 후 삭제 시도
             if (gameRepository.existsById(gameId)) {
                 gameRepository.deleteById(gameId);
+                return new GameStatusResDto(gameId, true, null); // 방 삭제된 경우
             }
 
         } else {
-            // Game의 참여중인 player의 수 -1 하는 로직
+            // 나간 Player가 방장이면 방장권한 위임
             Game game = gameRepository.findById(gameId)
                     .orElseThrow(GameIdNotFoundException::new);
 
-            game.setPlayerCountDown();
+            if(loggedInUser.getUserId().equals(game.getHostId())) {
+                // 무작위 선정을 위한 List<Player> 불러오기
+                List<Player> players = playerRepository.findAllByGameId(gameId);
 
-            gameRepository.save(game);
+                Random random = new Random();
+                Player hostPlayer = players.get(random.nextInt(players.size()));
+
+                // game의 hostId 새로 설정
+                game.setHostId(hostPlayer.getUser().getUserId());
+
+                return new GameStatusResDto(gameId, false, game.getHostId()); // hostId가 바뀐 경우
+            }
+
+            // Game의 참여중인 player의 수 -1 하는 로직
+            Game joinGame = gameRepository.findById(gameId)
+                    .orElseThrow(GameIdNotFoundException::new);
+
+            joinGame.setPlayerCountDown();
+            gameRepository.save(joinGame);
+
+
         }
+
+        return new GameStatusResDto(gameId, false, null); // 기본 반환
+
     }
 
 }

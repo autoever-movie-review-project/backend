@@ -2,6 +2,7 @@ package com.movie.domain.game.api;
 
 import com.movie.domain.game.domain.Game;
 import com.movie.domain.game.dto.request.CreateGameReqDto;
+import com.movie.domain.game.dto.response.GameStatusResDto;
 import com.movie.domain.game.dto.response.GetGameDetailResDto;
 import com.movie.domain.game.service.GameService;
 import com.movie.domain.player.dto.response.IsReadyPlayerResDto;
@@ -43,9 +44,9 @@ public class GameController {
     public ResponseEntity<?> exitGame(
             @PathVariable Long gameId
     ) {
-        playerService.delete(gameId);
+        GameStatusResDto getGameStatusResDto = playerService.delete(gameId);
 
-        return ResponseEntity.ok("게임 나가기 완료");
+        return ResponseEntity.ok(getGameStatusResDto);
     }
 
     //게임 시작
