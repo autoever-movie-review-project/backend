@@ -13,7 +13,7 @@ public class RankController {
     private final RankService rankService;
 
     // 사용자 등급 조회
-    @GetMapping("/rank/my/grade")
+    @GetMapping("/rank/my")
     public ResponseEntity<?> getMyGrade() {
         GetMyGradeDto getMyGradeDto = rankService.getGrade();
 
