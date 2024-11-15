@@ -23,12 +23,12 @@ public class MovieActors {
     @JoinColumn(name = "actor_id")
     private Actor actor;
 
-    private String character;
+    private String characterName;
 
     @Builder
-    public MovieActors(Movie movie, Actor actor, String character) {
+    public MovieActors(Movie movie, Actor actor, String characterName) {
         this.movie = movie;
         this.actor = actor;
-        this.character = character;
+        this.characterName = characterName;
     }
 }

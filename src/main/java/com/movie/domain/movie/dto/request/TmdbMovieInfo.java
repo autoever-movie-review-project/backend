@@ -71,7 +71,7 @@ public class TmdbMovieInfo {
         @JsonProperty("birth_date")        // 생년월일
         private String birthDate;
 
-        private String job;                // 직업 (예: "Director")
+        private String job;                // 직업
     }
 
     @Data

@@ -24,7 +24,7 @@ public class Movie {
     private Long tmdbId;                   // TMDB 영화 ID
 
     private String title;                  // 번역된 제목
-    private String tagline;                // 영화 명언(대표 문구)
+    private String tagline;                // 영화 대표 문구
 
     @Column(columnDefinition = "TEXT")
     private String plot;                   // 줄거리

@@ -12,17 +12,15 @@ import com.movie.domain.movie.dto.response.TmdbMovieResDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -36,73 +34,139 @@ public class TmdbServiceImpl implements TmdbService {
     private final ActorRepository actorRepository;
     private final DirectorRepository directorRepository;
 
-    @Transactional
+    private static final int BATCH_SIZE = 20;
+
     @Override
     public void initializeMovies() {
         int moviesFetched = 0;
         int page = 1;
-        int targetCount = 10000;
+        int targetCount = 5000;
+
+        List<Movie> moviesToSave = new ArrayList<>();
 
         while (moviesFetched < targetCount) {
             String url = String.format("/movie/popular?page=%d&language=ko-KR", page);
-            HttpEntity<String> entity = new HttpEntity<>(new HttpHeaders());
 
             try {
-                // 1. 인기 영화 목록 가져오기
-                ResponseEntity<TmdbMovieResDto> response = tmdbRestTemplate.exchange(url, HttpMethod.GET, entity, TmdbMovieResDto.class);
+                log.info("[페이지 시작] 페이지 번호: {}", page);
+
+                ResponseEntity<TmdbMovieResDto> response = tmdbRestTemplate.exchange(url, HttpMethod.GET, HttpEntity.EMPTY, TmdbMovieResDto.class);
                 List<TmdbMovieInfo> popularMovies = response.getBody().getResults();
 
                 if (popularMovies == null || popularMovies.isEmpty()) {
-                    log.info("더 이상 인기 영화 데이터가 없습니다.");
+                    log.info("[데이터 없음] 페이지: {}", page);
                     break;
                 }
 
-                // 2. 각 영화의 상세 정보 및 출연진 정보 가져오기
+                List<Long> existingTmdbIds = movieRepository.findTmdbIds(popularMovies.stream()
+                        .map(TmdbMovieInfo::getId)
+                        .collect(Collectors.toList()));
+
                 for (TmdbMovieInfo movieInfo : popularMovies) {
-                    if (!movieRepository.existsByTmdbId(movieInfo.getId())) {
-                        TmdbMovieInfo detailedMovieInfo = getMoviesWithCredits(movieInfo.getId());
-                        if (detailedMovieInfo != null) {
-                            String koreanAgeRating = getKoreanAgeRating(movieInfo.getId());
-                            detailedMovieInfo.setAgeRating(koreanAgeRating);
-                            addMovieToDb(detailedMovieInfo);
-                            moviesFetched++;
-                        }
-                        if (moviesFetched >= targetCount) {
-                            break;
-                        }
+                    if (moviesFetched >= targetCount) break;
+
+                    if (existingTmdbIds.contains(movieInfo.getId())) {
+                        log.info("[중복 데이터 건너뜀] TMDB ID: {}", movieInfo.getId());
+                        continue;
+                    }
+
+                    TmdbMovieInfo detailedMovieInfo = getMoviesWithCredits(movieInfo.getId());
+                    if (detailedMovieInfo == null || !isValidMovie(detailedMovieInfo)) {
+                        continue;
+                    }
+
+                    Movie movie = createMovieEntity(detailedMovieInfo);
+                    if (movie != null) {
+                        moviesToSave.add(movie);
+                        moviesFetched++;
+                    }
+
+                    if (moviesToSave.size() >= BATCH_SIZE) {
+                        saveMoviesInTransaction(moviesToSave);
+                        moviesToSave.clear();
                     }
                 }
+
                 page++;
-            } catch (HttpClientErrorException e) {
-                log.error("인기 TMDB 영화 조회 오류: 상태 코드 = {}, 응답 내용 = {}", e.getStatusCode(), e.getResponseBodyAsString());
+
+            } catch (Exception e) {
+                log.error("[TMDB API 오류] {}", e.getMessage());
                 break;
             }
         }
-        log.info("인기 영화 데이터 수집 완료 - 총 추가된 영화 개수: {}", moviesFetched);
+
+        if (!moviesToSave.isEmpty()) {
+            saveMoviesInTransaction(moviesToSave);
+        }
+
+        log.info("[작업 완료] 총 저장된 영화 수: {}", moviesFetched);
     }
 
-    public TmdbMovieInfo getMoviesWithCredits(Long movieId) {
-        String url = String.format("/movie/%d?append_to_response=credits&language=ko-KR", movieId); // API 키 포함 필요 없음
+//    @Scheduled(cron = "0 0 0 * * ?")
+    public void updateNewMovies() {
+        Long lastTmdbId = movieRepository.findMaxTmdbId().orElse(0L);
+        Long currentTmdbId = lastTmdbId + 1;
 
-        HttpEntity<String> entity = new HttpEntity<>(new HttpHeaders());
+        List<Movie> moviesToSave = new ArrayList<>();
+
+        while (true) {
+            TmdbMovieInfo movieInfo = getMoviesWithCredits(currentTmdbId);
+            if (movieInfo == null || !isValidMovie(movieInfo)) {
+                log.info("[새로운 영화 없음] TMDB ID: {}", currentTmdbId);
+                break;
+            }
+
+            Movie movie = createMovieEntity(movieInfo);
+            if (movie != null) {
+                moviesToSave.add(movie);
+            }
+
+            currentTmdbId++;
+
+            if (moviesToSave.size() >= BATCH_SIZE) {
+                saveMoviesInTransaction(moviesToSave);
+                moviesToSave.clear();
+            }
+        }
+
+        if (!moviesToSave.isEmpty()) {
+            saveMoviesInTransaction(moviesToSave);
+        }
+    }
+
+    private boolean isValidMovie(TmdbMovieInfo movieInfo) {
+        if (movieInfo.getTagline() != null && movieInfo.getTagline().length() > 255) {
+            log.warn("[건너뜀] 태그라인 길이 초과 - TMDB ID: {}", movieInfo.getId());
+            return false;
+        }
+
+        if (movieInfo.getCredits() != null && movieInfo.getCredits().getCast() != null &&
+                movieInfo.getCredits().getCast().stream()
+                        .anyMatch(actor -> actor.getCharacter() != null && actor.getCharacter().length() > 255)) {
+            log.warn("[건너뜀] 배역 이름 길이 초과 - TMDB ID: {}", movieInfo.getId());
+            return false;
+        }
+
+        return true;
+    }
+
+    private TmdbMovieInfo getMoviesWithCredits(Long movieId) {
+        String url = String.format("/movie/%d?append_to_response=credits&language=ko-KR", movieId);
 
         try {
-            ResponseEntity<TmdbMovieInfo> response = tmdbRestTemplate.exchange(url, HttpMethod.GET, entity, TmdbMovieInfo.class);
+            ResponseEntity<TmdbMovieInfo> response = tmdbRestTemplate.exchange(url, HttpMethod.GET, HttpEntity.EMPTY, TmdbMovieInfo.class);
             return response.getBody();
-        } catch (HttpClientErrorException e) {
-            log.error("TMDB 요청 오류: 상태 코드 = {}, 응답 내용 = {}", e.getStatusCode(), e.getResponseBodyAsString());
+        } catch (Exception e) {
+            log.error("[TMDB 요청 실패] TMDB ID: {}, 오류: {}", movieId, e.getMessage());
             return null;
         }
     }
 
-    @Transactional
-    @Override
-    public String getKoreanAgeRating(Long movieId) {
-        String url = String.format("/movie/%d/release_dates", movieId); // API 키 포함 필요 없음
-        HttpEntity<String> entity = new HttpEntity<>(new HttpHeaders());
+    private String getKoreanAgeRating(Long movieId) {
+        String url = String.format("/movie/%d/release_dates", movieId);
 
         try {
-            ResponseEntity<String> response = tmdbRestTemplate.exchange(url, HttpMethod.GET, entity, String.class);
+            ResponseEntity<String> response = tmdbRestTemplate.exchange(url, HttpMethod.GET, HttpEntity.EMPTY, String.class);
             ObjectMapper mapper = new ObjectMapper();
             JsonNode rootNode = mapper.readTree(response.getBody());
 
@@ -116,47 +180,32 @@ public class TmdbServiceImpl implements TmdbService {
                     }
                 }
             }
-            return "등급 정보 없음"; // 한국 등급 정보가 없을 경우
-        } catch (HttpClientErrorException e) {
-            log.error("TMDB 요청 오류: 상태 코드 = {}, 응답 내용 = {}", e.getStatusCode(), e.getResponseBodyAsString());
-            return null;
+
+            return "등급 정보 없음";
+
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("[등급 조회 실패] TMDB ID: {}, 오류: {}", movieId, e.getMessage());
             return null;
         }
     }
 
-    @Transactional
-    @Override
-    public String getPersonBirthDate(Long actorId) {
-        String url = String.format("/person/%d", actorId);
-        HttpEntity<String> entity = new HttpEntity<>(new HttpHeaders());
+    private String getPersonBirthDate(Long personId) {
+        String url = String.format("/person/%d?language=ko-KR", personId);
 
         try {
-            ResponseEntity<String> response = tmdbRestTemplate.exchange(url, HttpMethod.GET, entity, String.class);
+            ResponseEntity<String> response = tmdbRestTemplate.exchange(url, HttpMethod.GET, HttpEntity.EMPTY, String.class);
             ObjectMapper mapper = new ObjectMapper();
             JsonNode rootNode = mapper.readTree(response.getBody());
-
             return rootNode.has("birthday") ? rootNode.get("birthday").asText() : null;
-        } catch (HttpClientErrorException e) {
-            log.error("배우 정보 조회 오류: 상태 코드 = {}, 응답 내용 = {}", e.getStatusCode(), e.getResponseBodyAsString());
-            return null;
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("[생일 조회 실패] TMDB Person ID: {}, 오류: {}", personId, e.getMessage());
             return null;
         }
     }
 
 
-    @Transactional
-    @Override
-    public void addMovieToDb(TmdbMovieInfo movieInfo) {
-        if (movieInfo == null || movieRepository.existsByTmdbId(movieInfo.getId())) {
-            log.info("[중복 확인]: 영화 이미 존재하거나 TMDB 정보가 없음 - TMDB ID = {}", movieInfo.getId());
-            return;
-        }
-
-        log.info("DB에 추가할 MovieInfo 데이터 id: {}", movieInfo.getId());
+    private Movie createMovieEntity(TmdbMovieInfo movieInfo) {
+        if (movieInfo == null) return null;
 
         Movie movie = Movie.builder()
                 .tmdbId(movieInfo.getId())
@@ -166,113 +215,95 @@ public class TmdbServiceImpl implements TmdbService {
                 .popularity(movieInfo.getPopularity())
                 .backdropImg(getImageUrl(movieInfo.getBackdropPath()))
                 .mainImg(getImageUrl(movieInfo.getPosterPath()))
-                .releaseDate(movieInfo.getReleaseDate() != null ? LocalDate.parse(movieInfo.getReleaseDate()) : null)
+                .releaseDate(parseDate(movieInfo.getReleaseDate()))
                 .rating(movieInfo.getVoteAverage())
                 .voteCount(movieInfo.getVoteCount())
                 .language(movieInfo.getOriginalLanguage())
-                .ageRating(movieInfo.getAgeRating())
+                .ageRating(getKoreanAgeRating(movieInfo.getId()))
                 .runtime(movieInfo.getRuntime())
+                .reviewCount(0)
                 .build();
 
+        // 장르, 감독, 배우 설정
+        setMovieRelations(movie, movieInfo);
+
+        return movie;
+    }
+
+    private void setMovieRelations(Movie movie, TmdbMovieInfo movieInfo) {
+        // 장르 설정
         if (movieInfo.getGenres() != null && !movieInfo.getGenres().isEmpty()) {
             List<MovieGenres> movieGenres = movieInfo.getGenres().stream()
-                    .filter(genreDto -> genreDto != null)
                     .map(genreDto -> {
-                        var genre = genreRepository.findByTmdbGenreId(genreDto.getTmdbGenreId())
-                                .orElseGet(() -> genreRepository.save(
-                                        Genre.builder()
-                                                .tmdbGenreId(genreDto.getTmdbGenreId())
-                                                .genre(genreDto.getName())
-                                                .build()
-                                ));
+                        Genre genre = genreRepository.findByTmdbGenreId(genreDto.getTmdbGenreId())
+                                .orElseGet(() -> genreRepository.save(Genre.builder()
+                                        .tmdbGenreId(genreDto.getTmdbGenreId())
+                                        .genre(genreDto.getName())
+                                        .build()));
                         return MovieGenres.builder().movie(movie).genre(genre).build();
-                    })
-                    .collect(Collectors.toList());
+                    }).collect(Collectors.toList());
             movie.addMovieGenres(movieGenres);
         }
 
-        if (movieInfo.getCredits() != null && movieInfo.getCredits().getCrew() != null && !movieInfo.getCredits().getCrew().isEmpty()) {
+        // 감독 설정
+        if (movieInfo.getCredits() != null && movieInfo.getCredits().getCrew() != null) {
             List<MovieDirectors> movieDirectors = movieInfo.getCredits().getCrew().stream()
                     .filter(directorDto -> "Director".equals(directorDto.getJob()))
                     .limit(2)
                     .map(directorDto -> {
                         String birthDate = getPersonBirthDate(directorDto.getTmdbDirectorId());
-                        var director = directorRepository.findByTmdbDirectorId(directorDto.getTmdbDirectorId())
-                                .orElseGet(() -> directorRepository.save(
-                                        Director.builder()
-                                                .tmdbDirectorId(directorDto.getTmdbDirectorId())
-                                                .directorName(directorDto.getName())
-                                                .birthDate(parseBirthDate(birthDate))
-                                                .build()
-                                ));
+                        Director director = directorRepository.findByTmdbDirectorId(directorDto.getTmdbDirectorId())
+                                .orElseGet(() -> directorRepository.save(Director.builder()
+                                        .tmdbDirectorId(directorDto.getTmdbDirectorId())
+                                        .directorName(directorDto.getName())
+                                        .birthDate(parseDate(birthDate))
+                                        .build()));
                         return MovieDirectors.builder().movie(movie).director(director).build();
-                    })
-                    .collect(Collectors.toList());
+                    }).collect(Collectors.toList());
             movie.addMovieDirectors(movieDirectors);
         }
 
-        if (movieInfo.getCredits() != null && movieInfo.getCredits().getCast() != null && !movieInfo.getCredits().getCast().isEmpty()) {
+
+        // 배우 설정
+        if (movieInfo.getCredits() != null && movieInfo.getCredits().getCast() != null) {
             List<MovieActors> movieActors = movieInfo.getCredits().getCast().stream()
                     .filter(actorDto -> actorDto != null && actorDto.getOrder() < 8)
                     .limit(8)
                     .map(actorDto -> {
                         String birthDate = getPersonBirthDate(actorDto.getTmdbActorId());
-                        var actor = actorRepository.findByTmdbActorId(actorDto.getTmdbActorId())
-                                .orElseGet(() -> actorRepository.save(
-                                        Actor.builder()
-                                                .tmdbActorId(actorDto.getTmdbActorId())
-                                                .actorName(actorDto.getName())
-                                                .birthDate(parseBirthDate(birthDate))
-                                                .actorImg(actorDto.getProfilePath())
-                                                .build()
-                                ));
-                        return MovieActors.builder().movie(movie).actor(actor).character(actorDto.getCharacter()).build();
-                    })
-                    .collect(Collectors.toList());
+                        Actor actor = actorRepository.findByTmdbActorId(actorDto.getTmdbActorId())
+                                .orElseGet(() -> actorRepository.save(Actor.builder()
+                                        .tmdbActorId(actorDto.getTmdbActorId())
+                                        .actorName(actorDto.getName())
+                                        .birthDate(parseDate(birthDate))
+                                        .actorImg(actorDto.getProfilePath())
+                                        .build()));
+                        return MovieActors.builder().movie(movie).actor(actor).characterName(actorDto.getCharacter()).build();
+                    }).collect(Collectors.toList());
             movie.addMovieActors(movieActors);
         }
-
-        log.info("[Movie 엔티티 저장 완료]: TMDB ID = {}", movieInfo.getId());
-        movieRepository.save(movie);
     }
 
-    @Transactional
-    @Override
-    public String getImageUrl(String imagePath) {
-        return "https://image.tmdb.org/t/p/w500/" + imagePath;
+    private String getImageUrl(String imagePath) {
+        return imagePath != null ? "https://image.tmdb.org/t/p/w500/" + imagePath : null;
     }
 
-    @Transactional
-    @Override
-    public LocalDate parseBirthDate(String birthDate) {
-        log.info("[생일 정보 파싱 시작]: 입력 값 = {}", birthDate);
-
+    private LocalDate parseDate(String date) {
         try {
-            LocalDate parsedDate = birthDate != null ? LocalDate.parse(birthDate) : null;
-            log.info("[생일 정보 파싱 성공]: 결과 값 = {}", parsedDate);
-            return parsedDate;
+            return date != null ? LocalDate.parse(date) : null;
         } catch (DateTimeParseException e) {
-            log.warn("[생일 정보 파싱 실패]: 입력 값 = {}", birthDate);
+            log.warn("[날짜 파싱 실패] 입력 값: {}", date);
             return null;
         }
     }
 
-
-    @Scheduled(cron = "0 0 0 * * ?")
-    public void updateNewMovies() {
-        Long lastTmdbId = movieRepository.findMaxTmdbId().orElse(0L);
-        Long currentTmdbId = lastTmdbId + 1;
-
-        while (true) {
-            TmdbMovieInfo movieInfo = getMoviesWithCredits(currentTmdbId);
-            if (movieInfo != null) {
-                addMovieToDb(movieInfo);
-                currentTmdbId++;
-            } else {
-                log.info("새로운 영화 데이터가 없습니다.");
-                break;
-            }
+    @Transactional
+    public void saveMoviesInTransaction(List<Movie> movies) {
+        try {
+            movieRepository.saveAll(movies);
+            log.info("[저장 완료] 저장된 영화 수: {}", movies.size());
+        } catch (Exception e) {
+            log.error("[저장 실패] 오류: {}", e.getMessage());
         }
     }
 }
-
