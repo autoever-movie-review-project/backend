@@ -65,4 +65,7 @@ public class User {
         this.password = encryptedPassword;
     }
 
+    public void updatepoints(Integer points) {
+        this.points += points;
+    }
 }

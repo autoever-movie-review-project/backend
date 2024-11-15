@@ -5,18 +5,16 @@ import com.movie.domain.user.domain.User;
 
 import java.time.LocalDate;
 
-public record GetPointResDto(
+public record GetPointHistoryResDto(
         Long id,
         Integer points,
-        Integer totalPoints,
         String description,
         LocalDate createdAt
 ) {
-    public static GetPointResDto of(User user, PointHistory pointHistory) {
-        return new GetPointResDto(
+    public static GetPointHistoryResDto of(PointHistory pointHistory) {
+        return new GetPointHistoryResDto(
                 pointHistory.getId(),
                 pointHistory.getPoints(),
-                user.getPoints(),
                 pointHistory.getDescription(),
                 pointHistory.getCreatedAt()
         );
