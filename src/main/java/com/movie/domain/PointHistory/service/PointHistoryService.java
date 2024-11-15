@@ -2,6 +2,7 @@ package com.movie.domain.PointHistory.service;
 
 import com.movie.domain.PointHistory.dao.PointHistoryRepository;
 import com.movie.domain.PointHistory.domain.PointHistory;
+import com.movie.domain.PointHistory.dto.response.GetPointResDto;
 import com.movie.domain.user.domain.User;
 import com.movie.global.security.util.SecurityUtils;
 import lombok.RequiredArgsConstructor;
@@ -18,12 +19,18 @@ public class PointHistoryService {
     private final SecurityUtils securityUtils;
 
     @Transactional
-    public List<PointHistory> getHistorys() {
+    public List<GetPointResDto> getHistorys() {
         // 로그인 된 유저 불러오기
         User loggedInUser = securityUtils.getLoginUser();
 
-        List<PointHistory> historys = pointHistoryRepository.findAllbyUserId(loggedInUser.getUserId());
 
-        return historys;
+        List<GetPointResDto> resDtos = new ArrayList<>();
+
+        List<PointHistory> historys = pointHistoryRepository.findAllByUser_UserId(loggedInUser.getUserId());
+
+        for(PointHistory history : historys) {
+            resDtos.add(GetPointResDto.of(history));
+        }
+        return resDtos;
     }
 }

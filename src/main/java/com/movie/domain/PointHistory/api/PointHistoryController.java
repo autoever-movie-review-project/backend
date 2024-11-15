@@ -1,6 +1,7 @@
 package com.movie.domain.PointHistory.api;
 
 import com.movie.domain.PointHistory.domain.PointHistory;
+import com.movie.domain.PointHistory.dto.response.GetPointResDto;
 import com.movie.domain.PointHistory.service.PointHistoryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -14,9 +15,9 @@ import java.util.List;
 public class PointHistoryController {
     private final PointHistoryService pointHistoryService;
 
-    @GetMapping("/point/my")
+    @GetMapping("/point/my/history")
     public ResponseEntity<?> getMyPointHistory() {
-        List<PointHistory> pointHistorys = pointHistoryService.getHistorys();
+        List<GetPointResDto> pointHistorys = pointHistoryService.getHistorys();
 
         return ResponseEntity.ok(pointHistorys);
     }
