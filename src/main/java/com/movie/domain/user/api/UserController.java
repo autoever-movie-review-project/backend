@@ -172,6 +172,7 @@ public class UserController {
     @Operation(summary = "비밀번호 수정", description = "회원의 비밀번호를 수정합니다.")
     @PutMapping("/password")
     public ResponseEntity<Void> updatePassword(@RequestBody UpdatePasswordReqDto updatePasswordReqDto) {
+        log.info("수신한 요청 데이터: {}", updatePasswordReqDto.getPassword());
         userService.updatePassword(updatePasswordReqDto);
         return ResponseEntity.ok().build();
     }

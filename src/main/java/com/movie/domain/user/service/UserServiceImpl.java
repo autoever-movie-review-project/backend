@@ -174,22 +174,17 @@ public class UserServiceImpl implements UserService {
      * 비밀번호 변경, 일치 여부 확인
      */
     @Override
-    public void updatePassword(UpdatePasswordReqDto updatePasswordReqDto) {
+    public void updatePassword(UpdatePasswordReqDto newPassword) {
         String email = SecurityUtils.getLoginUserEmail();
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new InvalidSignUpException(UserExceptionMessage.USER_NOT_FOUND.getMessage()));
 
-        log.info("[비밀번호 변경] 변경 요청. 로그인 유저 : {}", user.getEmail());
+        log.info("[비밀번호 변경] 변경 요청. 로그인 유저: {}", user.getEmail());
 
-        if (!isSamePassword(user.getPassword(), updatePasswordReqDto.getPassword())) {
-            log.error("[비밀번호 수정] 기존 비밀번호 불일치.");
-            throw new InvalidSignUpException(UserExceptionMessage.LOGIN_PASSWORD_ERROR.getMessage());
-        }
-
-        user.updatePassword(passwordEncoder.encode(updatePasswordReqDto.getPassword()));
+        user.updatePassword(passwordEncoder.encode(newPassword.getPassword()));
         userRepository.save(user);
-        log.info("[비밀번호 수정] 비밀번호 수정 완료.");
 
+        log.info("[비밀번호 수정] 비밀번호 수정 완료. 이메일: {}", email);
     }
 
     /**
