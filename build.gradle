@@ -27,24 +27,31 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-mail'
     implementation 'org.springframework.boot:spring-boot-starter-webflux'
 
+    // WebSocket 의존성
+    implementation 'org.springframework.boot:spring-boot-starter-websocket'
+
+    // Messaging 의존성 (WebSocket과 함께 필요)
+    implementation 'org.springframework:spring-messaging'
+
+    // JSON 처리
     implementation 'org.glassfish:javax.json:1.0.4'
 
-    //Swagger
+    // Swagger
     implementation 'org.springdoc:springdoc-openapi-ui:1.6.9'
 
     // Lombok
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
 
-    // H2 Database
+    // H2 Database (개발용)
     runtimeOnly 'com.h2database:h2:1.4.200'
 
-    // JWT
+    // JWT (JSON Web Token)
     runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.2'
     implementation 'io.jsonwebtoken:jjwt-api:0.11.2'
     runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.2'
 
-    // QueryDSL
+    // QueryDSL (쿼리 지원)
     implementation "com.querydsl:querydsl-jpa:5.0.0"
     implementation "com.querydsl:querydsl-apt:5.0.0"
 
@@ -55,7 +62,7 @@ dependencies {
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.security:spring-security-test'
 
-    //Redis
+    // Redis
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 }
 

@@ -127,4 +127,13 @@ public class SecurityConfig {
 
         return source;
     }
+
+    protected void configure(HttpSecurity http) throws Exception {
+        http
+                .authorizeRequests()
+                .antMatchers("/ws/**").permitAll() // WebSocket 엔드포인트 허용
+                .anyRequest().authenticated()
+                .and()
+                .csrf().disable(); // WebSocket은 CSRF 보호가 필요하지 않음
+    }
 }
