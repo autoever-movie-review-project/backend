@@ -22,6 +22,9 @@ public class Genre {
     @Column(nullable = false, unique = true)
     private String genre;
 
+    @Column
+    private String mainGenre; // 상위 장르
+
     @OneToMany(mappedBy = "genre", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<MovieGenres> movieGenres;
 

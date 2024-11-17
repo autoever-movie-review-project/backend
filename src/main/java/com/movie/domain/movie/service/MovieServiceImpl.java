@@ -1,9 +1,9 @@
 package com.movie.domain.movie.service;
 
 import com.movie.domain.movie.dao.MovieRepository;
-import com.movie.domain.movie.domain.Movie;
 import com.movie.domain.movie.dto.response.MovieDetailResDto;
 import com.movie.domain.movie.dto.response.MovieListResDto;
+import com.movie.domain.movie.exception.MovieNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
@@ -12,8 +12,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
+
+import static com.movie.domain.movie.constant.MovieExceptionMessage.MOVIE_NOT_FOUND;
 
 @Slf4j
 @Service
@@ -25,22 +26,16 @@ public class MovieServiceImpl implements MovieService {
     @Override
     @Transactional(readOnly = true)
     public MovieDetailResDto findMovie(Long movieId) {
-        Optional<Movie> movieOptional = movieRepository.findById(movieId);
-        return movieOptional.map(MovieDetailResDto::entityToResDto).orElse(null);
+        return movieRepository.findById(movieId)
+                .map(MovieDetailResDto::entityToResDto)
+                .orElseThrow(() -> new MovieNotFoundException(MOVIE_NOT_FOUND.getMessage()));
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<MovieListResDto> getMoviesByGenre(String genre) {
-        return movieRepository.findByMovieGenres_Genre_Genre(genre).stream()
-                .map(MovieListResDto::entityToResDto)
-                .collect(Collectors.toList());
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public List<MovieListResDto> getRealtimeMovies() {
-        return movieRepository.findByReleaseDateAfter(LocalDate.now()).stream()
+    public List<MovieListResDto> getMoviesByMainGenre(String genre) {
+        // mainGenre가 포함된 영화들을 조회
+        return movieRepository.findByFilteredGenre(genre).stream()
                 .map(MovieListResDto::entityToResDto)
                 .collect(Collectors.toList());
     }
@@ -55,18 +50,10 @@ public class MovieServiceImpl implements MovieService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<MovieListResDto> getNowShowingMovies() {
-        return movieRepository.findNowShowingMovies(LocalDate.now(), PageRequest.of(0, 5)).stream()
-                .map(MovieListResDto::entityToResDto)
-                .collect(Collectors.toList());
-    }
-
-    @Override
-    @Transactional(readOnly = true)
     public List<MovieListResDto> getTopRatedMovies() {
-        return movieRepository.findByOrderByRatingDesc().stream()
+        return movieRepository.findByPopularityGreaterThanEqualAndRuntimeGreaterThanEqualAndVoteCountGreaterThanEqualAndRatingGreaterThanEqual(
+                        80, 60, 10_000, 7.5).stream()
                 .map(MovieListResDto::entityToResDto)
-                .limit(5)
                 .collect(Collectors.toList());
     }
 
@@ -81,7 +68,7 @@ public class MovieServiceImpl implements MovieService {
     @Override
     @Transactional(readOnly = true)
     public List<MovieListResDto> searchMovies(String title, String genre) {
-        return movieRepository.findByTitleContainingAndMovieGenres_Genre_Genre(title, genre).stream()
+        return movieRepository.findByTitleOrGenreOrMainGenre(title, genre).stream()
                 .map(MovieListResDto::entityToResDto)
                 .collect(Collectors.toList());
     }

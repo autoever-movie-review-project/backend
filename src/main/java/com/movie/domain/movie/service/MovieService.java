@@ -9,13 +9,9 @@ public interface MovieService {
 
     MovieDetailResDto findMovie(Long movieId);
 
-    List<MovieListResDto> getMoviesByGenre(String genre);
-
-    List<MovieListResDto> getRealtimeMovies();
+    List<MovieListResDto> getMoviesByMainGenre(String genre);
 
     List<MovieListResDto> getUpcomingMovies();
-
-    List<MovieListResDto> getNowShowingMovies();
 
     List<MovieListResDto> getTopRatedMovies();
 

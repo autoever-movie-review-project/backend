@@ -15,6 +15,7 @@ public class MovieListResDto {
     private Double rating;
     private String title;
     private List<String> genre;
+    private List<String> mainGenre;
     private String ageRating;
     private String tagline;
 
