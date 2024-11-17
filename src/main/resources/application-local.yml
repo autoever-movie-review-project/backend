@@ -99,3 +99,14 @@ tmdb:
   api:
     key: ${secret.tmdb.api-key}
     url: https://api.themoviedb.org/3
+
+movie:
+  kofic:
+    api:
+      key: ${secret.kofic.api-key}
+      url: http://www.kobis.or.kr/kobisopenapi/webservice/rest/boxoffice/searchDailyBoxOfficeList.json
+
+  tmdb:
+    api:
+      key: ${secret.tmdb.api-key}
+      url: https://api.themoviedb.org/3
