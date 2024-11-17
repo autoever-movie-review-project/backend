@@ -24,6 +24,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static com.movie.domain.movie.constant.MovieExceptionMessage.*;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -102,36 +104,54 @@ public class TmdbServiceImpl implements TmdbService {
         log.info("[작업 완료] 총 저장된 영화 수: {}", moviesFetched);
     }
 
-//    @Scheduled(cron = "0 0 0 * * ?")
+
+    //특정 영화 db에 직접 넣기
+    @Transactional
+    @Override
+    public void searchAndSaveMovie(Long tmdbId) {
+        // TMDB ID로 상세 정보 가져오기
+        try {
+            log.info("Fetching movie details for TMDB ID: {}", tmdbId);
+
+            // TMDB API 호출하여 상세 정보 가져오기
+            TmdbMovieInfo detailedMovieInfo = getMoviesWithCredits(tmdbId);
+            if (detailedMovieInfo == null || !isValidMovie(detailedMovieInfo)) {
+                throw new RuntimeException(MOVIE_NOT_FOUND.getMessage());
+            }
+
+            // DB에 존재하는지 확인
+            boolean existsInDatabase = movieRepository.existsByTitleAndReleaseDate(
+                    detailedMovieInfo.getTitle(),
+                    parseDate(detailedMovieInfo.getReleaseDate())
+            );
+            if (existsInDatabase) {
+                log.info("영화가 이미 데이터베이스에 존재합니다. 제목: {}, 개봉일: {}",
+                        detailedMovieInfo.getTitle(),
+                        detailedMovieInfo.getReleaseDate());
+                return;
+            }
+
+            // 영화 저장
+            Movie movie = createMovieEntity(detailedMovieInfo);
+            if (movie == null) {
+                throw new RuntimeException(MOVIE_SAVE_ERROR.getMessage());
+            }
+            movieRepository.save(movie);
+
+            log.info("영화가 성공적으로 저장되었습니다. 제목: {}, 개봉일: {}",
+                    detailedMovieInfo.getTitle(),
+                    detailedMovieInfo.getReleaseDate());
+
+        } catch (Exception e) {
+            log.error("[TMDB API 오류] TMDB ID: {}, 오류: {}", tmdbId, e.getMessage());
+            throw new RuntimeException(TMDB_API_CALL_FAILED.getMessage());
+        }
+    }
+
+
+    //    @Scheduled(cron = "0 0 0 * * ?")
     public void updateNewMovies() {
-        Long lastTmdbId = movieRepository.findMaxTmdbId().orElse(0L);
-        Long currentTmdbId = lastTmdbId + 1;
 
-        List<Movie> moviesToSave = new ArrayList<>();
-
-        while (true) {
-            TmdbMovieInfo movieInfo = getMoviesWithCredits(currentTmdbId);
-            if (movieInfo == null || !isValidMovie(movieInfo)) {
-                log.info("[새로운 영화 없음] TMDB ID: {}", currentTmdbId);
-                break;
-            }
-
-            Movie movie = createMovieEntity(movieInfo);
-            if (movie != null) {
-                moviesToSave.add(movie);
-            }
-
-            currentTmdbId++;
-
-            if (moviesToSave.size() >= BATCH_SIZE) {
-                saveMoviesInTransaction(moviesToSave);
-                moviesToSave.clear();
-            }
-        }
-
-        if (!moviesToSave.isEmpty()) {
-            saveMoviesInTransaction(moviesToSave);
-        }
     }
 
     private boolean isValidMovie(TmdbMovieInfo movieInfo) {

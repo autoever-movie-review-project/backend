@@ -9,10 +9,10 @@ import org.springframework.web.util.DefaultUriBuilderFactory;
 @Configuration
 public class TmdbConfig {
 
-    @Value("${tmdb.api.key}")
+    @Value("${movie.tmdb.api.key}")
     private String apiKey;
 
-    @Value("${tmdb.api.url}")
+    @Value("${movie.tmdb.api.url}")
     private String apiUrl;
 
     @Bean
