@@ -9,13 +9,13 @@ public interface MovieService {
 
     MovieDetailResDto findMovie(Long movieId);
 
-    List<MovieListResDto> getMoviesByMainGenre(String genre);
+    List<MovieListResDto> getMoviesByMainGenre(String genre, int page); // 페이지 번호 추가
 
-    List<MovieListResDto> getUpcomingMovies();
+    List<MovieListResDto> getUpcomingMovies(int page); // 페이지 번호 추가
 
-    List<MovieListResDto> getTopRatedMovies();
+    List<MovieListResDto> getTopRatedMovies(int page); // 페이지 번호 추가
 
-    List<MovieListResDto> getAllMovies();
+    List<MovieListResDto> getAllMovies(int page); // 페이지 번호 추가
 
-    List<MovieListResDto> searchMovies(String title, String genre);
+    List<MovieListResDto> searchMovies(String title, String genre, int page); // 페이지 번호 추가
 }

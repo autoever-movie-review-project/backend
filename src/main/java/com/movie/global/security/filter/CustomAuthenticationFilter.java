@@ -62,7 +62,16 @@ public class CustomAuthenticationFilter extends OncePerRequestFilter {
             "/api/user/check-email-code",
             "/api/user/check-login-email",
             "/api/user/reissue-token",
-            "/api/movie/**"
+            "/api/movie/initialize",
+            "/api/movie/search-and-save",
+            "/api/movie/genre",
+            "/api/movie/upcoming",
+            "/api/movie/popular",
+            "/api/movie/search",
+            "/api/movie/box-office",
+            "/api/movie/top-reviewed",
+            "/api/movie",
+
     };
 
     /**

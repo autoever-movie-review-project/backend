@@ -56,30 +56,36 @@ public class MovieController {
     }
 
     @GetMapping("/genre")
-    public ResponseEntity<List<MovieListResDto>> getMoviesByGenre(@RequestParam String genre) {
-        return ResponseEntity.ok(movieService.getMoviesByMainGenre(genre));
+    public ResponseEntity<List<MovieListResDto>> getMoviesByGenre(
+            @RequestParam String genre,
+            @RequestParam(defaultValue = "0") int page) {
+        return ResponseEntity.ok(movieService.getMoviesByMainGenre(genre, page));
     }
 
     @GetMapping("/upcoming")
-    public ResponseEntity<List<MovieListResDto>> getUpcomingMovies() {
-        return ResponseEntity.ok(movieService.getUpcomingMovies());
+    public ResponseEntity<List<MovieListResDto>> getUpcomingMovies(
+            @RequestParam(defaultValue = "0") int page) {
+        return ResponseEntity.ok(movieService.getUpcomingMovies(page));
     }
 
     @GetMapping("/popular")
-    public ResponseEntity<List<MovieListResDto>> getPopularMovies() {
-        return ResponseEntity.ok(movieService.getTopRatedMovies());
+    public ResponseEntity<List<MovieListResDto>> getPopularMovies(
+            @RequestParam(defaultValue = "0") int page) {
+        return ResponseEntity.ok(movieService.getTopRatedMovies(page));
     }
 
     @GetMapping
-    public ResponseEntity<List<MovieListResDto>> getAllMovies() {
-        return ResponseEntity.ok(movieService.getAllMovies());
+    public ResponseEntity<List<MovieListResDto>> getAllMovies(
+            @RequestParam(defaultValue = "0") int page) {
+        return ResponseEntity.ok(movieService.getAllMovies(page));
     }
 
     @GetMapping("/search")
     public ResponseEntity<List<MovieListResDto>> searchMovies(
             @RequestParam String title,
-            @RequestParam String genre) {
-        return ResponseEntity.ok(movieService.searchMovies(title, genre));
+            @RequestParam String genre,
+            @RequestParam(defaultValue = "0") int page) {
+        return ResponseEntity.ok(movieService.searchMovies(title, genre, page));
     }
 
     // BoxOfficeService 관련 API

@@ -26,6 +26,7 @@ public class MovieDetailResDto {
     private String plot;
     private String tagline;
 
+    private static final String IMAGE_BASE_URL = "https://image.tmdb.org/t/p/w500";
     public static MovieDetailResDto entityToResDto(Movie movie) {
         return MovieDetailResDto.builder()
                 .movieId(movie.getMovieId())
@@ -42,7 +43,7 @@ public class MovieDetailResDto {
                         .map(movieActor -> movieActor.getActor().getActorName())
                         .collect(Collectors.toList()))
                 .actorImg(movie.getMovieActors().stream()
-                        .map(movieActor -> movieActor.getActor().getActorImg())
+                        .map(movieActor -> IMAGE_BASE_URL + movieActor.getActor().getActorImg()) // Adding base URL to actor images
                         .collect(Collectors.toList()))
                 .releaseDate(movie.getReleaseDate() != null ? movie.getReleaseDate().toString() : null)
                 .rating(movie.getRating())
