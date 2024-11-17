@@ -51,8 +51,8 @@ public class SecurityConfig {
                 .and()
 
                 .authorizeRequests()
-                // 모든 요청에 대해 인증 없이 접근 가능하도록 설정
-                .anyRequest().permitAll()
+
+                .anyRequest().permitAll() // 필터에서 거름
 
                 .and()
                 .exceptionHandling()
