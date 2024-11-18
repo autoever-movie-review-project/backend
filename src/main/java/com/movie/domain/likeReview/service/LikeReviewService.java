@@ -37,10 +37,14 @@ public class LikeReviewService {
         Review review = reviewRepository.findByReviewId(reviewId)
                 .orElseThrow(()->new ReviewNotFoundException(REVIEW_NOT_FOUND.getMessage()));
 
+        review.upLikeCount();
+
         LikeReview likeReview = LikeReview.builder()
                 .review(review)
                 .user(loggedInUser)
                 .build();
+
+        reviewRepository.save(review);
 
         likeReviewRepository.save(likeReview);
 
