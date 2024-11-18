@@ -1,7 +1,7 @@
 package com.movie.domain.movie.service;
 
-import com.movie.domain.movie.dao.TopReviewRedisRepository;
 import com.movie.domain.movie.dao.MovieRepository;
+import com.movie.domain.movie.dao.TopReviewRedisRepository;
 import com.movie.domain.movie.domain.Movie;
 import com.movie.domain.movie.domain.TopReviewMovieInfo;
 import com.movie.domain.movie.exception.MovieNotFoundException;
@@ -10,7 +10,8 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -71,13 +72,16 @@ public class TopReviewServiceImpl implements TopReviewService {
                     Movie movie = movieRepository.findById(movieId)
                             .orElseThrow(() -> new MovieNotFoundException(MOVIE_NOT_FOUND.getMessage()));
 
+                    // 제목을 normalizeTitle 메소드를 이용해 변환
+                    String normalizedTitle = normalizeTitle(movie.getTitle());
+
                     return TopReviewMovieInfo.MovieDetail.builder()
                             .movieId(movieId)
                             .rank(String.valueOf(index + 1))
                             .reviewCount(reviewCount)
                             .mainImg(movie.getMainImg())
                             .rating(movie.getRating())
-                            .title(movie.getTitle())
+                            .title(normalizedTitle)
                             .genres(movie.getMovieGenres().stream()
                                     .map(genre -> genre.getGenre().getGenre())
                                     .collect(Collectors.toList()))
@@ -97,5 +101,20 @@ public class TopReviewServiceImpl implements TopReviewService {
                 .build();
 
         redisRepository.save(reviewInfo);
+    }
+
+    // 제목 내 로마 숫자와 아라비아 숫자를 동일하게 취급하는 메소드
+    private String normalizeTitle(String title) {
+        // 로마 숫자와 아라비아 숫자 변환
+        title = title.replace("Ⅱ", "2");
+        title = title.replace("Ⅲ", "3");
+        title = title.replace("Ⅳ", "4");
+        title = title.replace("Ⅴ", "5");
+        title = title.replace("Ⅵ", "6");
+        title = title.replace("Ⅶ", "7");
+        title = title.replace("Ⅷ", "8");
+        title = title.replace("Ⅸ", "9");
+        title = title.replace("Ⅹ", "10");
+        return title;
     }
 }

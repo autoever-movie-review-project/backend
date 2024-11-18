@@ -1,23 +1,28 @@
 package com.movie.domain.movie.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.movie.domain.movie.domain.BoxOfficeMovieInfo;
 import com.movie.domain.movie.dao.BoxOfficeRedisRepository;
 import com.movie.domain.movie.dao.MovieRepository;
+import com.movie.domain.movie.domain.BoxOfficeMovieInfo;
 import com.movie.domain.movie.domain.Movie;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.hibernate.SessionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import javax.transaction.Transactional;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-import static com.movie.domain.movie.constant.MovieExceptionMessage.BOX_OFFICE_DATA_FETCH_FAILED;
-
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class BoxOfficeServiceImpl implements BoxOfficeService {
@@ -27,28 +32,27 @@ public class BoxOfficeServiceImpl implements BoxOfficeService {
     private final RedisTemplate<String, Object> redisTemplate;
     private final RestTemplate boxOfficeRestTemplate;
 
-    // 현재 상영 중인 영화 -> 박스오피스 기준
+    @Transactional
     @Override
-    public List<BoxOfficeMovieInfo.MovieDetail> getDailyBoxOfficeList(String targetDate) {
-        if (targetDate == null || targetDate.isBlank()) {
-            throw new IllegalArgumentException("Target date is required.");
-        }
+    public List<BoxOfficeMovieInfo.MovieDetail> getDailyBoxOfficeList() {
+        String targetDate = getDefaultTargetDate();
 
         // 1. Redis에서 데이터 확인
         Optional<BoxOfficeMovieInfo> cachedBoxOfficeInfo = redisRepository.findById(targetDate);
-
         if (cachedBoxOfficeInfo.isPresent()) {
             BoxOfficeMovieInfo boxOfficeInfo = cachedBoxOfficeInfo.get();
             Long ttl = redisTemplate.getExpire("boxOfficeMovieInfo:" + targetDate, TimeUnit.SECONDS);
 
-            // TTL이 600초(10분) 이하로 남은 경우, 데이터를 갱신
             if (ttl != null && ttl <= 600) {
+                log.info("TTL이 600초 이하이므로 데이터를 갱신합니다.");
                 List<BoxOfficeMovieInfo.MovieDetail> updatedMovies = fetchBoxOfficeFromApi(targetDate);
                 saveBoxOfficeToRedis(targetDate, updatedMovies);
                 return updatedMovies;
             }
             return boxOfficeInfo.getMovies();
         }
+
+        log.info("Redis 캐시에서 데이터를 찾을 수 없어 API를 호출합니다.");
 
         // 2. Redis에 데이터가 없으면 영화진흥원 API 호출
         List<BoxOfficeMovieInfo.MovieDetail> fetchedMovies = fetchBoxOfficeFromApi(targetDate);
@@ -59,29 +63,54 @@ public class BoxOfficeServiceImpl implements BoxOfficeService {
         return fetchedMovies;
     }
 
-    // 영화진흥원 API를 통해 데이터 가져오기
-    private List<BoxOfficeMovieInfo.MovieDetail> fetchBoxOfficeFromApi(String targetDate) {
-        String endpoint = "/searchDailyBoxOfficeList.json?targetDt=" + targetDate;
-        JsonNode response = boxOfficeRestTemplate.getForObject(endpoint, JsonNode.class);
+    private String getDefaultTargetDate() {
+        return LocalDate.now().minusDays(1).format(DateTimeFormatter.ofPattern("yyyyMMdd"));
+    }
 
+    @Transactional
+    public List<BoxOfficeMovieInfo.MovieDetail> fetchBoxOfficeFromApi(String targetDate) {
+        String endpoint = "/searchDailyBoxOfficeList.json?targetDt=" + targetDate;
+        String fullUrl = boxOfficeRestTemplate.getUriTemplateHandler().expand(endpoint).toString();
+        log.info("박스오피스 API 호출 URL: {}", fullUrl);
+
+        JsonNode response = boxOfficeRestTemplate.getForObject(endpoint, JsonNode.class);
         if (response == null || !response.has("boxOfficeResult")) {
-            throw new RuntimeException(BOX_OFFICE_DATA_FETCH_FAILED.getMessage());
+            log.warn("박스오피스 데이터를 가져올 수 없습니다: boxOfficeResult 없음");
+            return new ArrayList<>();
         }
 
         JsonNode dailyBoxOfficeList = response.path("boxOfficeResult").path("dailyBoxOfficeList");
+        log.info("dailyBoxOfficeList 크기: {}", dailyBoxOfficeList.size());
+
+        if (dailyBoxOfficeList.isEmpty()) {
+            log.warn("박스오피스 응답 dailyBoxOfficeList가 비어 있습니다.");
+            return new ArrayList<>();
+        }
+
+        return parseMovies(dailyBoxOfficeList);
+    }
+
+    @Transactional
+    public List<BoxOfficeMovieInfo.MovieDetail> parseMovies(JsonNode dailyBoxOfficeList) {
         List<BoxOfficeMovieInfo.MovieDetail> movieDetails = new ArrayList<>();
 
-        LocalDate parsedDate = LocalDate.parse(targetDate, DateTimeFormatter.ofPattern("yyyyMMdd"));
-
         for (JsonNode node : dailyBoxOfficeList) {
-            String title = node.get("movieNm").asText();
+            String title = node.get("movieNm").asText().trim();
+            title = normalizeTitle(title);
+
             String rank = node.get("rank").asText();
             String audience = node.get("audiCnt").asText();
+            String openDate = node.get("openDt").asText();
+            LocalDate releaseDate = LocalDate.parse(openDate, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+            LocalDate startDate = releaseDate.minusMonths(1);
+            LocalDate endDate = releaseDate.plusMonths(1);
 
-            Optional<Movie> movieOpt = movieRepository.findByTitleAndReleaseDate(title, parsedDate);
-
+            Optional<Movie> movieOpt = movieRepository.findByTitleAndReleaseDateRange(title, startDate, endDate);
             if (movieOpt.isPresent()) {
                 Movie movie = movieOpt.get();
+                List<String> genres = movie.getMovieGenres().stream()
+                        .map(movieGenre -> movieGenre.getGenre().getGenre())
+                        .collect(Collectors.toList());
                 movieDetails.add(BoxOfficeMovieInfo.MovieDetail.builder()
                         .movieId(movie.getMovieId())
                         .rank(rank)
@@ -89,17 +118,16 @@ public class BoxOfficeServiceImpl implements BoxOfficeService {
                         .mainImg(movie.getMainImg())
                         .rating(movie.getRating())
                         .title(movie.getTitle())
-                        .genres(movie.getMovieGenres().stream()
-                                .map(movieGenre -> movieGenre.getGenre().getGenre())
-                                .collect(Collectors.toList()))
+                        .genres(genres)
                         .ageRating(movie.getAgeRating())
                         .tagline(movie.getTagline())
                         .build());
             }
         }
 
-        // 순위 정렬 및 업데이트
         movieDetails.sort(Comparator.comparingInt(o -> Integer.parseInt(o.getRank())));
+
+        // rank 업데이트
         for (int i = 0; i < movieDetails.size(); i++) {
             movieDetails.get(i).updateRank(String.valueOf(i + 1));
         }
@@ -107,13 +135,39 @@ public class BoxOfficeServiceImpl implements BoxOfficeService {
         return movieDetails;
     }
 
-    // Redis에 데이터를 저장
-    private void saveBoxOfficeToRedis(String targetDate, List<BoxOfficeMovieInfo.MovieDetail> movies) {
+    // 아라비아 숫자 처리 함수
+    private String normalizeTitle(String title) {
+        // "Ⅱ", "Ⅲ" 등 아라비아 숫자를 "II", "III"로 변환
+        title = title.replaceAll("Ⅱ", "II")
+                .replaceAll("Ⅲ", "III")
+                .replaceAll("Ⅳ", "IV")
+                .replaceAll("Ⅴ", "V")
+                .replaceAll("Ⅵ", "VI")
+                .replaceAll("Ⅶ", "VII")
+                .replaceAll("Ⅷ", "VIII")
+                .replaceAll("Ⅸ", "IX")
+                .replaceAll("Ⅹ", "X");
+
+        return title;
+    }
+
+    @Transactional
+    public void saveBoxOfficeToRedis(String targetDate, List<BoxOfficeMovieInfo.MovieDetail> movies) {
+        if (movies == null || movies.isEmpty()) {
+            log.info("저장할 박스오피스 데이터가 없습니다.");
+            return;
+        }
+
         BoxOfficeMovieInfo boxOfficeInfo = BoxOfficeMovieInfo.builder()
                 .targetDate(targetDate)
                 .movies(movies)
                 .expiration(1) // TTL: 1일
                 .build();
+
+        if (boxOfficeInfo == null) {
+            log.warn("BoxOfficeMovieInfo 객체가 null입니다.");
+            return;
+        }
 
         redisRepository.save(boxOfficeInfo);
     }

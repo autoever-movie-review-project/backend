@@ -55,32 +55,11 @@ public class MovieServiceImpl implements MovieService {
     @Transactional(readOnly = true)
     public List<MovieListResDto> getTopRatedMovies(int page) {
 
-        if (page < 1) {
-            page = 1;
-        }
+        PageRequest pageRequest = PageRequest.of(page, PAGE_SIZE);
 
-        // 로그: 페이지 값 확인
-        log.info("Received page request: {}", page);
-
-        // page 값이 1보다 작은 경우 오류 로그 추가
-        if (page < 1) {
-            log.warn("Page number is less than 1: {}", page);
-        }
-
-        // page - 1로 조정하여 PageRequest 생성
-        PageRequest pageRequest = PageRequest.of(page-1, PAGE_SIZE);
-
-        // 로그: PageRequest 확인
-        log.info("Created PageRequest: page = {}, size = {}", pageRequest.getPageNumber(), pageRequest.getPageSize());
-
-        // 조건에 맞는 영화 목록을 찾고 DTO로 변환
-        List<MovieListResDto> movies = movieRepository.findByPopularityGreaterThanEqualAndRuntimeGreaterThanEqualAndVoteCountGreaterThanEqualAndRatingGreaterThanEqual(
-                        80, 60, 10_000, 7.5, pageRequest).stream()
+        List<MovieListResDto> movies = movieRepository.findTopRatedMovies(pageRequest).stream()
                 .map(MovieListResDto::entityToResDto)
                 .collect(Collectors.toList());
-
-        // 로그: 반환되는 영화 개수 확인
-        log.info("Returning {} movies for page {}", movies.size(), page);
 
         return movies;
     }
@@ -97,9 +76,13 @@ public class MovieServiceImpl implements MovieService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<MovieListResDto> searchMovies(String title, String genre, int page) {
-        PageRequest pageRequest = PageRequest.of(page, PAGE_SIZE);
-        return movieRepository.findByTitleOrGenreOrMainGenre(title, genre, pageRequest).stream()
+    public List<MovieListResDto> searchMovies(String keyword, int page) {
+        PageRequest pageRequest = PageRequest.of(Math.max(0, page), PAGE_SIZE);
+
+        return movieRepository.searchMoviesByKeyword(
+                        keyword != null && !keyword.isBlank() ? keyword : null,
+                        pageRequest)
+                .stream()
                 .map(MovieListResDto::entityToResDto)
                 .collect(Collectors.toList());
     }

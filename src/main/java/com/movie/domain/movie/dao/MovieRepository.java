@@ -14,7 +14,17 @@ import java.util.Optional;
 
 public interface MovieRepository extends JpaRepository<Movie, Long> {
 
-    Optional<Movie> findByTitleAndReleaseDate(String title, LocalDate releaseDate);
+    @Query("SELECT m FROM Movie m " +
+            "LEFT JOIN FETCH m.movieGenres " +
+            "WHERE LOWER(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(m.title, ' ', ''), ':', ''), 'Ⅱ', '2'), 'Ⅲ', '3'), 'Ⅳ', '4')) " +
+            "LIKE LOWER(CONCAT('%', REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(:title, ' ', ''), ':', ''), 'Ⅱ', '2'), 'Ⅲ', '3'), 'Ⅳ', '4'), '%')) " +
+            "AND (:startDate IS NULL OR :endDate IS NULL OR m.releaseDate BETWEEN :startDate AND :endDate)")
+    Optional<Movie> findByTitleAndReleaseDateRange(
+            @Param("title") String title,
+            @Param("startDate") LocalDate startDate,
+            @Param("endDate") LocalDate endDate
+    );
+
 
     boolean existsByTitleAndReleaseDate(String title, LocalDate releaseDate);
 
@@ -30,9 +40,12 @@ public interface MovieRepository extends JpaRepository<Movie, Long> {
 
     // 평점 및 조건을 기반으로 영화 조회
     @Query("SELECT m FROM Movie m " +
-            "WHERE m.popularity >= :popularity AND m.runtime >= :runtime AND m.voteCount >= :voteCount AND m.rating >= :rating")
-    Page<Movie> findByPopularityGreaterThanEqualAndRuntimeGreaterThanEqualAndVoteCountGreaterThanEqualAndRatingGreaterThanEqual(
-            int popularity, int runtime, int voteCount, double rating, Pageable pageable);
+            "WHERE m.popularity >= 80 " +
+            "AND m.runtime >= 60 " +
+            "AND m.voteCount >= 10000 " +
+            "AND m.rating >= 7.5")
+    Page<Movie> findTopRatedMovies(Pageable pageable);
+
 
     // mainGenre 또는 genre로 영화 조회
     @Query("SELECT m FROM Movie m " +
@@ -44,13 +57,13 @@ public interface MovieRepository extends JpaRepository<Movie, Long> {
             "AND m.voteCount >= 500")
     Page<Movie> findByFilteredGenre(@Param("genre") String genre, Pageable pageable);
 
-    // 제목 또는 장르로 영화 검색 (페이지네이션 추가)
+    // 제목 또는 장르로 영화 검색
     @Query("SELECT m FROM Movie m " +
-            "JOIN m.movieGenres mg " +
-            "JOIN mg.genre g " +
-            "WHERE m.title LIKE %:title% " +
-            "OR (g.genre = :genre OR g.mainGenre = :genre)")
-    Page<Movie> findByTitleOrGenreOrMainGenre(@Param("title") String title, @Param("genre") String genre, Pageable pageable);
+            "LEFT JOIN m.movieGenres mg " +
+            "LEFT JOIN mg.genre g " +
+            "WHERE (:keyword IS NULL OR m.title LIKE %:keyword% " +
+            "OR g.genre LIKE %:keyword% OR g.mainGenre LIKE %:keyword%)")
+    Page<Movie> searchMoviesByKeyword(@Param("keyword") String keyword, Pageable pageable);
 
     // 리뷰 수를 기반으로 영화 검색
     @Query(value = "SELECT m.movie_id AS movieId, COUNT(r.review_id) AS reviewCount " +

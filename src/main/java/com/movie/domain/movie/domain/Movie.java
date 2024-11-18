@@ -18,26 +18,43 @@ public class Movie {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "movie_id")
     private Long movieId;
 
-    @Column(nullable = false, unique = true)
+    @Column(name = "tmdb_id", nullable = false, unique = true)
     private Long tmdbId;                   // TMDB 영화 ID
 
     private String title;                  // 번역된 제목
+
     private String tagline;                // 영화 대표 문구
 
     @Column(columnDefinition = "TEXT")
     private String plot;                   // 줄거리
 
     private double popularity;             // 인기 수치
+
+    @Column(name = "backdrop_img")
     private String backdropImg;            // 배경 이미지 URL
+
+    @Column(name = "main_img")
     private String mainImg;                // 메인 포스터 이미지 URL
+
+    @Column(name = "release_date")
     private LocalDate releaseDate;         // 개봉일
+
     private double rating;                 // 평점
+
+    @Column(name = "vote_count")
     private int voteCount;                 // 평점을 매긴 사람 수
+
     private String language;               // 원본 언어
+
     private Integer runtime;               // 러닝타임
-    private String ageRating;             // 관람 등급
+
+    @Column(name = "age_rating")
+    private String ageRating;              // 관람 등급
+
+    @Column(name = "review_count")
     private Integer reviewCount;           // 리뷰 수
 
     @OneToMany(mappedBy = "movie", cascade = CascadeType.ALL, orphanRemoval = true)

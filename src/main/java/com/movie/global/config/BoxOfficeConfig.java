@@ -17,13 +17,14 @@ public class BoxOfficeConfig {
 
     @Bean
     public RestTemplate boxOfficeRestTemplate() {
+        String baseUrlWithKey = apiUrl + "?key=" + apiKey;
+
         RestTemplate restTemplate = new RestTemplate();
-        DefaultUriBuilderFactory factory = new DefaultUriBuilderFactory(apiUrl);
+        DefaultUriBuilderFactory factory = new DefaultUriBuilderFactory(baseUrlWithKey);
         restTemplate.setUriTemplateHandler(factory);
 
         restTemplate.getInterceptors().add((request, body, execution) -> {
             request.getHeaders().add("Accept", "application/json");
-            request.getHeaders().add("Authorization", apiKey);
             return execution.execute(request, body);
         });
 

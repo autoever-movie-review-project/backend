@@ -82,18 +82,18 @@ public class MovieController {
 
     @GetMapping("/search")
     public ResponseEntity<List<MovieListResDto>> searchMovies(
-            @RequestParam String title,
-            @RequestParam String genre,
+            @RequestParam(required = false) String keyword,
             @RequestParam(defaultValue = "0") int page) {
-        return ResponseEntity.ok(movieService.searchMovies(title, genre, page));
+        return ResponseEntity.ok(movieService.searchMovies(keyword, page));
     }
 
     // BoxOfficeService 관련 API
 
     @GetMapping("/box-office")
-    public ResponseEntity<List<BoxOfficeMovieInfo.MovieDetail>> getBoxOfficeMovies(@RequestParam String targetDate) {
-        return ResponseEntity.ok(boxOfficeService.getDailyBoxOfficeList(targetDate));
+    public ResponseEntity<List<BoxOfficeMovieInfo.MovieDetail>> getBoxOfficeMovies() {
+        return ResponseEntity.ok(boxOfficeService.getDailyBoxOfficeList());
     }
+
 
     // TopReviewService 관련 API
 
