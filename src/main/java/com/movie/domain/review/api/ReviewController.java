@@ -47,7 +47,7 @@ public class ReviewController {
 
     // 내가 작성한 모든 리뷰 조회
     @GetMapping("/my")
-    public ResponseEntity<List<ReviewResDto>> findAllReviewsByUserId(@PathVariable Long userId) {
+    public ResponseEntity<List<ReviewResDto>> findAllReviewsByUserId() {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(reviewService.findMyReview());
     }

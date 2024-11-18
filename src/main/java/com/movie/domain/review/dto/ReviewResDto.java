@@ -11,6 +11,8 @@ import java.time.LocalDate;
 public class ReviewResDto {
 
     private final Long movieId;
+    private final Long reviewId;
+    private final Long userId;
     private final String writerNickname;
     private final String content;
     private final String profile;
@@ -21,9 +23,11 @@ public class ReviewResDto {
     public static ReviewResDto entityToResDto(Review review) {
         return ReviewResDto.builder()
                 .movieId(review.getMovie().getMovieId())
+                .reviewId(review.getReviewId())
+                .userId(review.getUser().getUserId())
                 .writerNickname(review.getUser().getNickname())
                 .content(review.getContent())
-                .profile(review.getUser().getProfile())
+                .profile(review.getUser() != null ? review.getUser().getProfile() : null)
                 .likesCount(review.getLikesCount())
                 .rating(review.getRating())
                 .createdAt(review.getCreatedAt())
