@@ -8,6 +8,7 @@ import lombok.Data;
 @Builder
 public class LoginResDto {
     private String userType;
+    private Long userId;
     private String nickname;
     private String profile;
     private int points;

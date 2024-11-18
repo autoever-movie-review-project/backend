@@ -25,6 +25,7 @@ public class MovieDetailResDto {
     private Integer reviewCount;
     private String plot;
     private String tagline;
+    private String ageRating;
 
     private static final String IMAGE_BASE_URL = "https://image.tmdb.org/t/p/w500";
     public static MovieDetailResDto entityToResDto(Movie movie) {
@@ -52,6 +53,7 @@ public class MovieDetailResDto {
                 .reviewCount(movie.getVoteCount())
                 .plot(movie.getPlot())
                 .tagline(movie.getTagline())
+                .ageRating(movie.getAgeRating())
                 .build();
     }
 }
