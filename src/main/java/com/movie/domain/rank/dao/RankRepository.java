@@ -10,4 +10,5 @@ import java.util.Optional;
 public interface RankRepository extends JpaRepository<Rank, Long> {
     @Query("SELECT r FROM Rank r WHERE :points BETWEEN r.startPoint AND r.endPoint")
     Optional<Rank> findByPointsBetweenStartAndEnd(@Param("points") Integer points);
+
 }
