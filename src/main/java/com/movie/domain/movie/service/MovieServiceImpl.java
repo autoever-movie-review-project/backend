@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -77,11 +78,14 @@ public class MovieServiceImpl implements MovieService {
     @Override
     @Transactional(readOnly = true)
     public List<MovieListResDto> searchMovies(String keyword, int page) {
-        PageRequest pageRequest = PageRequest.of(Math.max(0, page), PAGE_SIZE);
+        // 키워드가 null이거나 빈 문자열일 경우 빈 결과 반환
+        if (keyword == null || keyword.isBlank()) {
+            return Collections.emptyList();
+        }
 
-        return movieRepository.searchMoviesByKeyword(
-                        keyword != null && !keyword.isBlank() ? keyword : null,
-                        pageRequest)
+        PageRequest pageRequest = PageRequest.of(page, PAGE_SIZE);
+
+        return movieRepository.searchMoviesByKeyword(keyword, pageRequest)
                 .stream()
                 .map(MovieListResDto::entityToResDto)
                 .collect(Collectors.toList());

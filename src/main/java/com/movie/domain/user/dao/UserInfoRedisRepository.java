@@ -1,6 +1,5 @@
 package com.movie.domain.user.dao;
 
-import com.movie.domain.user.domain.User;
 import com.movie.domain.user.domain.UserInfo;
 import org.springframework.data.repository.CrudRepository;
 

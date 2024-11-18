@@ -71,6 +71,7 @@ public class CustomAuthenticationFilter extends OncePerRequestFilter {
             "/api/movie/box-office",
             "/api/movie/top-reviewed",
             "/api/movie",
+            "/api/kakao",
     };
 
     /**

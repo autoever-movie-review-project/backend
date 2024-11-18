@@ -16,6 +16,7 @@ public class ReviewResDto {
     private final String writerNickname;
     private final String content;
     private final String profile;
+    private final String rankName;
     private final int likesCount;
     private final double rating;
     private final LocalDate createdAt;
@@ -25,6 +26,7 @@ public class ReviewResDto {
                 .movieId(review.getMovie().getMovieId())
                 .reviewId(review.getReviewId())
                 .userId(review.getUser().getUserId())
+                .rankName(review.getUser().getRank().getRankName())
                 .writerNickname(review.getUser().getNickname())
                 .content(review.getContent())
                 .profile(review.getUser() != null ? review.getUser().getProfile() : null)

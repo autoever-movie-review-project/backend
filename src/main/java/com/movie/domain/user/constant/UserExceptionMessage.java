@@ -7,6 +7,7 @@ public enum UserExceptionMessage {
     LOGIN_PASSWORD_ERROR("비밀번호가 일치하지 않습니다."),
     REFRESH_TOKEN_EXPIRED("리프레시 토큰이 만료되었습니다. 로그인을 다시 해주세요."),
     TOKEN_MISMATCH("토큰이 일치하지 않습니다."),
+    USER_TYPE_MISMATCH("유저 타입이 일치하지 않습니다."),
     REFRESH_TOKEN_NOT_FOUND("Refresh token을 찾을 수 없습니다."),
     ACCESS_TOKEN_NOT_FOUND("Access token을 찾을 수 없습니다.");
 
