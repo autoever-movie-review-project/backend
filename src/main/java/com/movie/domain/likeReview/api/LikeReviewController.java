@@ -1,6 +1,7 @@
 package com.movie.domain.likeReview.api;
 
 import com.movie.domain.game.domain.Game;
+import com.movie.domain.likeReview.dto.response.ReviewDto;
 import com.movie.domain.likeReview.service.LikeReviewService;
 import com.movie.domain.review.domain.Review;
 import lombok.RequiredArgsConstructor;
@@ -34,7 +35,7 @@ public class LikeReviewController {
     @GetMapping("/like/reviews")
     public ResponseEntity<?> getReviews(
             @RequestParam(defaultValue = "0") int page) {
-        Page<Review> reviewsList = likeReviewService.getReviews(page);
+        Page<ReviewDto> reviewsList = likeReviewService.getReviews(page);
 
         return ResponseEntity.ok(reviewsList);
     }
