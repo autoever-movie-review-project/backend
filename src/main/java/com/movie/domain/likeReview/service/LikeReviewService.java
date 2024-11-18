@@ -1,7 +1,5 @@
 package com.movie.domain.likeReview.service;
 
-
-import com.movie.domain.game.domain.Game;
 import com.movie.domain.review.dao.ReviewRepository;
 import com.movie.domain.review.domain.Review;
 import com.movie.domain.likeReview.dao.LikeReviewRepository;
