@@ -89,16 +89,13 @@ build:
 jwt:
   refresh-expired-in: '1296000000'  # Refresh Token 만료 시간 (15일)
   access-expired-in: '3600000' # Access Token 만료 시간 (1시간)
-  cookieName: refreshToken
+  cookieName: refresh-token
   secret: ${secret-jwt.secret}
 springfox:
   documentation:
     swagger:
       use-model-v3: false
-tmdb:
-  api:
-    key: ${secret.tmdb.api-key}
-    url: https://api.themoviedb.org/3
+
 
 movie:
   kofic:
