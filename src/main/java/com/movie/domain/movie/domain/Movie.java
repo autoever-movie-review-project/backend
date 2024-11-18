@@ -121,4 +121,33 @@ public class Movie {
         }
     }
 
+    //평점 업데이트 (추가 or 삭제)
+    public void updateRating(double rating, boolean isAddition) {
+        if (isAddition) {
+            // 리뷰 추가 시
+            this.rating = (this.rating * this.voteCount + rating) / (this.voteCount + 1);
+            this.voteCount++;
+
+            if (this.reviewCount == null) {
+                this.reviewCount = 1;
+            } else {
+                this.reviewCount++;
+            }
+        } else {
+            // 리뷰 삭제 시
+            if (this.voteCount <= 1) {
+                // 리뷰가 마지막 1개인 경우
+                this.rating = 0.0;
+                this.voteCount = 0;
+            } else {
+                this.rating = (this.rating * this.voteCount - rating) / (this.voteCount - 1);
+                this.voteCount--;
+            }
+
+            if (this.reviewCount != null && this.reviewCount > 0) {
+                this.reviewCount--;
+            }
+        }
+    }
+
 }
