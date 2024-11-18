@@ -9,5 +9,6 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 public class MoviePlayApplication {
     public static void main(String[] args) {
         SpringApplication.run(MoviePlayApplication.class, args);
+
     }
 }
