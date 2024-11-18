@@ -55,9 +55,9 @@ spring:
       mail.smtp.auth: true
       mail.smtp.starttls.enable: true
   redis:
-    host: ${secret.redis.host}
-    port: ${secret.redis.port}
-    password: ${secret.redis.password}
+    host: localhost
+    port: 6379
+    password:
 logging:
   level:
     org:
@@ -98,7 +98,7 @@ springfox:
 kakao:
   oauth2:
     client-id: ${secret.kakao.client-id}
-    redirect-uri: ${secret.kakao.redirect-uri}
+    redirect-uri: "http://localhost:8080/api/kakao"
     token-uri: "https://kauth.kakao.com/oauth/token"
     user-info-uri: "https://kapi.kakao.com/v2/user/me"
 
