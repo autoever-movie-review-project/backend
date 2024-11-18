@@ -78,4 +78,6 @@ public interface MovieRepository extends JpaRepository<Movie, Long> {
     List<Object[]> findTopMoviesByReviewCount(@Param("startDate") LocalDateTime startDate,
                                               @Param("endDate") LocalDateTime endDate,
                                               @Param("limit") int limit);
+
+    Optional<Movie>  findByMovieId(Long movieId);
 }

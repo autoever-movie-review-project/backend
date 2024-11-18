@@ -14,4 +14,5 @@ public interface LikeReviewRepository extends JpaRepository<LikeReview, Long> {
 
     List<LikeReview> findAllByUserUserId(Long userId);
 
+    boolean existsByUser_UserIdAndReview_ReviewId(Long userId, Long reviewId);
 }

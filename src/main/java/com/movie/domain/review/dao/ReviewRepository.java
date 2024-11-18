@@ -1,5 +1,6 @@
 package com.movie.domain.review.dao;
 
+import com.movie.domain.likeReview.dto.response.ReviewDto;
 import com.movie.domain.review.domain.Review;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

@@ -7,7 +7,7 @@ import com.movie.domain.likeMovie.dto.response.LikeMovieResDto;
 import com.movie.domain.likeMovie.exception.LikeMovieDuplicateException;
 import com.movie.domain.movie.dao.MovieRepository;
 import com.movie.domain.movie.domain.Movie;
-import com.movie.domain.user.dao.UserRepository;
+import com.movie.domain.movie.exception.MovieIdNotFoundException;
 import com.movie.domain.user.domain.User;
 import com.movie.global.security.util.SecurityUtils;
 import lombok.RequiredArgsConstructor;
@@ -17,15 +17,13 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
+import static com.movie.domain.movie.constant.MovieExceptionMessage.MOVIEID_NOT_FOUND;
 
 @Service
 @RequiredArgsConstructor
 public class LikeMovieService {
     private final LikeMovieRepository likeMovieRepository;
     private final SecurityUtils securityUtils;
-    private final UserRepository userRepository;
     private final MovieRepository movieRepository;
 
     @Transactional
@@ -37,8 +35,8 @@ public class LikeMovieService {
             throw new LikeMovieDuplicateException("좋아요 중복");
         }
 
-        Movie movie = movieRepository.findById(movieId)
-                .orElseThrow();
+        Movie movie = movieRepository.findByMovieId(movieId)
+                .orElseThrow(()->new MovieIdNotFoundException(MOVIEID_NOT_FOUND.getMessage()));
 
         LikeMovie likeMovie = LikeMovie.builder()
                 .movie(movie)

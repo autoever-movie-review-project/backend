@@ -1,5 +1,6 @@
 package com.movie.domain.review.service;
 
+import com.movie.domain.likeReview.dao.LikeReviewRepository;
 import com.movie.domain.movie.dao.MovieRepository;
 import com.movie.domain.movie.domain.Movie;
 import com.movie.domain.movie.exception.MovieNotFoundException;
@@ -28,6 +29,7 @@ public class ReviewServiceImpl implements ReviewService {
     private final UserRepository userRepository;
     private final MovieRepository movieRepository;
     private final SecurityUtils securityUtils;
+    private final LikeReviewRepository likeReviewRepository;
 
     private User getLoginUser() {
         String loginUserEmail = securityUtils.getLoginUserEmail();
@@ -50,7 +52,8 @@ public class ReviewServiceImpl implements ReviewService {
                 .build();
 
         reviewRepository.save(review);
-        return ReviewResDto.entityToResDto(review);
+
+        return ReviewResDto.entityToResDto(review, false);
     }
 
     @Transactional
@@ -72,14 +75,19 @@ public class ReviewServiceImpl implements ReviewService {
     public ReviewResDto findOneReview(Long reviewId) {
         Review review = reviewRepository.findByIdWithDetails(reviewId)
                 .orElseThrow(() -> new ReviewNotFoundException(ReviewExceptionMessage.REVIEW_NOT_FOUND.getMessage()));
-        return ReviewResDto.entityToResDto(review);
+        return ReviewResDto.entityToResDto(review, false);
     }
 
     @Override
     public List<ReviewResDto> findAllReviewByMovieId(Long movieId) {
+        User user = securityUtils.getLoginUser();
         List<Review> reviews = reviewRepository.findAllByMovieId(movieId);
+        // 리뷰와 로그인된 유저의 좋아요 정보를 매핑
         return reviews.stream()
-                .map(ReviewResDto::entityToResDto)
+                .map(review -> {
+                    boolean liked = likeReviewRepository.existsByUser_UserIdAndReview_ReviewId(user.getUserId(), review.getReviewId());
+                    return ReviewResDto.entityToResDto(review, liked);
+                })
                 .collect(Collectors.toList());
     }
 
@@ -89,7 +97,10 @@ public class ReviewServiceImpl implements ReviewService {
         User loginUser = getLoginUser();
         List<Review> myReviews = reviewRepository.findAllByUserId(loginUser.getUserId());
         return myReviews.stream()
-                .map(ReviewResDto::entityToResDto)
+                .map(review -> {
+                    boolean liked = likeReviewRepository.existsByUser_UserIdAndReview_ReviewId(loginUser.getUserId(), review.getReviewId());
+                    return ReviewResDto.entityToResDto(review, liked);
+                })
                 .collect(Collectors.toList());
     }
 }
