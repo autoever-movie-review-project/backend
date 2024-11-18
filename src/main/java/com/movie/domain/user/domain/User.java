@@ -1,5 +1,6 @@
 package com.movie.domain.user.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.movie.domain.rank.domain.Rank;
 import com.movie.domain.user.constant.UserType;
 import com.movie.domain.user.dto.request.UpdateProfileReqDto;
