@@ -5,13 +5,15 @@ import com.movie.domain.user.domain.User;
 public record GetMyGradeDto(
         String rankName,
         String rankImg,
-        Integer points
+        Integer points,
+        String rankPercent
 ) {
-    public static GetMyGradeDto of (User user) {
+    public static GetMyGradeDto of (User user, String rankPercent) {
         return new GetMyGradeDto(
                 user.getRank().getRankName(),
                 user.getRank().getRankImg(),
-                user.getPoints()
+                user.getPoints(),
+                rankPercent
         );
     }
 }
