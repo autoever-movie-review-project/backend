@@ -59,11 +59,9 @@ dependencies {
     //Redis
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 
-    // Gson for JSON parsing
-    implementation 'com.google.code.gson:gson:2.10.1'
-
-    // Kakao OAuth2
-    implementation 'org.springframework.social:spring-social-kakao:2.0.0.RC1'
+    //kakao
+    implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
+    implementation 'com.google.code.gson:gson'
 }
 
 tasks.named('test') {
