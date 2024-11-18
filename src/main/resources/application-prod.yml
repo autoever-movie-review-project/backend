@@ -98,7 +98,7 @@ springfox:
       use-model-v3: false
 kakao:
   oauth2:
-    client-id: ${secret.kakao-client-id}
+    client-id: ${secret.kakao.client-id}
     redirect-uri: ${secret.kakao.redirect-uri}
     token-uri: "https://kauth.kakao.com/oauth/token"
     user-info-uri: "https://kapi.kakao.com/v2/user/me"
