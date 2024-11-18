@@ -57,12 +57,13 @@ public interface MovieRepository extends JpaRepository<Movie, Long> {
             "AND m.voteCount >= 500")
     Page<Movie> findByFilteredGenre(@Param("genre") String genre, Pageable pageable);
 
-    // 제목 또는 장르로 영화 검색
-    @Query("SELECT m FROM Movie m " +
+    //검색
+    @Query("SELECT DISTINCT m FROM Movie m " +
             "LEFT JOIN m.movieGenres mg " +
             "LEFT JOIN mg.genre g " +
-            "WHERE (:keyword IS NULL OR m.title LIKE %:keyword% " +
-            "OR g.genre LIKE %:keyword% OR g.mainGenre LIKE %:keyword%)")
+            "WHERE m.title LIKE %:keyword% " +
+            "OR g.genre LIKE %:keyword% " +
+            "OR g.mainGenre LIKE %:keyword%")
     Page<Movie> searchMoviesByKeyword(@Param("keyword") String keyword, Pageable pageable);
 
     // 리뷰 수를 기반으로 영화 검색

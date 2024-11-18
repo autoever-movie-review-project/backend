@@ -27,10 +27,9 @@ public class User extends BaseEntity {
     @Column(unique = true, nullable = false)
     private String email;
 
-    @Column(nullable = false)
     private String password;
 
-    @Column(length = 16, nullable = false)
+    @Column(length = 16)
     private String nickname;
 
     @Column(nullable = false, columnDefinition = "varchar(50) default 'ROLE_USER'")

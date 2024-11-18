@@ -11,6 +11,7 @@ import java.util.stream.Collectors;
 @Builder
 public class MovieListResDto {
     private Long movieId;
+    private String mainImg;
     private String backdropImg;
     private Double rating;
     private String title;
@@ -22,6 +23,7 @@ public class MovieListResDto {
     public static MovieListResDto entityToResDto(Movie movie) {
         return MovieListResDto.builder()
                 .movieId(movie.getMovieId())
+                .mainImg(movie.getMainImg())
                 .backdropImg(movie.getBackdropImg())
                 .rating(movie.getRating())
                 .title(movie.getTitle())

@@ -14,6 +14,7 @@ public class TopReviewedMoviesResDto {
     private String rank;
     private Long reviewCount;
     private String mainImg;
+    private String backdropImg;
     private Double rating;
     private String title;
     private List<String> genre;
@@ -26,6 +27,7 @@ public class TopReviewedMoviesResDto {
                 .rank(rank)
                 .reviewCount(reviewCount)
                 .mainImg(movie.getMainImg())
+                .backdropImg(movie.getBackdropImg())
                 .rating(movie.getRating())
                 .title(movie.getTitle())
                 .genre(movie.getMovieGenres().stream()
