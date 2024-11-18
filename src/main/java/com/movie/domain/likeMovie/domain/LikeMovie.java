@@ -8,6 +8,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 
 @Entity
 @Table
@@ -27,4 +28,5 @@ public class LikeMovie {
     @ManyToOne
     @JoinColumn(name = "movie_id")
     private Movie movie;
+
 }

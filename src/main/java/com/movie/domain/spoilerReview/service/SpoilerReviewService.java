@@ -1,7 +1,5 @@
 package com.movie.domain.spoilerReview.service;
 
-import com.movie.domain.likeReview.domain.LikeReview;
-import com.movie.domain.likeReview.exception.LikeReviewDuplicateException;
 import com.movie.domain.review.dao.ReviewRepository;
 import com.movie.domain.review.domain.Review;
 import com.movie.domain.spoilerReview.dao.SpoilerReviewRepository;

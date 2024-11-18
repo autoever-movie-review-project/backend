@@ -1,7 +1,10 @@
 package com.movie.domain.likeMovie.api;
 
+import com.movie.domain.likeMovie.domain.LikeMovie;
+import com.movie.domain.likeMovie.dto.response.LikeMovieResDto;
 import com.movie.domain.likeMovie.service.LikeMovieService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -26,5 +29,14 @@ public class LikeMovieController {
         Long countLikes = likeMovieService.delete(likeMovieId);
 
         return ResponseEntity.ok(countLikes);
+    }
+
+    @GetMapping("like/movies")
+    public ResponseEntity<?> getAllLikes(
+            @RequestParam(defaultValue = "0") int page
+    ) {
+        Page<LikeMovieResDto> movielist = likeMovieService.getLikes(page);
+
+        return ResponseEntity.ok(movielist);
     }
 }
