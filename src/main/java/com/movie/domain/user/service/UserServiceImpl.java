@@ -10,10 +10,7 @@ import com.movie.domain.user.dao.UserRepository;
 import com.movie.domain.user.domain.LogoutAccessToken;
 import com.movie.domain.user.domain.RefreshToken;
 import com.movie.domain.user.domain.User;
-import com.movie.domain.user.dto.request.LoginReqDto;
-import com.movie.domain.user.dto.request.SignUpReqDto;
-import com.movie.domain.user.dto.request.UpdatePasswordReqDto;
-import com.movie.domain.user.dto.request.UpdateUserReqDto;
+import com.movie.domain.user.dto.request.*;
 import com.movie.domain.user.dto.response.AuthenticatedResDto;
 import com.movie.domain.user.dto.response.TokenInfo;
 import com.movie.domain.user.dto.response.UserInfoResDto;
@@ -105,7 +102,7 @@ public class UserServiceImpl implements UserService {
         log.info("[유저 로그인] 로그인 요청. {} ", tokenInfo);
 
         User user = userRepository.findByEmail(loginReqDto.getEmail()).get();
-
+        logoutAccessTokenRepository.deleteById(loginReqDto.getEmail());
         userRedisService.addRefreshToken(user.getEmail(), tokenInfo.getRefreshToken());
 
         return AuthenticatedResDto.entityToResDto(tokenInfo, user);
@@ -146,6 +143,18 @@ public class UserServiceImpl implements UserService {
         return UserInfoResDto.entityToResDto(user);
     }
 
+    @Override
+    public void updateProfile(UpdateProfileReqDto updateProfileReqDto) {
+        String email = SecurityUtils.getLoginUserEmail();
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new InvalidSignUpException(UserExceptionMessage.USER_NOT_FOUND.getMessage()));
+
+        user.updateProfile(updateProfileReqDto);
+        userRepository.save(user);
+
+        log.info("[프로필 변경] 정보 수정 완료.");
+    }
+
     /**
      * 사용자 계정 삭제, 연관된 Token 제거
      */
@@ -165,22 +174,17 @@ public class UserServiceImpl implements UserService {
      * 비밀번호 변경, 일치 여부 확인
      */
     @Override
-    public void updatePassword(UpdatePasswordReqDto updatePasswordReqDto) {
+    public void updatePassword(UpdatePasswordReqDto newPassword) {
         String email = SecurityUtils.getLoginUserEmail();
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new InvalidSignUpException(UserExceptionMessage.USER_NOT_FOUND.getMessage()));
 
-        log.info("[비밀번호 변경] 변경 요청. 로그인 유저 : {}", user.getEmail());
+        log.info("[비밀번호 변경] 변경 요청. 로그인 유저: {}", user.getEmail());
 
-        if (!isSamePassword(user.getPassword(), updatePasswordReqDto.getPassword())) {
-            log.error("[비밀번호 수정] 기존 비밀번호 불일치.");
-            throw new InvalidSignUpException(UserExceptionMessage.LOGIN_PASSWORD_ERROR.getMessage());
-        }
-
-        user.updatePassword(passwordEncoder.encode(updatePasswordReqDto.getPassword()));
+        user.updatePassword(passwordEncoder.encode(newPassword.getPassword()));
         userRepository.save(user);
-        log.info("[비밀번호 수정] 비밀번호 수정 완료.");
 
+        log.info("[비밀번호 수정] 비밀번호 수정 완료. 이메일: {}", email);
     }
 
     /**

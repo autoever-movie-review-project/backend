@@ -1,6 +1,7 @@
 package com.movie.global.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.movie.domain.user.dao.LogoutAccessTokenRedisRepository;
 import com.movie.domain.user.service.UserRedisService;
 import com.movie.global.jwt.JwtTokenProvider;
 import com.movie.global.security.filter.CustomAuthenticationFilter;
@@ -29,11 +30,8 @@ public class SecurityConfig {
     private final UserRedisService userRedisService;
     private final JwtTokenProvider jwtTokenProvider;
     private final ObjectMapper objectMapper;
+    private final LogoutAccessTokenRedisRepository logoutAccessTokenRedisRepository;
 
-//    @Bean
-//    public PasswordEncoder passwordEncoder() {
-//        return PasswordEncoderFactories.createDelegatingPasswordEncoder();
-//    }
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -54,8 +52,7 @@ public class SecurityConfig {
 
                 .authorizeRequests()
 
-                // 모든 요청에 대해 인증 없이 접근 가능하도록 설정
-                .anyRequest().permitAll()
+                .anyRequest().permitAll() // 필터에서 거름
 
                 .and()
                 .exceptionHandling()
@@ -63,54 +60,12 @@ public class SecurityConfig {
                 .authenticationEntryPoint(new CustomAuthenticationEntryPoint(objectMapper))
                 .and()
                 .addFilterBefore(
-                        new CustomAuthenticationFilter(userRedisService, jwtTokenProvider, objectMapper),
+                        new CustomAuthenticationFilter(userRedisService, jwtTokenProvider, objectMapper, logoutAccessTokenRedisRepository),
                         UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
 
-
-//    @Bean
-//    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-//        http
-//                .cors().configurationSource(corsConfigurationSource())
-//                .and()
-//
-//                .httpBasic().disable()
-//                .csrf().disable()
-//                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-//                .and()
-//
-//                .authorizeRequests()
-//
-//                .regexMatchers(HttpMethod.POST, Constants.PostPermitArray).permitAll()
-//                .regexMatchers(HttpMethod.GET, Constants.GetPermitArray).permitAll()
-//
-//                .regexMatchers(Constants.AdminPermitArray)
-//                .hasAuthority(UserType.ROLE_ADMIN.name())
-//
-//                .antMatchers("/swagger-ui/**").permitAll()
-//                .antMatchers("/v3/api-docs/**").permitAll()
-//                .antMatchers("/**/*.html").permitAll()
-//                .antMatchers("/**/*.css").permitAll()
-//                .antMatchers("/**/*.js").permitAll()
-//                .antMatchers("/**/*.png").permitAll()
-//                .antMatchers("/images/**").permitAll()
-//
-//
-//                .anyRequest().authenticated()
-//
-//                .and()
-//                .exceptionHandling()
-//                .accessDeniedHandler(new CustomAccessDeniedHandler(objectMapper))
-//                .authenticationEntryPoint(new CustomAuthenticationEntryPoint(objectMapper))
-//                .and()
-//                .addFilterBefore(
-//                        new CustomAuthenticationFilter(userRedisService, jwtTokenProvider, objectMapper),
-//                        UsernamePasswordAuthenticationFilter.class);
-//
-//        return http.build();
-//    }
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
@@ -120,6 +75,7 @@ public class SecurityConfig {
         configuration.addAllowedHeader("*");
         configuration.addAllowedMethod("*");
         configuration.setAllowCredentials(true);
+        configuration.addExposedHeader("Authorization");
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
 

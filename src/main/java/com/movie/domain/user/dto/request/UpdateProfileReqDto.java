@@ -5,6 +5,6 @@ import lombok.Data;
 
 @Data
 @Builder
-public class UpdateProfileDto {
+public class UpdateProfileReqDto {
     private String profile;
 }

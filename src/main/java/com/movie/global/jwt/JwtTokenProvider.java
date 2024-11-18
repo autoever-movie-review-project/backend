@@ -75,7 +75,7 @@ public class JwtTokenProvider {
                 .compact();
 
         return TokenInfo.builder()
-                .grantType(JwtHeaderUtil.GRANT_TYPE.getValue().trim()) // "Bearer" 사용
+                .grantType(JwtHeaderUtil.GRANT_TYPE.getValue().trim())
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)
                 .build();

@@ -2,7 +2,9 @@ package com.movie.domain.user.domain;
 
 import com.movie.domain.rank.domain.Rank;
 import com.movie.domain.user.constant.UserType;
+import com.movie.domain.user.dto.request.UpdateProfileReqDto;
 import com.movie.domain.user.dto.request.UpdateUserReqDto;
+import com.movie.global.entity.BaseEntity;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -15,7 +17,7 @@ import javax.persistence.*;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "users")
 @Entity
-public class User {
+public class User extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -39,26 +41,30 @@ public class User {
 
     @Column(nullable = false)
     @ColumnDefault("0")
-    private Integer points = 0;
+    private int points = 0;
 
     @ManyToOne
     @JoinColumn(name = "rank_id")
     private Rank rank;
 
     @Builder
-    public User(String email, String password, String nickname, UserType userType, String profile, Integer points, Rank rank) {
+    public User(String email, String password, String nickname, UserType userType, String profile, int points, Rank rank) {
         this.email = email;
         this.password = password;
         this.nickname = nickname;
         this.userType = (userType != null) ? userType : UserType.ROLE_USER;
         this.profile = profile;
-        this.points = (points != null) ? points : 0;
+        this.points = points;
         this.rank = rank;
     }
 
     public void updateUser(UpdateUserReqDto updateUserReqDto) {
         this.nickname = updateUserReqDto.getNickname();
         this.profile = updateUserReqDto.getProfile();
+    }
+
+    public void updateProfile(UpdateProfileReqDto updateProfileReqDtou) {
+        this.profile = updateProfileReqDtou.getProfile();
     }
 
     public void updatePassword(String encryptedPassword) {

@@ -22,7 +22,7 @@ spring:
         show_sql: true
         dialect: org.hibernate.dialect.H2Dialect
     hibernate:
-      ddl-auto: update
+      ddl-auto: create
     defer-datasource-initialization: true
   sql:
     init:
@@ -88,10 +88,25 @@ build:
   date: "@build.date@"
 jwt:
   refresh-expired-in: '1296000000'  # Refresh Token 만료 시간 (15일)
-  access-expired-in: '36000000000' # Access Token 만료 시간 (1시간)
+  access-expired-in: '3600000' # Access Token 만료 시간 (1시간)
   cookieName: refresh-token
   secret: ${secret-jwt.secret}
 springfox:
   documentation:
     swagger:
       use-model-v3: false
+tmdb:
+  api:
+    key: ${secret.tmdb.api-key}
+    url: https://api.themoviedb.org/3
+
+movie:
+  kofic:
+    api:
+      key: ${secret.kofic.api-key}
+      url: http://www.kobis.or.kr/kobisopenapi/webservice/rest/boxoffice/searchDailyBoxOfficeList.json
+
+  tmdb:
+    api:
+      key: ${secret.tmdb.api-key}
+      url: https://api.themoviedb.org/3

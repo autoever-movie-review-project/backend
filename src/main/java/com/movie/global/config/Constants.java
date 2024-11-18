@@ -10,7 +10,8 @@ public final class Constants {
             "/user/login",
             "/user/send-email-code.*",
             "/user/check-email-code",
-            "/user/reissue-token"
+            "/user/reissue-token",
+            "/movie/initialize"
     };
 
     /**
