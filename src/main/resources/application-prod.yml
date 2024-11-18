@@ -15,21 +15,30 @@ spring:
     resources:
       static-locations: classpath:/dist/
       add-mappings: false
+
+
   jpa:
+    database-platform: org.hibernate.dialect.MariaDBDialect
     properties:
       hibernate:
         format_sql: true
         show_sql: true
     hibernate:
       ddl-auto: none
-    defer-datasource-initialization: true
-  sql:
-    init:
-      mode: never
+
+
   datasource:
     url: ${secret.datasource.url}
     username: ${secret.datasource.username}
     password: ${secret.datasource.password}
+    driver-class-name : org.mariadb.jdbc.Driver
+  #    hikari:
+  #      connection-timeout: 30000    # 연결 타임아웃 (밀리초). 30초로 설정 (기본값: 30초)
+  #      minimum-idle: 5              # 최소 유휴 연결 수
+  #      maximum-pool-size: 10        # 최대 연결 풀 크기
+  #      idle-timeout: 600000         # 유휴 연결 타임아웃 (밀리초). 기본값은 10분
+  #      max-lifetime: 1800000        # 연결의 최대 수명 (밀리초). 기본값은 30분
+
   data:
     web:
       pageable:
@@ -72,7 +81,7 @@ server:
       charset: UTF-8
     contextPath: /api
   address: 0.0.0.0
-  port: 8083
+  port: 8080
   compression:
     enabled: true
     mime-types: application/json,application/xml,text/html,text/xml,text/plain,application/javascript,text/css
