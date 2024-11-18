@@ -34,7 +34,6 @@ public class Review extends BaseEntity {
 
     private double rating; // 평점
 
-
     @Builder
     public Review(User user, Movie movie, String content, double rating) {
         this.user = user;

@@ -18,6 +18,8 @@ public class ReviewResDto {
     private final String content;
     private final String profile;
     private final String rankName;
+    private final String title;
+    private final String mainImg;
     private final int likesCount;
     private final double rating;
     private final boolean liked;
@@ -32,6 +34,8 @@ public class ReviewResDto {
                 .writerNickname(review.getUser().getNickname())
                 .content(review.getContent())
                 .profile(review.getUser() != null ? review.getUser().getProfile() : null)
+                .title(review.getMovie().getTitle())
+                .mainImg(review.getMovie().getMainImg())
                 .likesCount(review.getLikesCount())
                 .rating(review.getRating())
                 .liked(liked)

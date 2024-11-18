@@ -14,6 +14,7 @@ public class BoxOfficeListResDto {
     private String rank;         // 순위
     private String audience;     //관객수
     private String mainImg;
+    private String backdropImg;
     private Double rating;
     private String title;
     private List<String> genre;
@@ -26,6 +27,7 @@ public class BoxOfficeListResDto {
                 .rank(rank)
                 .audience(audience)
                 .mainImg(movie.getMainImg())
+                .backdropImg(movie.getBackdropImg())
                 .rating(movie.getRating())
                 .title(movie.getTitle())
                 .genre(movie.getMovieGenres().stream()
