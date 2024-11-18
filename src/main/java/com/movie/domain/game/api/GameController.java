@@ -94,7 +94,7 @@ public class GameController {
     public ResponseEntity<?> fastJoinGame() {
         Long answer = playerService.saveRandom();
 
-        return ResponseEntity.ok("참가한 gameId의 값 : " + answer);
+        return ResponseEntity.ok(answer);
     }
 
 }
