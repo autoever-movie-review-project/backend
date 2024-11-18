@@ -5,6 +5,7 @@ import com.movie.domain.game.domain.Game;
 import com.movie.domain.game.domain.GameStatus;
 import com.movie.domain.game.dto.request.CreateGameReqDto;
 import com.movie.domain.game.dto.response.GetGameDetailResDto;
+import com.movie.domain.game.exception.GameDuplicatedException;
 import com.movie.domain.game.exception.GameIdNotFoundException;
 import com.movie.domain.likeMovie.exception.LikeMovieDuplicateException;
 import com.movie.domain.player.dao.PlayerRepository;
@@ -14,15 +15,21 @@ import com.movie.domain.player.dto.response.PlayerInfoDto;
 import com.movie.domain.rank.dto.response.InGameRankDto;
 import com.movie.domain.user.dao.UserRepository;
 import com.movie.domain.user.domain.User;
+import com.movie.domain.user.exception.EmailDuplicatedException;
 import com.movie.domain.user.exception.UserIdNotFoundException;
+import com.movie.global.exception.DuplicatedException;
 import com.movie.global.security.util.SecurityUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.movie.domain.game.constant.GameExceptionMessage.GAME_DUPLiCATE_ERROR;
+import static com.movie.domain.user.constant.EmailExceptionMessage.EMAIL_DUPLICATED;
 
 @RequiredArgsConstructor
 @Service
@@ -38,6 +45,12 @@ public class GameService {
         User loggedInUser = securityUtils.getLoginUser();
 
 
+        // hostId가 이미 존재하는지 확인
+        if (gameRepository.existsByHostId(loggedInUser.getUserId())) {
+            throw new GameDuplicatedException(GAME_DUPLiCATE_ERROR.getMessage());
+        }
+
+
         // 로그인 된 유저가 host인 Game 생성
         Game game = Game.builder()
                 .hostId(loggedInUser.getUserId())
@@ -45,6 +58,7 @@ public class GameService {
                 .status(GameStatus.WAITING)
                 .maxPlayer(reqDto.maxPlayer())
                 .playerCount(1L)
+                .createdAt(LocalDateTime.now())
                 .build();
 
         // 저장

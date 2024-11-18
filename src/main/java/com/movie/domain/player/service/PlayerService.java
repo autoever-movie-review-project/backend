@@ -30,6 +30,11 @@ public class PlayerService {
         // 로그인 된 유저 불러오기
         User loggedInUser = securityUtils.getLoginUser();
 
+        // player 검증 : playerId가 이미 존재하는지 확인
+        if (playerRepository.existsByUser_UserId(loggedInUser.getUserId())) {
+            throw new IllegalArgumentException("이미 게임에 참여중입니다");
+        }
+
         // 게임 방의 인원이 다 찼는지에 대한 검증
         // 게임이 시작 상태인지에 대한 검증
         Game game = gameRepository.findById(gameId)
@@ -117,6 +122,12 @@ public class PlayerService {
     public Long saveRandom() {
         // 로그인 된 유저 불러오기
         User loggedInUser = securityUtils.getLoginUser();
+
+        // player 검증 : playerId가 이미 존재하는지 확인
+        if (playerRepository.existsByUser_UserId(loggedInUser.getUserId())) {
+            throw new IllegalArgumentException("이미 게임에 참여중입니다");
+        }
+
 
         // status가 대기 상태이고, 인원이 다 차지 않은 game 리스트 불러오기
         List<Game> games = gameRepository.findAvailableGames(GameStatus.WAITING);
