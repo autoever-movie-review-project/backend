@@ -1,5 +1,6 @@
 package com.movie.domain.review.dto;
 
+import com.movie.domain.likeReview.domain.LikeReview;
 import com.movie.domain.review.domain.Review;
 import lombok.Builder;
 import lombok.Data;
@@ -18,9 +19,10 @@ public class ReviewResDto {
     private final String profile;
     private final int likesCount;
     private final double rating;
+    private final boolean liked;
     private final LocalDate createdAt;
 
-    public static ReviewResDto entityToResDto(Review review) {
+    public static ReviewResDto entityToResDto(Review review, boolean liked) {
         return ReviewResDto.builder()
                 .movieId(review.getMovie().getMovieId())
                 .reviewId(review.getReviewId())
@@ -30,6 +32,7 @@ public class ReviewResDto {
                 .profile(review.getUser() != null ? review.getUser().getProfile() : null)
                 .likesCount(review.getLikesCount())
                 .rating(review.getRating())
+                .liked(liked)
                 .createdAt(review.getCreatedAt())
                 .build();
     }
