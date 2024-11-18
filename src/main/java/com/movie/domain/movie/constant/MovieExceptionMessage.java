@@ -2,6 +2,7 @@ package com.movie.domain.movie.constant;
 
 public enum MovieExceptionMessage {
 
+    MOVIEID_NOT_FOUND("존재하지 않는 영화 ID 입니다"),
     MOVIE_NOT_FOUND("존재하지 않는 영화입니다."),
     MOVIE_SAVE_ERROR("영화 정보를 저장할 수 없습니다."),
     TMDB_API_CALL_FAILED("TMDB API 호출 중 오류가 발생했습니다. TMDB ID: %d"),

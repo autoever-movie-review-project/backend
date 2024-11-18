@@ -34,6 +34,7 @@ public class Review extends BaseEntity {
 
     private double rating; // 평점
 
+
     @Builder
     public Review(User user, Movie movie, String content, double rating) {
         this.user = user;
@@ -42,4 +43,8 @@ public class Review extends BaseEntity {
         this.rating = rating;
         this.likesCount = 0;
     }
-}
+
+    public void upLikeCount()
+    {
+        this.likesCount += 1;
+    }}

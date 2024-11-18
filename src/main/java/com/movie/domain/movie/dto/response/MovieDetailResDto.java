@@ -23,12 +23,13 @@ public class MovieDetailResDto {
     private String runtime;
     private String language;
     private Integer reviewCount;
+    private boolean liked;
     private String plot;
     private String tagline;
     private String ageRating;
 
     private static final String IMAGE_BASE_URL = "https://image.tmdb.org/t/p/w500";
-    public static MovieDetailResDto entityToResDto(Movie movie) {
+    public static MovieDetailResDto entityToResDto(Movie movie, Boolean liked) {
         return MovieDetailResDto.builder()
                 .movieId(movie.getMovieId())
                 .mainImg(movie.getMainImg())
@@ -51,6 +52,7 @@ public class MovieDetailResDto {
                 .runtime(movie.getRuntime() != null ? movie.getRuntime().toString() : null)
                 .language(movie.getLanguage())
                 .reviewCount(movie.getVoteCount())
+                .liked(liked)
                 .plot(movie.getPlot())
                 .tagline(movie.getTagline())
                 .ageRating(movie.getAgeRating())

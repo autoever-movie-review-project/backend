@@ -13,4 +13,6 @@ public interface LikeMovieRepository extends JpaRepository<LikeMovie, Long> {
     LikeMovie findByUserUserIdAndMovieMovieId(Long userId, Long movieId);
 
     Page<LikeMovie> findByUserUserId(Long userId, Pageable pageable);
+
+    boolean existsByUser_UserIdAndMovie_MovieId(Long userId, Long movieId);
 }
