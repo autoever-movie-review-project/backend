@@ -1,10 +1,10 @@
-package com.movie.domain.PointHistory.service;
+package com.movie.domain.pointHistory.service;
 
-import com.movie.domain.PointHistory.dao.PointHistoryRepository;
-import com.movie.domain.PointHistory.domain.PointHistory;
-import com.movie.domain.PointHistory.dto.request.PointReqDto;
-import com.movie.domain.PointHistory.dto.response.GetPointHistoryResDto;
-import com.movie.domain.PointHistory.dto.response.GetPointResDto;
+import com.movie.domain.pointHistory.dao.PointHistoryRepository;
+import com.movie.domain.pointHistory.domain.PointHistory;
+import com.movie.domain.pointHistory.dto.request.PointReqDto;
+import com.movie.domain.pointHistory.dto.response.GetPointHistoryResDto;
+import com.movie.domain.pointHistory.dto.response.GetPointResDto;
 import com.movie.domain.user.dao.UserRepository;
 import com.movie.domain.user.domain.User;
 import com.movie.global.security.util.SecurityUtils;

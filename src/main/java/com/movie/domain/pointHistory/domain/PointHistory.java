@@ -1,4 +1,4 @@
-package com.movie.domain.PointHistory.domain;
+package com.movie.domain.pointHistory.domain;
 
 import com.movie.domain.user.domain.User;
 import com.movie.global.entity.BaseEntity;

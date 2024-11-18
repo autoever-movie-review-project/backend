@@ -1,7 +1,6 @@
-package com.movie.domain.PointHistory.dto.response;
+package com.movie.domain.pointHistory.dto.response;
 
-import com.movie.domain.PointHistory.domain.PointHistory;
-import com.movie.domain.user.domain.User;
+import com.movie.domain.pointHistory.domain.PointHistory;
 
 import java.time.LocalDate;
 

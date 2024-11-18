@@ -1,10 +1,9 @@
-package com.movie.domain.PointHistory.api;
+package com.movie.domain.pointHistory.api;
 
-import com.movie.domain.PointHistory.domain.PointHistory;
-import com.movie.domain.PointHistory.dto.request.PointReqDto;
-import com.movie.domain.PointHistory.dto.response.GetPointHistoryResDto;
-import com.movie.domain.PointHistory.dto.response.GetPointResDto;
-import com.movie.domain.PointHistory.service.PointHistoryService;
+import com.movie.domain.pointHistory.dto.request.PointReqDto;
+import com.movie.domain.pointHistory.dto.response.GetPointHistoryResDto;
+import com.movie.domain.pointHistory.dto.response.GetPointResDto;
+import com.movie.domain.pointHistory.service.PointHistoryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;

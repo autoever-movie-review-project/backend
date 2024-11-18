@@ -1,7 +1,6 @@
-package com.movie.domain.PointHistory.dao;
+package com.movie.domain.pointHistory.dao;
 
-import com.movie.domain.PointHistory.domain.PointHistory;
-import com.movie.domain.user.domain.User;
+import com.movie.domain.pointHistory.domain.PointHistory;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;

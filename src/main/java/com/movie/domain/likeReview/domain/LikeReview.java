@@ -1,5 +1,6 @@
 package com.movie.domain.likeReview.domain;
 
+
 import com.movie.domain.review.domain.Review;
 import com.movie.domain.user.domain.User;
 import lombok.AllArgsConstructor;
@@ -9,8 +10,8 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 
-@Entity
 @Table
+@Entity
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
