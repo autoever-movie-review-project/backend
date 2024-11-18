@@ -16,6 +16,7 @@ import com.movie.global.security.util.SecurityUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -34,6 +35,7 @@ public class ReviewServiceImpl implements ReviewService {
                 .orElseThrow(() -> new ForbiddenException(ReviewExceptionMessage.NO_PERMISSION.getMessage()));
     }
 
+    @Transactional
     @Override
     public ReviewResDto addReview(ReviewReqDto reviewReqDto) {
         User writer = getLoginUser();
@@ -51,9 +53,10 @@ public class ReviewServiceImpl implements ReviewService {
         return ReviewResDto.entityToResDto(review);
     }
 
+    @Transactional
     @Override
     public void deleteReview(Long reviewId) {
-        Review review = reviewRepository.findById(reviewId)
+        Review review = reviewRepository.findByIdWithDetails(reviewId)
                 .orElseThrow(() -> new ReviewNotFoundException(ReviewExceptionMessage.REVIEW_NOT_FOUND.getMessage()));
 
         User loginUser = getLoginUser();
@@ -64,25 +67,27 @@ public class ReviewServiceImpl implements ReviewService {
         reviewRepository.delete(review);
     }
 
+    @Transactional
     @Override
     public ReviewResDto findOneReview(Long reviewId) {
-        Review review = reviewRepository.findById(reviewId)
+        Review review = reviewRepository.findByIdWithDetails(reviewId)
                 .orElseThrow(() -> new ReviewNotFoundException(ReviewExceptionMessage.REVIEW_NOT_FOUND.getMessage()));
         return ReviewResDto.entityToResDto(review);
     }
 
     @Override
     public List<ReviewResDto> findAllReviewByMovieId(Long movieId) {
-        List<Review> reviews = reviewRepository.findAllByMovie_MovieId(movieId);
+        List<Review> reviews = reviewRepository.findAllByMovieId(movieId);
         return reviews.stream()
                 .map(ReviewResDto::entityToResDto)
                 .collect(Collectors.toList());
     }
 
+    @Transactional
     @Override
     public List<ReviewResDto> findMyReview() {
         User loginUser = getLoginUser();
-        List<Review> myReviews = reviewRepository.findAllByUser_UserId(loginUser.getUserId());
+        List<Review> myReviews = reviewRepository.findAllByUserId(loginUser.getUserId());
         return myReviews.stream()
                 .map(ReviewResDto::entityToResDto)
                 .collect(Collectors.toList());

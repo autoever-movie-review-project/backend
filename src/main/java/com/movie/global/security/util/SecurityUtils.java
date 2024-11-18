@@ -12,6 +12,8 @@ import org.springframework.stereotype.Component;
 
 import java.util.Objects;
 
+import static com.movie.global.constant.ExceptionMessage.NOT_FOUND_LOGIN_USER;
+
 @Component
 @RequiredArgsConstructor
 public class SecurityUtils {
@@ -21,7 +23,7 @@ public class SecurityUtils {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
         if (authentication == null || authentication instanceof AnonymousAuthenticationToken) {
-            throw new IllegalStateException("현재 로그인된 사용자가 없습니다.");
+            throw new IllegalStateException(NOT_FOUND_LOGIN_USER.getMessage());
         }
 
         return authentication.getName();
