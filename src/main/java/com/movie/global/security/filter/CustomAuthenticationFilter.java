@@ -6,6 +6,7 @@ import com.movie.domain.user.domain.RefreshToken;
 import com.movie.domain.user.dto.response.TokenInfo;
 import com.movie.domain.user.service.UserRedisService;
 import com.movie.global.dto.ResponseDto;
+import com.movie.global.exception.DuplicatedException;
 import com.movie.global.exception.TokenException;
 import com.movie.global.jwt.JwtTokenProvider;
 import com.movie.global.jwt.constant.JwtHeaderUtil;
@@ -16,10 +17,8 @@ import com.movie.global.jwt.exception.TokenNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseCookie;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
@@ -32,6 +31,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
+import static com.movie.global.constant.ExceptionMessage.ALREADY_LOGGED_OUT;
 import static com.movie.global.jwt.constant.JwtExceptionMessage.MALFORMED_HEADER;
 import static com.movie.global.jwt.constant.JwtExceptionMessage.TOKEN_NOTFOUND;
 import static com.movie.global.jwt.constant.TokenType.ACCESS;
@@ -61,7 +61,16 @@ public class CustomAuthenticationFilter extends OncePerRequestFilter {
             "/api/user/send-email-code",
             "/api/user/check-email-code",
             "/api/user/check-login-email",
-            "/api/user/reissue-token"
+            "/api/user/reissue-token",
+            "/api/movie/initialize",
+            "/api/movie/search-and-save",
+            "/api/movie/genre",
+            "/api/movie/upcoming",
+            "/api/movie/popular",
+            "/api/movie/search",
+            "/api/movie/box-office",
+            "/api/movie/top-reviewed",
+            "/api/movie",
     };
 
     /**
@@ -115,8 +124,15 @@ public class CustomAuthenticationFilter extends OncePerRequestFilter {
      * 로그아웃 상태인지 Redis를 통해 확인합니다.
      */
     private void checkLogout(String accessToken) {
-        if (logoutAccessTokenRedisRepository.existsById(accessToken)) {
-            throw new IllegalArgumentException("이미 로그아웃된 회원입니다.");
+        // accessToken에서 이메일 추출
+        String email = jwtTokenProvider.getUsernameFromExpiredToken(accessToken);
+
+        // Redis에서 이메일로 로그아웃 상태 확인
+        boolean isLogout = logoutAccessTokenRedisRepository.existsById(email);
+        log.info("로그아웃 상태 확인 - 이메일: {}, Redis에 존재 여부: {}", email, isLogout);
+
+        if (isLogout) {
+            throw new DuplicatedException(ALREADY_LOGGED_OUT.getMessage());
         }
     }
 

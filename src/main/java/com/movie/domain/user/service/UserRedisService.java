@@ -10,10 +10,4 @@ public interface UserRedisService {
     RefreshToken findRefreshToken(String email);
     void validateRefreshToken(String refreshToken, String email);
     void deleteRefreshToken(String email);
-
-//    void addUserInfo(User user);
-//
-//    UserInfoResDto findUserInfo(String email);
-//
-//    void deleteUserInfo(User user);
 }

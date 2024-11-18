@@ -147,6 +147,16 @@ public class UserController {
     }
 
     /**
+     * 프로필 수정
+     */
+    @Operation(summary = "프로필 수정", description = "회원 프로필 정보를 수정합니다.")
+    @PutMapping("/update-profile")
+    public ResponseEntity<Void> updateProfile(@RequestBody UpdateProfileReqDto updateProfileDto) {
+        userService.updateProfile(updateProfileDto);
+        return ResponseEntity.ok().build();
+    }
+
+    /**
      * 회원 정보 수정
      */
     @Operation(summary = "회원 정보 수정", description = "필요한 정보를 입력하여 회원 정보를 수정합니다.")
@@ -162,6 +172,7 @@ public class UserController {
     @Operation(summary = "비밀번호 수정", description = "회원의 비밀번호를 수정합니다.")
     @PutMapping("/password")
     public ResponseEntity<Void> updatePassword(@RequestBody UpdatePasswordReqDto updatePasswordReqDto) {
+        log.info("수신한 요청 데이터: {}", updatePasswordReqDto.getPassword());
         userService.updatePassword(updatePasswordReqDto);
         return ResponseEntity.ok().build();
     }

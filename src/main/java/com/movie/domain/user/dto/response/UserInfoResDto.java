@@ -7,15 +7,17 @@ import lombok.Data;
 @Data
 @Builder
 public class UserInfoResDto {
+    private Long userId;
     private String email;
     private String nickname;
     private String profile;
-    private Integer points;
+    private int points;
     private String rankName;
     private String rankImg;
 
     public static UserInfoResDto entityToResDto(User user) {
         return UserInfoResDto.builder()
+                .userId(user.getUserId())
                 .email(user.getEmail())
                 .nickname(user.getNickname())
                 .profile(user.getProfile())

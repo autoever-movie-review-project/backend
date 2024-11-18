@@ -87,3 +87,7 @@ springfox:
   documentation:
     swagger:
       use-model-v3: false
+tmdb:
+  api:
+    key: ${secret.tmdb.api-key}
+    url: https://api.themoviedb.org/3

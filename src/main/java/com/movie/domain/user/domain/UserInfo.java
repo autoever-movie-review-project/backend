@@ -20,10 +20,9 @@ public class UserInfo {
     private String email;
     private String nickname;
     private String profile;
-    private Integer points;
+    private int points;
     private UserType userType;
 
     @TimeToLive(unit = TimeUnit.MILLISECONDS)
-    private Long ttl;
-
+    private long expiration;
 }
