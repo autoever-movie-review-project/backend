@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
+import java.math.BigInteger;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -66,8 +67,8 @@ public class TopReviewServiceImpl implements TopReviewService {
         return IntStream.range(0, reviewCounts.size())
                 .mapToObj(index -> {
                     Object[] data = reviewCounts.get(index);
-                    Long movieId = (Long) data[0];
-                    Long reviewCount = (Long) data[1];
+                    Long movieId = ((BigInteger) data[0]).longValue();
+                    Long reviewCount = ((BigInteger) data[1]).longValue();
 
                     Movie movie = movieRepository.findById(movieId)
                             .orElseThrow(() -> new MovieNotFoundException(MOVIE_NOT_FOUND.getMessage()));
