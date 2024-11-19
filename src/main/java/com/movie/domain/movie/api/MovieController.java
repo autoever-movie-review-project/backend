@@ -1,9 +1,9 @@
 package com.movie.domain.movie.api;
 
-import com.movie.domain.movie.domain.BoxOfficeMovieInfo;
-import com.movie.domain.movie.domain.TopReviewMovieInfo;
+import com.movie.domain.movie.dto.response.BoxOfficeListResDto;
 import com.movie.domain.movie.dto.response.MovieDetailResDto;
 import com.movie.domain.movie.dto.response.MovieListResDto;
+import com.movie.domain.movie.dto.response.TopReviewedMoviesResDto;
 import com.movie.domain.movie.service.BoxOfficeService;
 import com.movie.domain.movie.service.MovieService;
 import com.movie.domain.movie.service.TmdbService;
@@ -59,25 +59,25 @@ public class MovieController {
     public ResponseEntity<List<MovieListResDto>> getMoviesByGenre(
             @RequestParam String genre,
             @RequestParam(defaultValue = "0") int page) {
-        return ResponseEntity.ok(movieService.getMoviesByMainGenre(genre, page));
+        return ResponseEntity.ok(movieService.findMoviesByMainGenre(genre, page));
     }
 
     @GetMapping("/upcoming")
     public ResponseEntity<List<MovieListResDto>> getUpcomingMovies(
             @RequestParam(defaultValue = "0") int page) {
-        return ResponseEntity.ok(movieService.getUpcomingMovies(page));
+        return ResponseEntity.ok(movieService.findUpcomingMovies(page));
     }
 
     @GetMapping("/popular")
     public ResponseEntity<List<MovieListResDto>> getPopularMovies(
             @RequestParam(defaultValue = "0") int page) {
-        return ResponseEntity.ok(movieService.getTopRatedMovies(page));
+        return ResponseEntity.ok(movieService.findTopRatedMovies(page));
     }
 
     @GetMapping
     public ResponseEntity<List<MovieListResDto>> getAllMovies(
             @RequestParam(defaultValue = "0") int page) {
-        return ResponseEntity.ok(movieService.getAllMovies(page));
+        return ResponseEntity.ok(movieService.findAllMovies(page));
     }
 
     @GetMapping("/search")
@@ -90,15 +90,15 @@ public class MovieController {
     // BoxOfficeService 관련 API
 
     @GetMapping("/box-office")
-    public ResponseEntity<List<BoxOfficeMovieInfo.MovieDetail>> getBoxOfficeMovies() {
-        return ResponseEntity.ok(boxOfficeService.getDailyBoxOfficeList());
+    public ResponseEntity<List<BoxOfficeListResDto>> getBoxOfficeMovies() {
+        return ResponseEntity.ok(boxOfficeService.findDailyBoxOfficeList());
     }
 
 
     // TopReviewService 관련 API
 
     @GetMapping("/top-reviewed")
-    public ResponseEntity<List<TopReviewMovieInfo.MovieDetail>> getTopReviewedMovies() {
-        return ResponseEntity.ok(topReviewService.getTopRevieweMovieList());
+    public ResponseEntity<List<TopReviewedMoviesResDto>> getTopReviewedMovies() {
+        return ResponseEntity.ok(topReviewService.findTopRevieweMovieList());
     }
 }

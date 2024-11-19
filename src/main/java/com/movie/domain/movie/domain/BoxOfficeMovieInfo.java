@@ -5,6 +5,7 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.redis.core.RedisHash;
 import org.springframework.data.redis.core.TimeToLive;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -13,7 +14,7 @@ import java.util.concurrent.TimeUnit;
 @AllArgsConstructor
 @Builder
 @RedisHash(value = "boxOfficeMovieInfo") // Redis 저장 키: boxOfficeMovieInfo:{targetDate}
-public class BoxOfficeMovieInfo {
+public class BoxOfficeMovieInfo  {
 
     @Id
     private String targetDate;           // Redis 키: 날짜 기준 저장
@@ -29,6 +30,7 @@ public class BoxOfficeMovieInfo {
         private String rank;            // 순위
         private String audience;        // 관객 수
         private String mainImg;         // 영화 포스터 URL
+        private String backdropImg;
         private Double rating;          // 평점
         private String title;           // 영화 제목
         private List<String> genres;    // 장르

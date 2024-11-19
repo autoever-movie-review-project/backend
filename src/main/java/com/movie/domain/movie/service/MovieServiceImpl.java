@@ -47,7 +47,7 @@ public class MovieServiceImpl implements MovieService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<MovieListResDto> getMoviesByMainGenre(String genre, int page) {
+    public List<MovieListResDto> findMoviesByMainGenre(String genre, int page) {
         PageRequest pageRequest = PageRequest.of(page, PAGE_SIZE);
         return movieRepository.findByFilteredGenre(genre, pageRequest).stream()
                 .map(MovieListResDto::entityToResDto)
@@ -56,7 +56,7 @@ public class MovieServiceImpl implements MovieService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<MovieListResDto> getUpcomingMovies(int page) {
+    public List<MovieListResDto> findUpcomingMovies(int page) {
         PageRequest pageRequest = PageRequest.of(page, PAGE_SIZE);
         return movieRepository.findByReleaseDateAfterOrderByReleaseDateAsc(LocalDate.now(), pageRequest).stream()
                 .map(MovieListResDto::entityToResDto)
@@ -65,7 +65,7 @@ public class MovieServiceImpl implements MovieService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<MovieListResDto> getTopRatedMovies(int page) {
+    public List<MovieListResDto> findTopRatedMovies(int page) {
 
         PageRequest pageRequest = PageRequest.of(page, PAGE_SIZE);
 
@@ -79,7 +79,7 @@ public class MovieServiceImpl implements MovieService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<MovieListResDto> getAllMovies(int page) {
+    public List<MovieListResDto> findAllMovies(int page) {
         PageRequest pageRequest = PageRequest.of(page, PAGE_SIZE);
         return movieRepository.findAll(pageRequest).stream()
                 .map(MovieListResDto::entityToResDto)

@@ -73,8 +73,10 @@ public class ReviewServiceImpl implements ReviewService {
 
         //5점 기준
         recommendationService.updatePreferences(reviewReqDto.getMovieId(), reviewReqDto.getRating());
-        updateUserPointsAndRank(writer);
-        return ReviewResDto.entityToResDto(review, false, 0L);
+
+//        updateUserPointsAndRank(writer);
+        return ReviewResDto.entityToResDto(review, false);
+
     }
 
     @Transactional

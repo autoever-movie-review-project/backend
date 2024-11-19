@@ -5,8 +5,11 @@ import com.movie.domain.pointHistory.domain.PointHistory;
 import com.movie.domain.pointHistory.dto.request.PointReqDto;
 import com.movie.domain.pointHistory.dto.response.GetPointHistoryResDto;
 import com.movie.domain.pointHistory.dto.response.GetPointResDto;
+import com.movie.domain.rank.dao.RankRepository;
+import com.movie.domain.rank.domain.Rank;
 import com.movie.domain.user.dao.UserRepository;
 import com.movie.domain.user.domain.User;
+import com.movie.global.exception.NotFoundException;
 import com.movie.global.security.util.SecurityUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -15,12 +18,15 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.movie.domain.review.constant.ReviewExceptionMessage.RANK_NOT_FOUND_FOR_POINTS;
+
 @Service
 @RequiredArgsConstructor
 public class PointHistoryService {
     private final PointHistoryRepository pointHistoryRepository;
     private final SecurityUtils securityUtils;
     private final UserRepository userRepository;
+    private final RankRepository rankRepository;
 
     @Transactional
     public List<GetPointHistoryResDto> getHistorys() {
@@ -32,7 +38,7 @@ public class PointHistoryService {
 
         List<PointHistory> historys = pointHistoryRepository.findAllByUser_UserId(loggedInUser.getUserId());
 
-        for(PointHistory history : historys) {
+        for (PointHistory history : historys) {
             resDtos.add(GetPointHistoryResDto.of(history));
         }
         return resDtos;
@@ -54,9 +60,16 @@ public class PointHistoryService {
         // 적립될때마다 User의 points 속성 값 더해주기
         loggedInUser.updatepoints(pointReqDto.points());
 
+        //랭크 확인해 줘야합니당
+        Rank newRank = rankRepository.findByPointsBetweenStartAndEnd(loggedInUser.getPoints())
+                .orElseThrow(() -> new NotFoundException(RANK_NOT_FOUND_FOR_POINTS.getMessage()));
+
+        if (loggedInUser.getRank() == null || !newRank.getRankId().equals(loggedInUser.getRank().getRankId())) {
+            loggedInUser.updateRank(newRank);
+        }
+
         userRepository.save(loggedInUser);
 
         return GetPointResDto.of(loggedInUser, pointHistory);
-
     }
 }

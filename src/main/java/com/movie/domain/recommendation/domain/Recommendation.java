@@ -26,10 +26,10 @@ public class Recommendation {
     @JoinColumn(name = "movie_id")
     private Movie movie;
 
-    private Float score; // 추천 점수
+    private Double score; // 추천 점수
 
     @Builder
-    public Recommendation(User user, Movie movie, Float score) {
+    public Recommendation(User user, Movie movie, Double score) {
         this.user = user;
         this.movie = movie;
         this.score = score;

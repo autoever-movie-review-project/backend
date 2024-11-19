@@ -18,12 +18,9 @@ public class RecommendationController {
     private final RecommendationService recommendationService;
 
     @PostMapping
-    public ResponseEntity<Void> updatePreferences(@RequestBody RecommendationReqDto recommendationReqDto) {
-        List<Long> movieIds = recommendationReqDto.getMovieIds();
-
-        for (Long movieId : movieIds) {
-            recommendationService.updatePreferences(movieId, 5);
-        }
+    public ResponseEntity<Void> initRecommendations(@RequestBody RecommendationReqDto recommendationReqDto) {
+        //처음 3개 골라서 추천 생성
+        recommendationService.initRecommendations(recommendationReqDto.getMovieIds(), 5);
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 
