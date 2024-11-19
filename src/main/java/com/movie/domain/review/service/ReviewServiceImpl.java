@@ -8,6 +8,7 @@ import com.movie.domain.pointHistory.dao.PointHistoryRepository;
 import com.movie.domain.pointHistory.domain.PointHistory;
 import com.movie.domain.rank.dao.RankRepository;
 import com.movie.domain.rank.domain.Rank;
+import com.movie.domain.recommendation.service.RecommendationService;
 import com.movie.domain.review.constant.ReviewExceptionMessage;
 import com.movie.domain.review.dao.ReviewRepository;
 import com.movie.domain.review.domain.Review;
@@ -39,6 +40,7 @@ public class ReviewServiceImpl implements ReviewService {
     private final SecurityUtils securityUtils;
     private final LikeReviewRepository likeReviewRepository;
     private final PointHistoryRepository pointHistoryRepository;
+    private final RecommendationService recommendationService;
 
     private User getLoginUser() {
         String loginUserEmail = securityUtils.getLoginUserEmail();
@@ -53,18 +55,22 @@ public class ReviewServiceImpl implements ReviewService {
         Movie movie = movieRepository.findById(reviewReqDto.getMovieId())
                 .orElseThrow(() -> new MovieNotFoundException(ReviewExceptionMessage.REVIEW_MOVIE_NOT_FOUND.getMessage()));
 
+        //10점기준
+        Double doubleRating = reviewReqDto.getRating()*2;
         Review review = Review.builder()
                 .user(writer)
                 .movie(movie)
                 .content(reviewReqDto.getContent())
-                .rating(reviewReqDto.getRating())
+                .rating(doubleRating)
                 .build();
 
         reviewRepository.save(review);
 
-        movie.updateRating(reviewReqDto.getRating(), true);
+        movie.updateRating(doubleRating, true);
         movieRepository.save(movie);
 
+        //5점 기준
+        recommendationService.updatePreferences(reviewReqDto.getMovieId(), reviewReqDto.getRating());
         updateUserPointsAndRank(writer);
         return ReviewResDto.entityToResDto(review, false);
     }
@@ -114,9 +120,6 @@ public class ReviewServiceImpl implements ReviewService {
         Movie movie = review.getMovie();
         movie.updateRating(review.getRating(), false);
         movieRepository.save(movie);
-
-        // 해당하는 reviewId를 가진 likeReview 데이터 삭제
-        likeReviewRepository.deleteAllByReviewReviewId(review.getReviewId());
 
         reviewRepository.delete(review);
     }

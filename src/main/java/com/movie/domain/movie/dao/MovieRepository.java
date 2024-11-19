@@ -1,6 +1,9 @@
 package com.movie.domain.movie.dao;
 
+import com.movie.domain.movie.domain.Actor;
 import com.movie.domain.movie.domain.Movie;
+import com.movie.domain.user.domain.User;
+import com.movie.domain.user.domain.UserActorPreference;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -79,5 +82,12 @@ public interface MovieRepository extends JpaRepository<Movie, Long> {
                                               @Param("endDate") LocalDateTime endDate,
                                               @Param("limit") int limit);
 
-    Optional<Movie>  findByMovieId(Long movieId);
+    Optional<Movie> findByMovieId(Long movieId);
+
+    // 인기순 상위 50개 영화 가져오기
+    List<Movie> findTop50ByOrderByPopularityDesc();
+
+    @Query("SELECT m FROM Movie m WHERE (m.language IN :languages) AND (m.voteCount >= :minVotes) ORDER BY m.popularity DESC")
+    List<Movie> findTop50ByPopularityAndLanguage(@Param("languages") List<String> languages, @Param("minVotes") int minVotes);
+
 }
