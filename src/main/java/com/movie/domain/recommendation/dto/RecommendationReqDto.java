@@ -1,12 +1,14 @@
 package com.movie.domain.recommendation.dto;
 
-import lombok.Builder;
-import lombok.Data;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.util.List;
 
-@Data
-@Builder
+@Getter
+@NoArgsConstructor
+@AllArgsConstructor
 public class RecommendationReqDto {
     private List<Long> movieIds;
 }

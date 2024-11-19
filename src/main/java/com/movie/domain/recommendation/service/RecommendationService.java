@@ -1,15 +1,20 @@
+
 package com.movie.domain.recommendation.service;
 
-import com.movie.domain.movie.domain.Movie;
+import com.movie.domain.recommendation.dto.RecommendationResDto;
 import com.movie.domain.user.domain.User;
 
 import java.util.List;
 
 public interface RecommendationService {
 
-    void generateRecommendationsAsync(User user);
+    void addRecommendations(User user);
 
-    List<Movie> getRecommendations(User user);
+    void updatePreferences(Long movieId, double rating);
 
-    void updatePreferences(Long movieId);
+    void deleteRecommendations(Long userId);
+
+    List<RecommendationResDto> findRecommendations();
+
+    void updateLoginUser();
 }
