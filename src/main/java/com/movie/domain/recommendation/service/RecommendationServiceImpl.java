@@ -60,7 +60,7 @@ public class RecommendationServiceImpl implements RecommendationService {
     }
 
     @Override
-    public void updateLoginUser(){
+    public void updateLoginUser() {
         User user = getLoginUser();
         addRecommendations(user);
     }
@@ -70,7 +70,7 @@ public class RecommendationServiceImpl implements RecommendationService {
     @Override
     public void addRecommendations(User user) {
         LocalDate recentDate = LocalDate.now().minusDays(60); // 최근 60일 기준
-        List<Movie> movies = movieRepository.findTop100ByPopularityAndLanguage(List.of("en", "ko"), 1000);
+        List<Movie> movies = movieRepository.findTop50ByPopularityAndLanguage(List.of("en", "ko"), 1000);
 
         List<Recommendation> recommendations = new ArrayList<>();
         for (Movie movie : movies) {
