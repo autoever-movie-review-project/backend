@@ -1,6 +1,5 @@
 package com.movie.domain.review.dto;
 
-import com.movie.domain.likeReview.domain.LikeReview;
 import com.movie.domain.review.domain.Review;
 import lombok.Builder;
 import lombok.Data;
