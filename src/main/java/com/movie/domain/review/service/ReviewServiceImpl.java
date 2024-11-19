@@ -15,6 +15,7 @@ import com.movie.domain.review.domain.Review;
 import com.movie.domain.review.dto.ReviewReqDto;
 import com.movie.domain.review.dto.ReviewResDto;
 import com.movie.domain.review.exception.ReviewNotFoundException;
+import com.movie.domain.spoilerReview.dao.SpoilerReviewRepository;
 import com.movie.domain.user.dao.UserRepository;
 import com.movie.domain.user.domain.User;
 import com.movie.global.exception.ForbiddenException;
@@ -41,6 +42,7 @@ public class ReviewServiceImpl implements ReviewService {
     private final LikeReviewRepository likeReviewRepository;
     private final PointHistoryRepository pointHistoryRepository;
     private final RecommendationService recommendationService;
+    private final SpoilerReviewRepository spoilerReviewRepository;
 
     private User getLoginUser() {
         String loginUserEmail = securityUtils.getLoginUserEmail();
@@ -72,7 +74,7 @@ public class ReviewServiceImpl implements ReviewService {
         //5점 기준
         recommendationService.updatePreferences(reviewReqDto.getMovieId(), reviewReqDto.getRating());
         updateUserPointsAndRank(writer);
-        return ReviewResDto.entityToResDto(review, false);
+        return ReviewResDto.entityToResDto(review, false, 0L);
     }
 
     @Transactional
@@ -132,7 +134,7 @@ public class ReviewServiceImpl implements ReviewService {
     public ReviewResDto findOneReview(Long reviewId) {
         Review review = reviewRepository.findByIdWithDetails(reviewId)
                 .orElseThrow(() -> new ReviewNotFoundException(ReviewExceptionMessage.REVIEW_NOT_FOUND.getMessage()));
-        return ReviewResDto.entityToResDto(review, false);
+        return ReviewResDto.entityToResDto(review, false, 0L);
     }
 
     @Override
@@ -143,7 +145,8 @@ public class ReviewServiceImpl implements ReviewService {
         return reviews.stream()
                 .map(review -> {
                     boolean liked = likeReviewRepository.existsByUser_UserIdAndReview_ReviewId(user.getUserId(), review.getReviewId());
-                    return ReviewResDto.entityToResDto(review, liked);
+                    Long spoilerCount = spoilerReviewRepository.countByReviewReviewId(review.getReviewId());
+                    return ReviewResDto.entityToResDto(review, liked, spoilerCount);
                 })
                 .collect(Collectors.toList());
     }
@@ -156,7 +159,7 @@ public class ReviewServiceImpl implements ReviewService {
         return myReviews.stream()
                 .map(review -> {
                     boolean liked = likeReviewRepository.existsByUser_UserIdAndReview_ReviewId(loginUser.getUserId(), review.getReviewId());
-                    return ReviewResDto.entityToResDto(review, liked);
+                    return ReviewResDto.entityToResDto(review, liked, 0L);
                 })
                 .collect(Collectors.toList());
     }
