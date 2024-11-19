@@ -1,6 +1,5 @@
 package com.movie.domain.likeMovie.api;
 
-import com.movie.domain.likeMovie.domain.LikeMovie;
 import com.movie.domain.likeMovie.dto.response.LikeMovieResDto;
 import com.movie.domain.likeMovie.service.LikeMovieService;
 import lombok.RequiredArgsConstructor;
