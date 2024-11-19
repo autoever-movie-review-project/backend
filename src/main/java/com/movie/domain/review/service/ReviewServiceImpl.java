@@ -115,6 +115,9 @@ public class ReviewServiceImpl implements ReviewService {
         movie.updateRating(review.getRating(), false);
         movieRepository.save(movie);
 
+        // 해당하는 reviewId를 가진 likeReview 데이터 삭제
+        likeReviewRepository.deleteAllByReviewReviewId(review.getReviewId());
+
         reviewRepository.delete(review);
     }
 
