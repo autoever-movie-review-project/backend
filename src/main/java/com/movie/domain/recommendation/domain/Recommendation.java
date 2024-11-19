@@ -2,10 +2,15 @@ package com.movie.domain.recommendation.domain;
 
 import com.movie.domain.movie.domain.Movie;
 import com.movie.domain.user.domain.User;
+import lombok.AccessLevel;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
-import java.util.Date;
 
+@Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
 public class Recommendation {
 
@@ -22,4 +27,11 @@ public class Recommendation {
     private Movie movie;
 
     private Float score; // 추천 점수
+
+    @Builder
+    public Recommendation(User user, Movie movie, Float score) {
+        this.user = user;
+        this.movie = movie;
+        this.score = score;
+    }
 }

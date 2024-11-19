@@ -5,11 +5,12 @@ import com.movie.domain.movie.dao.BoxOfficeRedisRepository;
 import com.movie.domain.movie.dao.MovieRepository;
 import com.movie.domain.movie.domain.BoxOfficeMovieInfo;
 import com.movie.domain.movie.domain.Movie;
+import com.movie.global.config.BoxOfficeConfig;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.hibernate.SessionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import javax.transaction.Transactional;
@@ -30,6 +31,7 @@ public class BoxOfficeServiceImpl implements BoxOfficeService {
     private final BoxOfficeRedisRepository redisRepository;
     private final MovieRepository movieRepository;
     private final RedisTemplate<String, Object> redisTemplate;
+    private final BoxOfficeConfig boxOfficeConfig;
     private final RestTemplate boxOfficeRestTemplate;
 
     @Transactional
@@ -69,18 +71,26 @@ public class BoxOfficeServiceImpl implements BoxOfficeService {
 
     @Transactional
     public List<BoxOfficeMovieInfo.MovieDetail> fetchBoxOfficeFromApi(String targetDate) {
-        String endpoint = "/searchDailyBoxOfficeList.json?targetDt=" + targetDate;
+
+        String endpoint = "?key=" + boxOfficeConfig.getApiKey() + "&targetDt=" + targetDate;
+
         String fullUrl = boxOfficeRestTemplate.getUriTemplateHandler().expand(endpoint).toString();
         log.info("박스오피스 API 호출 URL: {}", fullUrl);
 
-        JsonNode response = boxOfficeRestTemplate.getForObject(endpoint, JsonNode.class);
+        JsonNode response;
+        try {
+            response = boxOfficeRestTemplate.getForObject(endpoint, JsonNode.class);
+        } catch (HttpClientErrorException.NotFound e) {
+            log.error("박스오피스 API 호출 중 404 오류 발생. URL: {}", fullUrl);
+            throw new RuntimeException("해당 날짜의 박스오피스 데이터를 찾을 수 없습니다.");
+        }
+
         if (response == null || !response.has("boxOfficeResult")) {
             log.warn("박스오피스 데이터를 가져올 수 없습니다: boxOfficeResult 없음");
             return new ArrayList<>();
         }
 
         JsonNode dailyBoxOfficeList = response.path("boxOfficeResult").path("dailyBoxOfficeList");
-        log.info("dailyBoxOfficeList 크기: {}", dailyBoxOfficeList.size());
 
         if (dailyBoxOfficeList.isEmpty()) {
             log.warn("박스오피스 응답 dailyBoxOfficeList가 비어 있습니다.");

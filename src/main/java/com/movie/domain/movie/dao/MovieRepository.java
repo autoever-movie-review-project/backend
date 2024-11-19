@@ -79,5 +79,8 @@ public interface MovieRepository extends JpaRepository<Movie, Long> {
                                               @Param("endDate") LocalDateTime endDate,
                                               @Param("limit") int limit);
 
-    Optional<Movie>  findByMovieId(Long movieId);
+    Optional<Movie> findByMovieId(Long movieId);
+
+    // 인기순 상위 50개 영화 가져오기
+    List<Movie> findTop50ByOrderByPopularityDesc();
 }
