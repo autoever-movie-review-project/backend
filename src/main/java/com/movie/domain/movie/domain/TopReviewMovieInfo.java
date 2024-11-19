@@ -30,6 +30,7 @@ public class TopReviewMovieInfo  {
         private String rank;            // 순위
         private Long reviewCount;       // 일주일 간 리뷰 수
         private String mainImg;
+        private String backdropImg;
         private Double rating;
         private String title;
         private List<String> genres;

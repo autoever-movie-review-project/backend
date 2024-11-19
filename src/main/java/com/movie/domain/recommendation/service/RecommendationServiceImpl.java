@@ -18,6 +18,7 @@ import com.movie.domain.user.domain.UserGenrePreference;
 import com.movie.global.exception.ForbiddenException;
 import com.movie.global.security.util.SecurityUtils;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -112,11 +113,63 @@ public class RecommendationServiceImpl implements RecommendationService {
     @Override
     public void initRecommendations(List<Long> movieIds, double rating) {
         User user = getLoginUser();
+
+        // Step 1: 유저 선호도 저장
         for (Long movieId : movieIds) {
             updatePreferences(movieId, rating);
         }
+
+        // Step 2: 랜덤 추천 데이터 저장
+        List<PopularMovieInfo.MovieDetail> randomMovies = getRandomPopularMovies(10);
+        saveInitialRecommendations(user, randomMovies);
+
+        // Step 3: 유저 선호도 기반 추천 데이터로 업데이트
         addRecommendations(user);
     }
+
+    // 랜덤 인기 영화 가져오기
+    private List<PopularMovieInfo.MovieDetail> getRandomPopularMovies(int limit) {
+        Pageable pageable = Pageable.ofSize(limit);
+        List<Movie> randomMovies = movieRepository.findTopRatedMovies(pageable).getContent();
+
+        return randomMovies.stream()
+                .map(movie -> PopularMovieInfo.MovieDetail.builder()
+                        .movieId(movie.getMovieId())
+                        .popularityScore(0)
+                        .genreIds(movie.getMovieGenres().stream()
+                                .map(genre -> genre.getGenre().getGenreId())
+                                .toList())
+                        .actorIds(movie.getMovieActors().stream()
+                                .map(actor -> actor.getActor().getActorId())
+                                .toList())
+                        .directorIds(movie.getMovieDirectors().stream()
+                                .map(director -> director.getDirector().getDirectorId())
+                                .toList())
+                        .build())
+                .toList();
+    }
+
+    private void saveInitialRecommendations(User user, List<PopularMovieInfo.MovieDetail> randomMovies) {
+        List<Recommendation> recommendations = new ArrayList<>();
+
+        for (PopularMovieInfo.MovieDetail movieDetail : randomMovies) {
+            Movie movie = movieRepository.findById(movieDetail.getMovieId())
+                    .orElseThrow(() -> new MovieIdNotFoundException(MOVIE_NOT_FOUND.getMessage()));
+
+            recommendations.add(
+                    Recommendation.builder()
+                            .user(user)
+                            .movie(movie)
+                            .score(0.0) // 초기 점수는 0
+                            .build()
+            );
+        }
+
+        // 랜덤 추천 데이터 저장
+        recommendationRepository.deleteByUser_UserId(user.getUserId());
+        recommendationRepository.saveAll(recommendations);
+    }
+
 
     @Transactional
     @Override
@@ -127,7 +180,7 @@ public class RecommendationServiceImpl implements RecommendationService {
         for (PopularMovieInfo.MovieDetail movieDetail : popularMovies) {
             Movie movie = movieRepository.findById(movieDetail.getMovieId())
                     .orElseThrow(() -> new MovieIdNotFoundException(MOVIE_NOT_FOUND.getMessage()));
-            float score = calculateRecommendationScore(user, movieDetail);
+            Double score = calculateRecommendationScore(user, movieDetail);
             if (score > 0) {
                 recommendations.add(
                         Recommendation.builder()
@@ -139,7 +192,7 @@ public class RecommendationServiceImpl implements RecommendationService {
             }
         }
 
-        recommendations.sort((r1, r2) -> Float.compare(r2.getScore(), r1.getScore()));
+        recommendations.sort((r1, r2) -> Double.compare(r2.getScore(), r1.getScore()));
         recommendationRepository.deleteByUser_UserId(user.getUserId());
         recommendationRepository.saveAll(recommendations.stream().limit(10).toList());
     }
@@ -158,8 +211,8 @@ public class RecommendationServiceImpl implements RecommendationService {
         updateGenrePreferences(user, movie, weight);
     }
 
-    private float calculateRecommendationScore(User user, PopularMovieInfo.MovieDetail movieDetail) {
-        float score = 0.0f;
+    private Double calculateRecommendationScore(User user, PopularMovieInfo.MovieDetail movieDetail) {
+        Double score = 0.0;
 
         List<UserActorPreference> actorPreferences = userActorPreferenceRepository.findByUserAndActorIds(user, movieDetail.getActorIds());
         score += actorPreferences.stream().mapToDouble(UserActorPreference::getPreferenceScore).sum();

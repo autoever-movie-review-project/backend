@@ -4,6 +4,7 @@ import com.movie.domain.movie.dao.MovieRepository;
 import com.movie.domain.movie.dao.TopReviewRedisRepository;
 import com.movie.domain.movie.domain.Movie;
 import com.movie.domain.movie.domain.TopReviewMovieInfo;
+import com.movie.domain.movie.dto.response.TopReviewedMoviesResDto;
 import com.movie.domain.movie.exception.MovieNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -27,9 +28,8 @@ public class TopReviewServiceImpl implements TopReviewService {
     private final MovieRepository movieRepository;
     private final RedisTemplate<String, Object> redisTemplate;
 
-    // 일주일간 리뷰 기준 상위 10개 영화 반환
     @Override
-    public List<TopReviewMovieInfo.MovieDetail> getTopRevieweMovieList() {
+    public List<TopReviewedMoviesResDto> findTopRevieweMovieList() {
         String redisKey = "topReviewMovieInfo";
 
         // 1. Redis에서 데이터 확인
@@ -40,11 +40,18 @@ public class TopReviewServiceImpl implements TopReviewService {
             Long ttl = redisTemplate.getExpire(redisKey, TimeUnit.SECONDS);
 
             if (ttl != null && ttl <= 600) {
+                // Redis 데이터가 곧 만료될 경우 새 데이터를 가져와 갱신
                 List<TopReviewMovieInfo.MovieDetail> updatedReviews = fetchTopReviewMoviesFromDatabase();
                 saveTopReviewMoviesToRedis(updatedReviews);
-                return updatedReviews;
+                return updatedReviews.stream()
+                        .map(TopReviewedMoviesResDto::entityToResDto)
+                        .collect(Collectors.toList());
             }
-            return reviewInfo.getReviews();
+
+            // Redis 데이터를 API 반환용 DTO로 변환
+            return reviewInfo.getReviews().stream()
+                    .map(TopReviewedMoviesResDto::entityToResDto)
+                    .collect(Collectors.toList());
         }
 
         // 2. Redis에 데이터가 없으면 DB에서 데이터 가져오기
@@ -53,17 +60,19 @@ public class TopReviewServiceImpl implements TopReviewService {
         // 3. Redis에 저장
         saveTopReviewMoviesToRedis(fetchedReviews);
 
-        return fetchedReviews;
+        // 4. API 반환용 DTO로 변환
+        return fetchedReviews.stream()
+                .map(TopReviewedMoviesResDto::entityToResDto)
+                .collect(Collectors.toList());
     }
 
     private List<TopReviewMovieInfo.MovieDetail> fetchTopReviewMoviesFromDatabase() {
-        // 1. 최근 일주일 리뷰 데이터 가져오기
         LocalDateTime endDate = LocalDateTime.now();
         LocalDateTime startDate = endDate.minusDays(7);
 
         List<Object[]> reviewCounts = movieRepository.findTopMoviesByReviewCount(startDate, endDate, 10);
 
-        // 2. 리뷰 데이터를 기반으로 영화 정보를 생성
+        // DB에서 가져온 데이터를 Redis 저장용 MovieDetail로 변환
         return IntStream.range(0, reviewCounts.size())
                 .mapToObj(index -> {
                     Object[] data = reviewCounts.get(index);
@@ -73,16 +82,14 @@ public class TopReviewServiceImpl implements TopReviewService {
                     Movie movie = movieRepository.findById(movieId)
                             .orElseThrow(() -> new MovieNotFoundException(MOVIE_NOT_FOUND.getMessage()));
 
-                    // 제목을 normalizeTitle 메소드를 이용해 변환
-                    String normalizedTitle = normalizeTitle(movie.getTitle());
-
+                    // MovieDetail 생성
                     return TopReviewMovieInfo.MovieDetail.builder()
                             .movieId(movieId)
                             .rank(String.valueOf(index + 1))
                             .reviewCount(reviewCount)
                             .mainImg(movie.getMainImg())
                             .rating(movie.getRating())
-                            .title(normalizedTitle)
+                            .title(movie.getTitle())
                             .genres(movie.getMovieGenres().stream()
                                     .map(genre -> genre.getGenre().getGenre())
                                     .collect(Collectors.toList()))
@@ -93,7 +100,6 @@ public class TopReviewServiceImpl implements TopReviewService {
                 .collect(Collectors.toList());
     }
 
-    // Redis에 데이터를 저장
     private void saveTopReviewMoviesToRedis(List<TopReviewMovieInfo.MovieDetail> reviews) {
         TopReviewMovieInfo reviewInfo = TopReviewMovieInfo.builder()
                 .targetDate(LocalDateTime.now().toString())
@@ -104,7 +110,7 @@ public class TopReviewServiceImpl implements TopReviewService {
         redisRepository.save(reviewInfo);
     }
 
-    // 제목 내 로마 숫자와 아라비아 숫자를 동일하게 취급하는 메소드
+    // 제목 내 로마 숫자와 아라비아 숫자를 동일하게 취급
     private String normalizeTitle(String title) {
         // 로마 숫자와 아라비아 숫자 변환
         title = title.replace("Ⅱ", "2");

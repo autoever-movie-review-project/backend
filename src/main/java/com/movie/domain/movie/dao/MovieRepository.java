@@ -25,7 +25,6 @@ public interface MovieRepository extends JpaRepository<Movie, Long> {
             @Param("startDate") LocalDate startDate,
             @Param("endDate") LocalDate endDate
     );
-
     boolean existsByTitleAndReleaseDate(String title, LocalDate releaseDate);
 
     @Query("SELECT m.tmdbId FROM Movie m WHERE m.tmdbId IN :tmdbIds")
@@ -66,6 +65,7 @@ public interface MovieRepository extends JpaRepository<Movie, Long> {
             "FROM review r " +
             "JOIN movie m ON r.movie_id = m.movie_id " +
             "WHERE r.created_at BETWEEN :startDate AND :endDate " +
+            "AND m.backdropImg IS NOT NULL " +
             "GROUP BY m.movie_id " +
             "ORDER BY reviewCount DESC " +
             "LIMIT :limit",

@@ -5,6 +5,7 @@ import com.movie.domain.movie.dao.BoxOfficeRedisRepository;
 import com.movie.domain.movie.dao.MovieRepository;
 import com.movie.domain.movie.domain.BoxOfficeMovieInfo;
 import com.movie.domain.movie.domain.Movie;
+import com.movie.domain.movie.dto.response.BoxOfficeListResDto;
 import com.movie.global.config.BoxOfficeConfig;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -36,7 +37,7 @@ public class BoxOfficeServiceImpl implements BoxOfficeService {
 
     @Transactional
     @Override
-    public List<BoxOfficeMovieInfo.MovieDetail> getDailyBoxOfficeList() {
+    public List<BoxOfficeListResDto> findDailyBoxOfficeList() {
         String targetDate = getDefaultTargetDate();
 
         // 1. Redis에서 데이터 확인
@@ -49,9 +50,13 @@ public class BoxOfficeServiceImpl implements BoxOfficeService {
                 log.info("TTL이 600초 이하이므로 데이터를 갱신합니다.");
                 List<BoxOfficeMovieInfo.MovieDetail> updatedMovies = fetchBoxOfficeFromApi(targetDate);
                 saveBoxOfficeToRedis(targetDate, updatedMovies);
-                return updatedMovies;
+                return updatedMovies.stream()
+                        .map(BoxOfficeListResDto::entityToResDto)
+                        .collect(Collectors.toList());
             }
-            return boxOfficeInfo.getMovies();
+            return boxOfficeInfo.getMovies().stream()
+                    .map(BoxOfficeListResDto::entityToResDto)
+                    .collect(Collectors.toList());
         }
 
         log.info("Redis 캐시에서 데이터를 찾을 수 없어 API를 호출합니다.");
@@ -62,16 +67,14 @@ public class BoxOfficeServiceImpl implements BoxOfficeService {
         // 3. Redis에 저장
         saveBoxOfficeToRedis(targetDate, fetchedMovies);
 
-        return fetchedMovies;
-    }
-
-    private String getDefaultTargetDate() {
-        return LocalDate.now().minusDays(1).format(DateTimeFormatter.ofPattern("yyyyMMdd"));
+        // 4. API 반환용 DTO로 변환
+        return fetchedMovies.stream()
+                .map(BoxOfficeListResDto::entityToResDto)
+                .collect(Collectors.toList());
     }
 
     @Transactional
     public List<BoxOfficeMovieInfo.MovieDetail> fetchBoxOfficeFromApi(String targetDate) {
-
         String endpoint = "?key=" + boxOfficeConfig.getApiKey() + "&targetDt=" + targetDate;
 
         String fullUrl = boxOfficeRestTemplate.getUriTemplateHandler().expand(endpoint).toString();
@@ -145,22 +148,6 @@ public class BoxOfficeServiceImpl implements BoxOfficeService {
         return movieDetails;
     }
 
-    // 아라비아 숫자 처리 함수
-    private String normalizeTitle(String title) {
-        // "Ⅱ", "Ⅲ" 등 아라비아 숫자를 "II", "III"로 변환
-        title = title.replaceAll("Ⅱ", "II")
-                .replaceAll("Ⅲ", "III")
-                .replaceAll("Ⅳ", "IV")
-                .replaceAll("Ⅴ", "V")
-                .replaceAll("Ⅵ", "VI")
-                .replaceAll("Ⅶ", "VII")
-                .replaceAll("Ⅷ", "VIII")
-                .replaceAll("Ⅸ", "IX")
-                .replaceAll("Ⅹ", "X");
-
-        return title;
-    }
-
     @Transactional
     public void saveBoxOfficeToRedis(String targetDate, List<BoxOfficeMovieInfo.MovieDetail> movies) {
         if (movies == null || movies.isEmpty()) {
@@ -180,5 +167,25 @@ public class BoxOfficeServiceImpl implements BoxOfficeService {
         }
 
         redisRepository.save(boxOfficeInfo);
+    }
+
+    private String getDefaultTargetDate() {
+        return LocalDate.now().minusDays(1).format(DateTimeFormatter.ofPattern("yyyyMMdd"));
+    }
+
+    // 아라비아 숫자 처리 함수
+    private String normalizeTitle(String title) {
+        // "Ⅱ", "Ⅲ" 등 아라비아 숫자를 "II", "III"로 변환
+        title = title.replaceAll("Ⅱ", "II")
+                .replaceAll("Ⅲ", "III")
+                .replaceAll("Ⅳ", "IV")
+                .replaceAll("Ⅴ", "V")
+                .replaceAll("Ⅵ", "VI")
+                .replaceAll("Ⅶ", "VII")
+                .replaceAll("Ⅷ", "VIII")
+                .replaceAll("Ⅸ", "IX")
+                .replaceAll("Ⅹ", "X");
+
+        return title;
     }
 }

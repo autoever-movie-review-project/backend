@@ -1,6 +1,7 @@
 package com.movie.domain.movie.dto.response;
 
 import com.movie.domain.movie.domain.Movie;
+import com.movie.domain.movie.domain.TopReviewMovieInfo;
 import lombok.Builder;
 import lombok.Data;
 
@@ -35,6 +36,21 @@ public class TopReviewedMoviesResDto {
                         .collect(Collectors.toList()))
                 .ageRating(movie.getAgeRating())
                 .tagline(movie.getTagline())
+                .build();
+    }
+
+    public static TopReviewedMoviesResDto entityToResDto(TopReviewMovieInfo.MovieDetail detail) {
+        return TopReviewedMoviesResDto.builder()
+                .movieId(detail.getMovieId())
+                .rank(detail.getRank())
+                .reviewCount(detail.getReviewCount())
+                .mainImg(detail.getMainImg())
+                .backdropImg(detail.getBackdropImg())
+                .rating(detail.getRating())
+                .title(detail.getTitle())
+                .genre(detail.getGenres())
+                .ageRating(detail.getAgeRating())
+                .tagline(detail.getTagline())
                 .build();
     }
 }

@@ -30,6 +30,7 @@ public class BoxOfficeMovieInfo  {
         private String rank;            // 순위
         private String audience;        // 관객 수
         private String mainImg;         // 영화 포스터 URL
+        private String backdropImg;
         private Double rating;          // 평점
         private String title;           // 영화 제목
         private List<String> genres;    // 장르
