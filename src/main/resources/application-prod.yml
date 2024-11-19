@@ -113,3 +113,16 @@ movie:
     api:
       key: ${secret.tmdb.api-key}
       url: https://api.themoviedb.org/3
+
+cloud:
+  aws:
+    credentials:
+      accessKey: ${secret.cloud.accessKey}
+      secretKey: ${secret.cloud.secretKey}
+    s3:
+      bucket: movie-play
+      dir:
+    region:
+      static: ap-northeast-2
+    stack:
+      auto: false

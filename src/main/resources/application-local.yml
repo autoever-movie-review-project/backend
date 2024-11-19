@@ -14,29 +14,30 @@ spring:
   web:
     resources:
       static-locations: classpath:/dist/
-      add-mappings: "false"
+      add-mappings: false
+
+
   jpa:
+    database-platform: org.hibernate.dialect.MariaDBDialect
     properties:
       hibernate:
         format_sql: true
         show_sql: true
-        dialect: org.hibernate.dialect.H2Dialect
     hibernate:
       ddl-auto: update
-    defer-datasource-initialization: true
-  sql:
-    init:
-      mode: always
+
+
   datasource:
-    driver-class-name: org.h2.Driver
-    password: ''
-    username: sa
-    hikari:
-      jdbc-url: jdbc:h2:tcp://localhost/~/test
-  h2:
-    console:
-      path: /h2-console
-      enabled: true
+    url: ${secret.datasource.url}
+    username: ${secret.datasource.username}
+    password: ${secret.datasource.password}
+    driver-class-name : org.mariadb.jdbc.Driver
+  #    hikari:
+  #      connection-timeout: 30000    # 연결 타임아웃 (밀리초). 30초로 설정 (기본값: 30초)
+  #      minimum-idle: 5              # 최소 유휴 연결 수
+  #      maximum-pool-size: 10        # 최대 연결 풀 크기
+  #      idle-timeout: 600000         # 유휴 연결 타임아웃 (밀리초). 기본값은 10분
+  #      max-lifetime: 1800000        # 연결의 최대 수명 (밀리초). 기본값은 30분
   data:
     web:
       pageable:
@@ -112,3 +113,16 @@ movie:
     api:
       key: ${secret.tmdb.api-key}
       url: https://api.themoviedb.org/3
+
+cloud:
+  aws:
+    credentials:
+      accessKey: ${secret.cloud.accessKey}
+      secretKey: ${secret.cloud.secretKey}
+    s3:
+      bucket: movie-play
+      dir:
+    region:
+      static: ap-northeast-2
+    stack:
+      auto: false
