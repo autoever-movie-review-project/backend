@@ -49,9 +49,8 @@ public class LikeMovieService {
 
         Long countLikes = likeMovieRepository.countByMovieMovieId(movieId);
 
-
         // 선호도 업데이트
-        recommendationService.updatePreferencesAfterAction(loggedInUser, movie, 5);
+        recommendationService.updatePreferences(movieId);
 
         return countLikes;
 
@@ -67,9 +66,7 @@ public class LikeMovieService {
 
         Long countLikes = likeMovieRepository.countByMovieMovieId(movieId);
 
-        // 선호도 업데이트
-        Movie movie = like.getMovie();
-        recommendationService.updatePreferencesAfterAction(loggedInUser, movie, -5);
+        recommendationService.updatePreferences(movieId);
 
         return countLikes;
     }

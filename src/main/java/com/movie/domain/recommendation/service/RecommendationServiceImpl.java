@@ -7,13 +7,17 @@ import com.movie.domain.movie.domain.MovieDirectors;
 import com.movie.domain.movie.domain.MovieGenres;
 import com.movie.domain.recommendation.dao.RecommendationRepository;
 import com.movie.domain.recommendation.domain.Recommendation;
+import com.movie.domain.review.constant.ReviewExceptionMessage;
 import com.movie.domain.user.dao.UserActorPreferenceRepository;
 import com.movie.domain.user.dao.UserDirectorPreferenceRepository;
 import com.movie.domain.user.dao.UserGenrePreferenceRepository;
+import com.movie.domain.user.dao.UserRepository;
 import com.movie.domain.user.domain.User;
 import com.movie.domain.user.domain.UserActorPreference;
 import com.movie.domain.user.domain.UserDirectorPreference;
 import com.movie.domain.user.domain.UserGenrePreference;
+import com.movie.global.exception.ForbiddenException;
+import com.movie.global.security.util.SecurityUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -27,10 +31,18 @@ import java.util.List;
 public class RecommendationServiceImpl implements RecommendationService {
 
     private final RecommendationRepository recommendationRepository;
+    private final UserRepository userRepository;
     private final UserActorPreferenceRepository userActorPreferenceRepository;
     private final UserDirectorPreferenceRepository userDirectorPreferenceRepository;
     private final UserGenrePreferenceRepository userGenrePreferenceRepository;
     private final MovieRepository movieRepository;
+    private final SecurityUtils securityUtils;
+
+    private User getLoginUser() {
+        String loginUserEmail = securityUtils.getLoginUserEmail();
+        return userRepository.findByEmail(loginUserEmail)
+                .orElseThrow(() -> new ForbiddenException(ReviewExceptionMessage.NO_PERMISSION.getMessage()));
+    }
 
     @Async
     @Override
@@ -96,74 +108,75 @@ public class RecommendationServiceImpl implements RecommendationService {
         return score;
     }
 
-    // 선호도 업데이트
     @Override
     @Transactional
-    public void updatePreferencesAfterAction(User user, Movie movie, int weight) {
-        // 배우 선호도 업데이트
+    public void updatePreferences(Long movieId) {
+        User user = getLoginUser();
+        Movie movie = movieRepository.findById(movieId)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid movie ID: " + movieId));
+
+        updateActorPreferences(user, movie);
+        updateDirectorPreferences(user, movie);
+        updateGenrePreferences(user, movie);
+    }
+
+    private void updateActorPreferences(User user, Movie movie) {
         for (MovieActors movieActor : movie.getMovieActors()) {
             UserActorPreference preference = userActorPreferenceRepository.findByUserAndActor(user, movieActor.getActor());
             if (preference != null) {
-                userActorPreferenceRepository.save(
-                        UserActorPreference.builder()
-                                .user(user)
-                                .actor(movieActor.getActor())
-                                .preferenceScore(preference.getPreferenceScore() + weight)
-                                .build()
-                );
+                preference = UserActorPreference.builder()
+                        .user(user)
+                        .actor(movieActor.getActor())
+                        .preferenceScore(preference.getPreferenceScore() + 5) // 기본 점수
+                        .build();
             } else {
-                userActorPreferenceRepository.save(
-                        UserActorPreference.builder()
-                                .user(user)
-                                .actor(movieActor.getActor())
-                                .preferenceScore(weight)
-                                .build()
-                );
+                preference = UserActorPreference.builder()
+                        .user(user)
+                        .actor(movieActor.getActor())
+                        .preferenceScore(5)
+                        .build();
             }
+            userActorPreferenceRepository.save(preference);
         }
+    }
 
-        // 감독 선호도 업데이트
+    private void updateDirectorPreferences(User user, Movie movie) {
         for (MovieDirectors movieDirector : movie.getMovieDirectors()) {
             UserDirectorPreference preference = userDirectorPreferenceRepository.findByUserAndDirector(user, movieDirector.getDirector());
             if (preference != null) {
-                userDirectorPreferenceRepository.save(
-                        UserDirectorPreference.builder()
-                                .user(user)
-                                .director(movieDirector.getDirector())
-                                .preferenceScore(preference.getPreferenceScore() + weight)
-                                .build()
-                );
+                preference = UserDirectorPreference.builder()
+                        .user(user)
+                        .director(movieDirector.getDirector())
+                        .preferenceScore(preference.getPreferenceScore() + 3) // 기본 점수
+                        .build();
             } else {
-                userDirectorPreferenceRepository.save(
-                        UserDirectorPreference.builder()
-                                .user(user)
-                                .director(movieDirector.getDirector())
-                                .preferenceScore(weight)
-                                .build()
-                );
+                preference = UserDirectorPreference.builder()
+                        .user(user)
+                        .director(movieDirector.getDirector())
+                        .preferenceScore(3)
+                        .build();
             }
+            userDirectorPreferenceRepository.save(preference);
         }
+    }
 
-        // 장르 선호도 업데이트
+    private void updateGenrePreferences(User user, Movie movie) {
         for (MovieGenres movieGenre : movie.getMovieGenres()) {
             UserGenrePreference preference = userGenrePreferenceRepository.findByUserAndGenre(user, movieGenre.getGenre());
             if (preference != null) {
-                userGenrePreferenceRepository.save(
-                        UserGenrePreference.builder()
-                                .user(user)
-                                .genre(movieGenre.getGenre())
-                                .preferenceScore(preference.getPreferenceScore() + weight)
-                                .build()
-                );
+                preference = UserGenrePreference.builder()
+                        .user(user)
+                        .genre(movieGenre.getGenre())
+                        .preferenceScore(preference.getPreferenceScore() + 2) // 기본 점수
+                        .build();
             } else {
-                userGenrePreferenceRepository.save(
-                        UserGenrePreference.builder()
-                                .user(user)
-                                .genre(movieGenre.getGenre())
-                                .preferenceScore(weight)
-                                .build()
-                );
+                preference = UserGenrePreference.builder()
+                        .user(user)
+                        .genre(movieGenre.getGenre())
+                        .preferenceScore(2)
+                        .build();
             }
+            userGenrePreferenceRepository.save(preference);
         }
     }
 }

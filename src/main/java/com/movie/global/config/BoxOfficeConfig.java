@@ -17,10 +17,9 @@ public class BoxOfficeConfig {
 
     @Bean
     public RestTemplate boxOfficeRestTemplate() {
-        String baseUrlWithKey = apiUrl + "?key=" + apiKey;
 
         RestTemplate restTemplate = new RestTemplate();
-        DefaultUriBuilderFactory factory = new DefaultUriBuilderFactory(baseUrlWithKey);
+        DefaultUriBuilderFactory factory = new DefaultUriBuilderFactory(apiUrl);
         restTemplate.setUriTemplateHandler(factory);
 
         restTemplate.getInterceptors().add((request, body, execution) -> {
@@ -33,5 +32,9 @@ public class BoxOfficeConfig {
 
     public String getApiKey() {
         return apiKey;
+    }
+
+    public String getBaseUrl() {
+        return apiUrl;
     }
 }
