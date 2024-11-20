@@ -55,21 +55,14 @@ spring:
     properties:
       mail.smtp.auth: true
       mail.smtp.starttls.enable: true
-<<<<<<< HEAD
-  #  redis:
-  #    host: localhost
-  #    port: 6379
-  #    password:
-=======
-#  redis:
-#    host: localhost
-#    port: 6379
-#    password:
->>>>>>> d36a571f168a55056da01bdfd9fd05c43974f243
   redis:
-    host: 43.201.19.163
+    host: localhost
     port: 6379
-    password: guseodhxhdpqj2wh
+    password:
+#  redis:
+#    host: 43.201.19.163
+#    port: 6379
+#    password: guseodhxhdpqj2wh
 logging:
   level:
     org:
