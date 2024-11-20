@@ -65,7 +65,7 @@ public interface MovieRepository extends JpaRepository<Movie, Long> {
             "FROM review r " +
             "JOIN movie m ON r.movie_id = m.movie_id " +
             "WHERE r.created_at BETWEEN :startDate AND :endDate " +
-            "AND m.backdropImg IS NOT NULL " +
+            "AND m.backdrop_img IS NOT NULL " + // 수정된 컬럼명
             "GROUP BY m.movie_id " +
             "ORDER BY reviewCount DESC " +
             "LIMIT :limit",
