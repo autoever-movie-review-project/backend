@@ -1,6 +1,5 @@
 package com.movie.domain.likeMovie.service;
 
-import com.movie.domain.game.domain.Game;
 import com.movie.domain.likeMovie.dao.LikeMovieRepository;
 import com.movie.domain.likeMovie.domain.LikeMovie;
 import com.movie.domain.likeMovie.dto.response.LikeMovieResDto;
@@ -8,6 +7,7 @@ import com.movie.domain.likeMovie.exception.LikeMovieDuplicateException;
 import com.movie.domain.movie.dao.MovieRepository;
 import com.movie.domain.movie.domain.Movie;
 import com.movie.domain.movie.exception.MovieIdNotFoundException;
+import com.movie.domain.recommendation.service.RecommendationService;
 import com.movie.domain.user.domain.User;
 import com.movie.global.security.util.SecurityUtils;
 import lombok.RequiredArgsConstructor;
@@ -17,6 +17,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import static com.movie.domain.movie.constant.MovieExceptionMessage.MOVIEID_NOT_FOUND;
 
 @Service
@@ -25,6 +26,7 @@ public class LikeMovieService {
     private final LikeMovieRepository likeMovieRepository;
     private final SecurityUtils securityUtils;
     private final MovieRepository movieRepository;
+    private final RecommendationService recommendationService;
 
     @Transactional
     public Long save(Long movieId) {
@@ -36,7 +38,7 @@ public class LikeMovieService {
         }
 
         Movie movie = movieRepository.findByMovieId(movieId)
-                .orElseThrow(()->new MovieIdNotFoundException(MOVIEID_NOT_FOUND.getMessage()));
+                .orElseThrow(() -> new MovieIdNotFoundException(MOVIEID_NOT_FOUND.getMessage()));
 
         LikeMovie likeMovie = LikeMovie.builder()
                 .movie(movie)
@@ -46,6 +48,9 @@ public class LikeMovieService {
         likeMovieRepository.save(likeMovie);
 
         Long countLikes = likeMovieRepository.countByMovieMovieId(movieId);
+
+        // 선호도 업데이트
+        recommendationService.updatePreferences(movieId, -5);
 
         return countLikes;
 
@@ -60,6 +65,9 @@ public class LikeMovieService {
         likeMovieRepository.delete(like);
 
         Long countLikes = likeMovieRepository.countByMovieMovieId(movieId);
+
+        // 선호도 업데이트
+        recommendationService.updatePreferences(movieId, 5);
 
         return countLikes;
     }

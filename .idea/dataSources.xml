@@ -31,10 +31,8 @@
       <jdbc-driver>org.mariadb.jdbc.Driver</jdbc-driver>
       <jdbc-url>jdbc:mariadb://moviedatabase.c74s8wwik42w.ap-northeast-2.rds.amazonaws.com:3306/movieplay</jdbc-url>
       <jdbc-additional-properties>
-        <property name="com.intellij.clouds.kubernetes.db.host.port" />
         <property name="com.intellij.clouds.kubernetes.db.enabled" value="false" />
         <property name="com.intellij.clouds.kubernetes.db.resource.type" value="Deployment" />
-        <property name="com.intellij.clouds.kubernetes.db.container.port" />
       </jdbc-additional-properties>
       <working-dir>$ProjectFileDir$</working-dir>
     </data-source>
@@ -52,16 +50,23 @@
       </jdbc-additional-properties>
       <working-dir>$ProjectFileDir$</working-dir>
     </data-source>
+<<<<<<< HEAD
     <data-source source="LOCAL" name="redis" uuid="b97ded7a-2b79-42ee-bb30-057fa1d44bb0">
+=======
+    <data-source source="LOCAL" name="0@43.201.19.163" uuid="6aeadbf2-781c-4f57-845c-e52a4b062c68">
+>>>>>>> d36a571f168a55056da01bdfd9fd05c43974f243
       <driver-ref>redis</driver-ref>
       <synchronize>true</synchronize>
       <jdbc-driver>jdbc.RedisDriver</jdbc-driver>
       <jdbc-url>jdbc:redis://43.201.19.163:6379/0</jdbc-url>
+<<<<<<< HEAD
       <jdbc-additional-properties>
         <property name="com.intellij.clouds.kubernetes.db.host.port" />
         <property name="com.intellij.clouds.kubernetes.db.enabled" value="false" />
         <property name="com.intellij.clouds.kubernetes.db.container.port" />
       </jdbc-additional-properties>
+=======
+>>>>>>> d36a571f168a55056da01bdfd9fd05c43974f243
       <working-dir>$ProjectFileDir$</working-dir>
     </data-source>
   </component>

@@ -58,7 +58,10 @@ public class PlayerService {
 
         playerRepository.save(player);
 
-        game.setPlayerCountUp();
+        // playerCount 갱신
+        Long playerCount = playerRepository.countByGameId(game.getId());
+        game.setPlayerCount(playerCount);
+        gameRepository.save(game);
 
         gameRepository.save(game);
 
@@ -81,8 +84,11 @@ public class PlayerService {
             if (gameRepository.existsById(gameId)) {
                 Game game = gameRepository.findById(gameId).orElseThrow(GameIdNotFoundException::new);
 
-                // playerCount 감소
-                game.setPlayerCountDown();
+                // playerCount 갱신
+                Long playerCount = playerRepository.countByGameId(game.getId());
+                game.setPlayerCount(playerCount);
+                gameRepository.save(game);
+
                 gameRepository.deleteById(gameId);
 
                 return new GameStatusResDto(gameId, true, null); // 방 삭제된 경우
@@ -103,15 +109,17 @@ public class PlayerService {
                 // game의 hostId 새로 설정
                 game.setHostId(hostPlayer.getUser().getUserId());
 
-                // playerCount 감소
-                game.setPlayerCountDown();
+                // playerCount 갱신
+                Long playerCount = playerRepository.countByGameId(game.getId());
+                game.setPlayerCount(playerCount);
                 gameRepository.save(game);
 
                 return new GameStatusResDto(gameId, false, game.getHostId()); // hostId가 바뀐 경우
             }
 
-            // playerCount 감소
-            game.setPlayerCountDown();
+            // playerCount 갱신
+            Long playerCount = playerRepository.countByGameId(game.getId());
+            game.setPlayerCount(playerCount);
             gameRepository.save(game);
         }
 
@@ -147,7 +155,10 @@ public class PlayerService {
             playerRepository.save(newPlayer);
 
             // 게임의 playerCount 증가
-            selectedGame.setPlayerCountUp();
+            // playerCount 갱신
+            Long playerCount = playerRepository.countByGameId(selectedGame.getId());
+            selectedGame.setPlayerCount(playerCount);
+
             gameRepository.save(selectedGame);
             return selectedGame.getId();
         } else {

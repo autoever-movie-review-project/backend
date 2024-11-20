@@ -18,59 +18,54 @@ public interface MovieRepository extends JpaRepository<Movie, Long> {
             "LEFT JOIN FETCH m.movieGenres " +
             "WHERE LOWER(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(m.title, ' ', ''), ':', ''), 'Ⅱ', '2'), 'Ⅲ', '3'), 'Ⅳ', '4')) " +
             "LIKE LOWER(CONCAT('%', REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(:title, ' ', ''), ':', ''), 'Ⅱ', '2'), 'Ⅲ', '3'), 'Ⅳ', '4'), '%')) " +
-            "AND (:startDate IS NULL OR :endDate IS NULL OR m.releaseDate BETWEEN :startDate AND :endDate)")
+            "AND (:startDate IS NULL OR :endDate IS NULL OR m.releaseDate BETWEEN :startDate AND :endDate) " +
+            "AND m.backdropImg IS NOT NULL")
     Optional<Movie> findByTitleAndReleaseDateRange(
             @Param("title") String title,
             @Param("startDate") LocalDate startDate,
             @Param("endDate") LocalDate endDate
     );
-
-
     boolean existsByTitleAndReleaseDate(String title, LocalDate releaseDate);
 
-    // TMDB ID가 존재하는지 확인
     @Query("SELECT m.tmdbId FROM Movie m WHERE m.tmdbId IN :tmdbIds")
     List<Long> findTmdbIds(@Param("tmdbIds") List<Long> tmdbIds);
 
-    // mainGenre로 영화 조회
     Page<Movie> findByMovieGenres_Genre_MainGenre(String mainGenre, Pageable pageable);
 
-    // 개봉일 기준으로 영화 조회
     Page<Movie> findByReleaseDateAfterOrderByReleaseDateAsc(LocalDate date, Pageable pageable);
 
-    // 평점 및 조건을 기반으로 영화 조회
     @Query("SELECT m FROM Movie m " +
             "WHERE m.popularity >= 80 " +
             "AND m.runtime >= 60 " +
             "AND m.voteCount >= 10000 " +
-            "AND m.rating >= 7.5")
+            "AND m.rating >= 7.5 " +
+            "AND m.backdropImg IS NOT NULL")
     Page<Movie> findTopRatedMovies(Pageable pageable);
 
-
-    // mainGenre 또는 genre로 영화 조회
     @Query("SELECT m FROM Movie m " +
             "JOIN m.movieGenres mg " +
             "JOIN mg.genre g " +
             "WHERE (g.mainGenre = :genre OR g.genre = :genre) " +
             "AND m.rating >= 4 " +
             "AND m.runtime >= 60 " +
-            "AND m.voteCount >= 500")
+            "AND m.voteCount >= 500 " +
+            "AND m.backdropImg IS NOT NULL")
     Page<Movie> findByFilteredGenre(@Param("genre") String genre, Pageable pageable);
 
-    //검색
     @Query("SELECT DISTINCT m FROM Movie m " +
             "LEFT JOIN m.movieGenres mg " +
             "LEFT JOIN mg.genre g " +
-            "WHERE m.title LIKE %:keyword% " +
+            "WHERE (m.title LIKE %:keyword% " +
             "OR g.genre LIKE %:keyword% " +
-            "OR g.mainGenre LIKE %:keyword%")
+            "OR g.mainGenre LIKE %:keyword%) " +
+            "AND m.backdropImg IS NOT NULL")
     Page<Movie> searchMoviesByKeyword(@Param("keyword") String keyword, Pageable pageable);
 
-    // 리뷰 수를 기반으로 영화 검색
     @Query(value = "SELECT m.movie_id AS movieId, COUNT(r.review_id) AS reviewCount " +
             "FROM review r " +
             "JOIN movie m ON r.movie_id = m.movie_id " +
             "WHERE r.created_at BETWEEN :startDate AND :endDate " +
+            "AND m.backdropImg IS NOT NULL " +
             "GROUP BY m.movie_id " +
             "ORDER BY reviewCount DESC " +
             "LIMIT :limit",
@@ -79,5 +74,17 @@ public interface MovieRepository extends JpaRepository<Movie, Long> {
                                               @Param("endDate") LocalDateTime endDate,
                                               @Param("limit") int limit);
 
-    Optional<Movie>  findByMovieId(Long movieId);
+    Optional<Movie> findByMovieId(Long movieId);
+
+    @Query("SELECT m FROM Movie m " +
+            "WHERE m.language IN :languages " +
+            "AND m.voteCount >= :minVotes " +
+            "AND m.backdropImg IS NOT NULL " +
+            "ORDER BY m.popularity DESC")
+    List<Movie> findTop50ByPopularityAndLanguage(@Param("languages") List<String> languages, @Param("minVotes") int minVotes);
+
+    @Query("SELECT m FROM Movie m " +
+            "WHERE m.backdropImg IS NOT NULL " +
+            "ORDER BY m.popularity DESC")
+    List<Movie> findTop50ByOrderByPopularityDesc();
 }

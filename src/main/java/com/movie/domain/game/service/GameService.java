@@ -82,6 +82,11 @@ public class GameService {
         Game game = gameRepository.findById(gameId)
                 .orElseThrow(GameIdNotFoundException::new);
 
+        // 게임 참여자 수가 1명일 경우 게임 시작 불가 예외 처리
+        if(game.getPlayerCount()<2) {
+            throw new IllegalArgumentException("게임 참여 인원이 2명 이상일 경우 시작할 수 있습니다");
+        }
+
         // start로 status 변경
         game.gameStart();
 

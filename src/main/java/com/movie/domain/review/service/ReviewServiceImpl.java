@@ -8,12 +8,14 @@ import com.movie.domain.pointHistory.dao.PointHistoryRepository;
 import com.movie.domain.pointHistory.domain.PointHistory;
 import com.movie.domain.rank.dao.RankRepository;
 import com.movie.domain.rank.domain.Rank;
+import com.movie.domain.recommendation.service.RecommendationService;
 import com.movie.domain.review.constant.ReviewExceptionMessage;
 import com.movie.domain.review.dao.ReviewRepository;
 import com.movie.domain.review.domain.Review;
 import com.movie.domain.review.dto.ReviewReqDto;
 import com.movie.domain.review.dto.ReviewResDto;
 import com.movie.domain.review.exception.ReviewNotFoundException;
+import com.movie.domain.spoilerReview.dao.SpoilerReviewRepository;
 import com.movie.domain.user.dao.UserRepository;
 import com.movie.domain.user.domain.User;
 import com.movie.global.exception.ForbiddenException;
@@ -39,6 +41,8 @@ public class ReviewServiceImpl implements ReviewService {
     private final SecurityUtils securityUtils;
     private final LikeReviewRepository likeReviewRepository;
     private final PointHistoryRepository pointHistoryRepository;
+    private final RecommendationService recommendationService;
+    private final SpoilerReviewRepository spoilerReviewRepository;
 
     private User getLoginUser() {
         String loginUserEmail = securityUtils.getLoginUserEmail();
@@ -53,6 +57,10 @@ public class ReviewServiceImpl implements ReviewService {
         Movie movie = movieRepository.findById(reviewReqDto.getMovieId())
                 .orElseThrow(() -> new MovieNotFoundException(ReviewExceptionMessage.REVIEW_MOVIE_NOT_FOUND.getMessage()));
 
+<<<<<<< HEAD
+=======
+        //10점기준
+>>>>>>> d36a571f168a55056da01bdfd9fd05c43974f243
         Double doubleRating = reviewReqDto.getRating()*2;
         Review review = Review.builder()
                 .user(writer)
@@ -66,8 +74,12 @@ public class ReviewServiceImpl implements ReviewService {
         movie.updateRating(doubleRating, true);
         movieRepository.save(movie);
 
-        updateUserPointsAndRank(writer);
-        return ReviewResDto.entityToResDto(review, false);
+        //5점 기준
+        recommendationService.updatePreferences(reviewReqDto.getMovieId(), reviewReqDto.getRating());
+
+//        updateUserPointsAndRank(writer);
+        return ReviewResDto.entityToResDto(review, false, 0L);
+
     }
 
     @Transactional
@@ -116,6 +128,9 @@ public class ReviewServiceImpl implements ReviewService {
         movie.updateRating(review.getRating(), false);
         movieRepository.save(movie);
 
+        // 해당하는 reviewId를 가진 likeReview 데이터 삭제
+        likeReviewRepository.deleteAllByReviewReviewId(review.getReviewId());
+
         reviewRepository.delete(review);
     }
 
@@ -124,7 +139,7 @@ public class ReviewServiceImpl implements ReviewService {
     public ReviewResDto findOneReview(Long reviewId) {
         Review review = reviewRepository.findByIdWithDetails(reviewId)
                 .orElseThrow(() -> new ReviewNotFoundException(ReviewExceptionMessage.REVIEW_NOT_FOUND.getMessage()));
-        return ReviewResDto.entityToResDto(review, false);
+        return ReviewResDto.entityToResDto(review, false, 0L);
     }
 
     @Override
@@ -135,7 +150,8 @@ public class ReviewServiceImpl implements ReviewService {
         return reviews.stream()
                 .map(review -> {
                     boolean liked = likeReviewRepository.existsByUser_UserIdAndReview_ReviewId(user.getUserId(), review.getReviewId());
-                    return ReviewResDto.entityToResDto(review, liked);
+                    Long spoilerCount = spoilerReviewRepository.countByReviewReviewId(review.getReviewId());
+                    return ReviewResDto.entityToResDto(review, liked, spoilerCount);
                 })
                 .collect(Collectors.toList());
     }
@@ -148,7 +164,7 @@ public class ReviewServiceImpl implements ReviewService {
         return myReviews.stream()
                 .map(review -> {
                     boolean liked = likeReviewRepository.existsByUser_UserIdAndReview_ReviewId(loginUser.getUserId(), review.getReviewId());
-                    return ReviewResDto.entityToResDto(review, liked);
+                    return ReviewResDto.entityToResDto(review, liked, 0L);
                 })
                 .collect(Collectors.toList());
     }

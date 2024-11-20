@@ -12,6 +12,7 @@ public record ReviewDto(
         String rankImg,
         Long movieId,
         String content,
+        String mainImg,
         int likesCount, // 리뷰 좋아요 수
         double rating // 평점
 ) {
@@ -25,6 +26,7 @@ public record ReviewDto(
                 review.getUser().getRank().getRankImg(),
                 review.getMovie().getMovieId(),
                 review.getContent(),
+                review.getMovie().getMainImg(),
                 review.getLikesCount(),
                 review.getRating()
         );

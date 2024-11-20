@@ -5,6 +5,7 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.redis.core.RedisHash;
 import org.springframework.data.redis.core.TimeToLive;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -13,7 +14,7 @@ import java.util.concurrent.TimeUnit;
 @AllArgsConstructor
 @Builder
 @RedisHash(value = "topReviewMovieInfo") // Redis 저장 키: topReviewMovieInfo:{targetDate}
-public class TopReviewMovieInfo {
+public class TopReviewMovieInfo  {
 
     @Id
     private String targetDate;
@@ -29,6 +30,7 @@ public class TopReviewMovieInfo {
         private String rank;            // 순위
         private Long reviewCount;       // 일주일 간 리뷰 수
         private String mainImg;
+        private String backdropImg;
         private Double rating;
         private String title;
         private List<String> genres;
