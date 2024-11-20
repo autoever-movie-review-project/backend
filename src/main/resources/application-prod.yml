@@ -16,7 +16,6 @@ spring:
       static-locations: classpath:/dist/
       add-mappings: false
 
-
   jpa:
     database-platform: org.hibernate.dialect.MariaDBDialect
     properties:
@@ -81,7 +80,7 @@ server:
       charset: UTF-8
     contextPath: /api
   address: 0.0.0.0
-  port: 8080
+  port: 8083
   compression:
     enabled: true
     mime-types: application/json,application/xml,text/html,text/xml,text/plain,application/javascript,text/css
