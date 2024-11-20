@@ -57,10 +57,7 @@ public class ReviewServiceImpl implements ReviewService {
         Movie movie = movieRepository.findById(reviewReqDto.getMovieId())
                 .orElseThrow(() -> new MovieNotFoundException(ReviewExceptionMessage.REVIEW_MOVIE_NOT_FOUND.getMessage()));
 
-<<<<<<< HEAD
-=======
         //10점기준
->>>>>>> d36a571f168a55056da01bdfd9fd05c43974f243
         Double doubleRating = reviewReqDto.getRating()*2;
         Review review = Review.builder()
                 .user(writer)
