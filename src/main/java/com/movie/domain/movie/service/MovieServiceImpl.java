@@ -50,6 +50,7 @@ public class MovieServiceImpl implements MovieService {
     public List<MovieListResDto> findMoviesByMainGenre(String genre, int page) {
         PageRequest pageRequest = PageRequest.of(page, PAGE_SIZE);
         return movieRepository.findByFilteredGenre(genre, pageRequest).stream()
+                .filter(movie -> movie.getBackdropImg() != null)
                 .map(MovieListResDto::entityToResDto)
                 .collect(Collectors.toList());
     }
@@ -59,6 +60,7 @@ public class MovieServiceImpl implements MovieService {
     public List<MovieListResDto> findUpcomingMovies(int page) {
         PageRequest pageRequest = PageRequest.of(page, PAGE_SIZE);
         return movieRepository.findByReleaseDateAfterOrderByReleaseDateAsc(LocalDate.now(), pageRequest).stream()
+                .filter(movie -> movie.getBackdropImg() != null)
                 .map(MovieListResDto::entityToResDto)
                 .collect(Collectors.toList());
     }
@@ -66,22 +68,19 @@ public class MovieServiceImpl implements MovieService {
     @Override
     @Transactional(readOnly = true)
     public List<MovieListResDto> findTopRatedMovies(int page) {
-
         PageRequest pageRequest = PageRequest.of(page, PAGE_SIZE);
-
-        List<MovieListResDto> movies = movieRepository.findTopRatedMovies(pageRequest).stream()
+        return movieRepository.findTopRatedMovies(pageRequest).stream()
+                .filter(movie -> movie.getBackdropImg() != null)
                 .map(MovieListResDto::entityToResDto)
                 .collect(Collectors.toList());
-
-        return movies;
     }
-
 
     @Override
     @Transactional(readOnly = true)
     public List<MovieListResDto> findAllMovies(int page) {
         PageRequest pageRequest = PageRequest.of(page, PAGE_SIZE);
         return movieRepository.findAll(pageRequest).stream()
+                .filter(movie -> movie.getBackdropImg() != null)
                 .map(MovieListResDto::entityToResDto)
                 .collect(Collectors.toList());
     }
@@ -89,15 +88,13 @@ public class MovieServiceImpl implements MovieService {
     @Override
     @Transactional(readOnly = true)
     public List<MovieListResDto> searchMovies(String keyword, int page) {
-        // 키워드가 null이거나 빈 문자열일 경우 빈 결과 반환
         if (keyword == null || keyword.isBlank()) {
             return Collections.emptyList();
         }
 
         PageRequest pageRequest = PageRequest.of(page, PAGE_SIZE);
-
-        return movieRepository.searchMoviesByKeyword(keyword, pageRequest)
-                .stream()
+        return movieRepository.searchMoviesByKeyword(keyword, pageRequest).stream()
+                .filter(movie -> movie.getBackdropImg() != null)
                 .map(MovieListResDto::entityToResDto)
                 .collect(Collectors.toList());
     }

@@ -25,6 +25,8 @@ public interface MovieRepository extends JpaRepository<Movie, Long> {
             @Param("startDate") LocalDate startDate,
             @Param("endDate") LocalDate endDate
     );
+
+
     boolean existsByTitleAndReleaseDate(String title, LocalDate releaseDate);
 
     @Query("SELECT m.tmdbId FROM Movie m WHERE m.tmdbId IN :tmdbIds")
