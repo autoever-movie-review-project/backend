@@ -6,6 +6,7 @@ import org.springframework.data.redis.core.RedisHash;
 import org.springframework.data.redis.core.TimeToLive;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -40,5 +41,10 @@ public class TopReviewMovieInfo  {
         public void updateRank(String rank) {
             this.rank = rank;
         }
+
+        public void updateBackdropImg(String backdropImg) {
+            this.backdropImg = backdropImg;
+        }
+
     }
 }

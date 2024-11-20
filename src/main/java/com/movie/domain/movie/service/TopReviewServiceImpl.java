@@ -7,6 +7,7 @@ import com.movie.domain.movie.domain.TopReviewMovieInfo;
 import com.movie.domain.movie.dto.response.TopReviewedMoviesResDto;
 import com.movie.domain.movie.exception.MovieNotFoundException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
@@ -20,6 +21,7 @@ import java.util.stream.IntStream;
 
 import static com.movie.domain.movie.constant.MovieExceptionMessage.MOVIE_NOT_FOUND;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class TopReviewServiceImpl implements TopReviewService {
@@ -33,11 +35,18 @@ public class TopReviewServiceImpl implements TopReviewService {
         String redisKey = "topReviewMovieInfo";
 
         // 1. Redis에서 데이터 확인
+        log.info("Checking if data exists in Redis with key: {}", redisKey);
         Optional<TopReviewMovieInfo> cachedReviewInfo = redisRepository.findById(redisKey);
 
         if (cachedReviewInfo.isPresent()) {
             TopReviewMovieInfo reviewInfo = cachedReviewInfo.get();
             Long ttl = redisTemplate.getExpire(redisKey, TimeUnit.SECONDS);
+
+            // 백드롭 이미지 확인 및 업데이트
+            boolean isUpdated = updateMissingBackdropImagesInRedis(reviewInfo);
+            if (isUpdated) {
+                redisRepository.save(reviewInfo);
+            }
 
             if (ttl != null && ttl <= 600) {
                 // Redis 데이터가 곧 만료될 경우 새 데이터를 가져와 갱신
@@ -66,6 +75,29 @@ public class TopReviewServiceImpl implements TopReviewService {
                 .collect(Collectors.toList());
     }
 
+    private boolean updateMissingBackdropImagesInRedis(TopReviewMovieInfo reviewInfo) {
+        boolean isUpdated = false;
+
+        for (TopReviewMovieInfo.MovieDetail detail : reviewInfo.getReviews()) {
+            if (detail.getBackdropImg() == null) {
+                log.info("Backdrop image missing for movieId: {}", detail.getMovieId());
+
+                // DB에서 백드롭 이미지 가져오기
+                Movie movie = movieRepository.findById(detail.getMovieId())
+                        .orElseThrow(() -> new MovieNotFoundException(MOVIE_NOT_FOUND.getMessage()));
+
+                String backdropImg = movie.getBackdropImg();
+                if (backdropImg != null) {
+                    log.info("Updating backdrop image for movieId: {}", detail.getMovieId());
+                    detail.updateBackdropImg(backdropImg);
+                    isUpdated = true;
+                }
+            }
+        }
+
+        return isUpdated;
+    }
+
     private List<TopReviewMovieInfo.MovieDetail> fetchTopReviewMoviesFromDatabase() {
         LocalDateTime endDate = LocalDateTime.now();
         LocalDateTime startDate = endDate.minusDays(7);
@@ -88,6 +120,7 @@ public class TopReviewServiceImpl implements TopReviewService {
                             .rank(String.valueOf(index + 1))
                             .reviewCount(reviewCount)
                             .mainImg(movie.getMainImg())
+                            .backdropImg(movie.getBackdropImg())
                             .rating(movie.getRating())
                             .title(movie.getTitle())
                             .genres(movie.getMovieGenres().stream()
@@ -108,20 +141,5 @@ public class TopReviewServiceImpl implements TopReviewService {
                 .build();
 
         redisRepository.save(reviewInfo);
-    }
-
-    // 제목 내 로마 숫자와 아라비아 숫자를 동일하게 취급
-    private String normalizeTitle(String title) {
-        // 로마 숫자와 아라비아 숫자 변환
-        title = title.replace("Ⅱ", "2");
-        title = title.replace("Ⅲ", "3");
-        title = title.replace("Ⅳ", "4");
-        title = title.replace("Ⅴ", "5");
-        title = title.replace("Ⅵ", "6");
-        title = title.replace("Ⅶ", "7");
-        title = title.replace("Ⅷ", "8");
-        title = title.replace("Ⅸ", "9");
-        title = title.replace("Ⅹ", "10");
-        return title;
     }
 }
