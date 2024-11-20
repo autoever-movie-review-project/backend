@@ -233,7 +233,7 @@ public class RecommendationServiceImpl implements RecommendationService {
         for (MovieActors movieActor : movie.getMovieActors()) {
             Actor actor = movieActor.getActor();
             UserActorPreference preference = userActorPreferenceRepository.findByUserAndActor(user, actor);
-            double scoreToAdd = weight * 5.0;
+            double scoreToAdd = weight * 1.0;
 
             if (preference != null) {
                 preference.updateScore(scoreToAdd);
@@ -253,7 +253,7 @@ public class RecommendationServiceImpl implements RecommendationService {
         for (MovieDirectors movieDirector : movie.getMovieDirectors()) {
             Director director = movieDirector.getDirector();
             UserDirectorPreference preference = userDirectorPreferenceRepository.findByUserAndDirector(user, director);
-            double scoreToAdd = weight * 3.0;
+            double scoreToAdd = weight * 2.0;
 
             if (preference != null) {
                 preference.updateScore(scoreToAdd);
@@ -273,7 +273,7 @@ public class RecommendationServiceImpl implements RecommendationService {
         for (MovieGenres movieGenre : movie.getMovieGenres()) {
             Genre genre = movieGenre.getGenre();
             UserGenrePreference preference = userGenrePreferenceRepository.findByUserAndGenre(user, genre);
-            double scoreToAdd = weight * 2.0;
+            double scoreToAdd = weight * 3.0;
 
             if (preference != null) {
                 preference.updateScore(scoreToAdd);
