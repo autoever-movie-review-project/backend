@@ -37,13 +37,7 @@ public class Game{
         this.status = GameStatus.WAITING;
     }
 
-    public void setPlayerCountUp() {
-        this.playerCount = this.playerCount + 1;
-    }
-
-    public void setPlayerCountDown() {
-        this.playerCount = this.playerCount - 1;
-    }
+    public void setPlayerCount(Long playerCount) {this.playerCount = playerCount;}
 
     public void setHostId(Long userId) {
         this.hostId = userId;
