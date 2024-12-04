@@ -1,0 +1,127 @@
+management:
+  health:
+    diskspace:
+      enabled: true
+    default:
+      enabled: true
+    db:
+      enabled: true
+  servlet:
+    context-path: /manage
+spa:
+  default-file: /dist/index.html5
+spring:
+  web:
+    resources:
+      static-locations: classpath:/dist/
+      add-mappings: false
+
+  jpa:
+    database-platform: org.hibernate.dialect.MariaDBDialect
+    properties:
+      hibernate:
+        format_sql: true
+        show_sql: false
+    hibernate:
+      ddl-auto: update
+
+
+  datasource:
+    url: ${secret.datasource.url}
+    username: ${secret.datasource.username}
+    password: ${secret.datasource.password}
+    driver-class-name : org.mariadb.jdbc.Driver
+  #    hikari:
+  #      connection-timeout: 30000    # 연결 타임아웃 (밀리초). 30초로 설정 (기본값: 30초)
+  #      minimum-idle: 5              # 최소 유휴 연결 수
+  #      maximum-pool-size: 10        # 최대 연결 풀 크기
+  #      idle-timeout: 600000         # 유휴 연결 타임아웃 (밀리초). 기본값은 10분
+  #      max-lifetime: 1800000        # 연결의 최대 수명 (밀리초). 기본값은 30분
+
+  data:
+    web:
+      pageable:
+        one-indexed-parameters: true
+  mvc:
+    throw-exception-if-no-handler-found: true
+  devtools:
+    livereload:
+      enabled: "true"
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ${secret.mail.username}
+    password: ${secret.mail.password}
+    properties:
+      mail.smtp.auth: true
+      mail.smtp.starttls.enable: true
+  redis:
+    host: ${secret.redis.host}
+    port: ${secret.redis.port}
+    password: ${secret.redis.password}
+logging:
+  level:
+    org:
+      hibernate.SQL: DEBUG
+      hibernate.type.descriptor.sql.BasicBinder: TRACE
+      spring.boot: DEBUG
+      spring.security: DEBUG
+      spring.web: DEBUG
+      apache.tiles: INFO
+    root: INFO
+    com.samsung.security: DEBUG
+server:
+  error:
+    include-stacktrace: never
+  servlet:
+    encoding:
+      enabled: true
+      force: true
+      charset: UTF-8
+    contextPath: /api
+  address: 0.0.0.0
+  port: 8080
+  compression:
+    enabled: true
+    mime-types: application/json,application/xml,text/html,text/xml,text/plain,application/javascript,text/css
+build:
+  date: "@build.date@"
+jwt:
+  refresh-expired-in: '1296000000'  # Refresh Token 만료 시간 (15일)
+  access-expired-in: '3600000' # Access Token 만료 시간 (1시간)
+  cookieName: refreshToken
+  secret: ${secret-jwt.secret}
+springfox:
+  documentation:
+    swagger:
+      use-model-v3: false
+kakao:
+  oauth2:
+    client-id: ${secret.kakao.client-id}
+    redirect-uri: ${secret.kakao.redirect-uri}
+    token-uri: "https://kauth.kakao.com/oauth/token"
+    user-info-uri: "https://kapi.kakao.com/v2/user/me"
+
+movie:
+  kofic:
+    api:
+      key: ${secret.kofic.api-key}
+      url: http://www.kobis.or.kr/kobisopenapi/webservice/rest/boxoffice/searchDailyBoxOfficeList.json
+
+  tmdb:
+    api:
+      key: ${secret.tmdb.api-key}
+      url: https://api.themoviedb.org/3
+
+cloud:
+  aws:
+    credentials:
+      accessKey: ${secret.cloud.accessKey}
+      secretKey: ${secret.cloud.secretKey}
+    s3:
+      bucket: movie-play
+      dir:
+    region:
+      static: ap-northeast-2
+    stack:
+      auto: false
